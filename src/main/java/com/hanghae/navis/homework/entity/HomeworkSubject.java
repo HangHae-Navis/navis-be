@@ -1,4 +1,4 @@
-package com.hanghae.navis.board.entity;
+package com.hanghae.navis.homework.entity;
 
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
@@ -10,23 +10,18 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "board")
+@Entity(name = "homeworksubject")
 @Getter
 @NoArgsConstructor
-public class Board extends TimeStamped {
+public class HomeworkSubject extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
-    private String content;
-
     @ManyToOne
     private User user;
-
     @ManyToOne
     private Group group;
 
-    @OneToMany(mappedBy = "board")
-    private List<Comment> commentList = new ArrayList<>();
+    @OneToMany(mappedBy = "homeworkSubject")
+    List<HomeworkSubjectFile> homeworkSubjectFileList = new ArrayList<>();
 }

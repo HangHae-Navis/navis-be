@@ -1,7 +1,12 @@
 package com.hanghae.navis.user.entity;
 
+import com.hanghae.navis.board.entity.Board;
+import com.hanghae.navis.board.entity.Comment;
+import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.UserGroupList;
+import com.hanghae.navis.homework.entity.Homework;
+import com.hanghae.navis.homework.entity.HomeworkComment;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +17,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Entity(name = "users")
-public class User {
+public class User extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +29,8 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @Column(nullable = false, unique = true)
     private String nickname;
@@ -41,11 +48,25 @@ public class User {
     @OneToMany(mappedBy = "user")
     List<UserGroupList> userGroupList = new ArrayList<>();
 
-    public User(String username,String nickname, String password, UserRoleEnum role) {
+    @OneToMany(mappedBy = "user")
+    List<Board> boardList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    List<Comment> commentList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    List<Homework> homeworkList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    List<HomeworkComment> homeworkCommentList = new ArrayList<>();
+
+
+    public User(String username, String nickname, String password, String email, UserRoleEnum userRoleEnum) {
         this.username = username;
         this.nickname = nickname;
         this.password = password;
-        this.role = role;
+        this.email = email;
+        this.role = userRoleEnum;
     }
 
 }

@@ -1,4 +1,4 @@
-package com.hanghae.navis.board.entity;
+package com.hanghae.navis.meet.entity;
 
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
@@ -7,19 +7,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
-@Entity(name = "board")
+@Entity(name = "meetroom")
 @Getter
 @NoArgsConstructor
-public class Board extends TimeStamped {
+public class MeetRoom extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
-    private String content;
 
     @ManyToOne
     private User user;
@@ -27,6 +22,5 @@ public class Board extends TimeStamped {
     @ManyToOne
     private Group group;
 
-    @OneToMany(mappedBy = "board")
-    private List<Comment> commentList = new ArrayList<>();
+    Long participantCount;
 }

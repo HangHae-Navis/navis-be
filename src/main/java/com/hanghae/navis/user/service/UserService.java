@@ -37,12 +37,12 @@ public class UserService {
 
     @Transactional
     public ResponseEntity<Message> signup(SignupRequestDto signupRequestDto) {
-        String username = signupRequestDto.getUsername();
+        String userId = signupRequestDto.getUsername();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
         String nickname = signupRequestDto.getNickname();
 
         // 회원 중복 확인
-        Optional<User> found = userRepository.findByUsername(username);
+        Optional<User> found = userRepository.findByUsername(userId);
 
         if (found.isPresent()) {
             throw new CustomException(DUPLICATE_USER);
@@ -67,7 +67,7 @@ public class UserService {
             throw new CustomException(NICKNAME_WITH_SPACES);
         }
 
-        User user = new User(username, nickname, password, role);
+        User user = new User(userId, nickname, password, "",role);
         userRepository.save(user);
 
         return Message.toResponseEntity(SIGN_UP_SUCCESS);

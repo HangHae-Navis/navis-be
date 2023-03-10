@@ -3,6 +3,7 @@ package com.hanghae.navis.common.config;
 import com.hanghae.navis.common.jwt.JwtAuthFilter;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -33,11 +34,12 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> {
             web.ignoring()
+                    .requestMatchers(PathRequest.toH2Console())
+                    .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                     .antMatchers(
                             "/images/**",
                             "/js/**",
@@ -70,6 +72,7 @@ public class WebSecurityConfig {
         http.authorizeRequests().antMatchers("/api/user/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/travel").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/travel/**").permitAll()
+                .antMatchers("/**").permitAll()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위한 설정

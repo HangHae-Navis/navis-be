@@ -1,6 +1,8 @@
 package com.hanghae.navis.group.entity;
 
 import com.hanghae.navis.common.entity.TimeStamped;
+import com.hanghae.navis.homework.entity.Homework;
+import com.hanghae.navis.meet.entity.MeetRoom;
 import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,4 +29,10 @@ public class Group extends TimeStamped {
     private User user;
     @OneToMany(mappedBy = "group")
     List<UserGroupList> userGroupList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "group")
+    List<MeetRoom> meetRoomList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "group")
+    List<Homework> homeworkList = new ArrayList<>();
 }
