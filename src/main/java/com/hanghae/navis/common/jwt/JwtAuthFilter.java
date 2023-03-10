@@ -1,7 +1,7 @@
 package com.hanghae.navis.common.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.onetwoday.dto.Message;
+import com.hanghae.navis.common.dto.Message;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
