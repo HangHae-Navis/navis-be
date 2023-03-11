@@ -1,5 +1,6 @@
 package com.hanghae.navis.board.entity;
 
+import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.common.entity.TimeStamped;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,4 +20,9 @@ public class BoardFile extends TimeStamped {
 
     @ManyToOne
     private Board board;
+
+    public BoardFile(BoardRequestDto requestDto, Board board) {
+        this.fileUrl = String.valueOf(requestDto.getFileUrl());
+        this.board = board;
+    }
 }

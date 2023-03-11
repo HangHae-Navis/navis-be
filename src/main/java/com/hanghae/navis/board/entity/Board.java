@@ -1,5 +1,6 @@
 package com.hanghae.navis.board.entity;
 
+import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.user.entity.User;
@@ -29,4 +30,10 @@ public class Board extends TimeStamped {
 
     @OneToMany(mappedBy = "board")
     private List<Comment> commentList = new ArrayList<>();
+
+    public Board(BoardRequestDto requestDto, User user, Group group) {
+        this.content = requestDto.getContent();
+        this.user = user;
+        this.group = group;
+    }
 }
