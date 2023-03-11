@@ -30,10 +30,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-
     private final PasswordEncoder passwordEncoder;
 
-    private static final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
     @Transactional
     public ResponseEntity<Message> signup(SignupRequestDto signupRequestDto) {
@@ -55,12 +53,6 @@ public class UserService {
 
         // 사용자 ROLE 확인
         UserRoleEnum role = UserRoleEnum.USER;
-        if (signupRequestDto.isAdmin()) {
-            if (!signupRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
-                throw new CustomException(UNAUTHORIZED_ADMIN);
-            }
-            role = UserRoleEnum.ADMIN;
-        }
 
         //닉네임이 공백포함인지 확인
         if(nickname.replaceAll(" ","").equals("")) {
