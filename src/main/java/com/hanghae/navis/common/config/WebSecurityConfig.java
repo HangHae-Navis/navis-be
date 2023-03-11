@@ -39,13 +39,8 @@ public class WebSecurityConfig {
         return web -> {
             web.ignoring()
                     .requestMatchers(PathRequest.toH2Console())
-                    .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                    .antMatchers(
-                            "/images/**",
-                            "/js/**",
-                            "/css/**",
-                            "/templates/**"
-                            );
+                    .antMatchers("/swagger-ui/**", "/v3/api-docs/**, /docs/**")
+                    .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
         };
     }
     @Bean

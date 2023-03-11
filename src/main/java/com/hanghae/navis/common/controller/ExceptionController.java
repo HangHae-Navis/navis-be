@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.validation.ConstraintViolationException;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.DUPLICATE_RESOURCE;
+import static com.hanghae.navis.common.entity.ExceptionMessage.UNAUTHORIZED_MEMBER;
 
 
 @Slf4j
@@ -33,18 +34,18 @@ public class ExceptionController {
 
     //정규식
     @ExceptionHandler({BindException.class})
-    public ResponseEntity bindException(BindException ex) {
-        return new Message().toAllExceptionResponseEntity(HttpStatus.BAD_REQUEST, ex.getFieldError().getDefaultMessage(), ex.getBindingResult().getTarget());
+    public ResponseEntity<Message> bindException(BindException ex) {
+        return Message.toAllExceptionResponseEntity(HttpStatus.BAD_REQUEST, ex.getFieldError().getDefaultMessage(), ex.getBindingResult().getTarget());
     }
 
     //마이리스트 토큰 없을시
     @ExceptionHandler({MissingRequestHeaderException.class})
-    public ResponseEntity missingRequestHeaderException(MissingRequestHeaderException ex) {
-        return new Message().toAllExceptionResponseEntity(HttpStatus.BAD_REQUEST, "로그인이 되어있지 않습니다.", null);
+    public ResponseEntity<Message> missingRequestHeaderException(MissingRequestHeaderException ex) {
+        return Message.toAllExceptionResponseEntity(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_MEMBER.getDetail(), null);
     }
     // 500
     @ExceptionHandler({Exception.class})
-    public ResponseEntity handleAll(final Exception ex) {
-        return new Message().toAllExceptionResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage(), ex.toString());
+    public ResponseEntity<Message> handleAll(final Exception ex) {
+        return Message.toAllExceptionResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage(), ex.toString());
     }
 }
