@@ -88,7 +88,7 @@ public class UserService {
 
         String token = jwtUtil.createToken(user.get().getUsername(), user.get().getRole());
         LoginResponseDto loginResponseDto = new LoginResponseDto(userRepository.findByNickname(user.get().getNickname()).get().getNickname(), token);
-        return new Message().toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
+        return Message.toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
     }
 
     public ResponseEntity<Message> userInfo(UserDetailsImpl user) {
@@ -99,6 +99,6 @@ public class UserService {
 
         UserInfoResponseDto userInfoResponseDto = new UserInfoResponseDto (id, username, nickname);
 //        return new Message().toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
-        return new Message().toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
+        return Message.toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
     }
 }
