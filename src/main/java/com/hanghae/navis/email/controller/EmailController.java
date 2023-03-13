@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Email;
+
 @Tag(name = "email")
 @Controller
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class EmailController {
 
     @PostMapping("/confirm")
     @Operation(summary = "인증 코드 전송", description ="인증 코드 전송")
-    public ResponseEntity<Message> sendMail(@RequestParam String email) throws Exception {
+    public ResponseEntity<Message> sendMail(@RequestParam @Email String email) throws Exception {
         return emailService.sendMail(email);
     }
 }
