@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/comments")
 public class CommentController {
-    private CommentService commentService;
+    private final CommentService commentService;
 
     @GetMapping("/{boardId}")
     @Operation(summary = "댓글 리스트", description = "댓글 리스트")
