@@ -28,10 +28,6 @@ public class User extends TimeStamped {
 
     @Column(nullable = false, unique = true)
     private String username;
-
-    @Column(nullable = false, unique = true)
-    private String email;
-
     @Column(nullable = false, unique = true)
     private String nickname;
 
@@ -63,20 +59,18 @@ public class User extends TimeStamped {
     List<HomeworkComment> homeworkCommentList = new ArrayList<>();
 
 
-    public User(String username, String nickname, String password, String email, UserRoleEnum userRoleEnum) {
+    public User(String username, String nickname, String password, UserRoleEnum userRoleEnum) {
         this.username = username;
         this.nickname = nickname;
         this.password = password;
-        this.email = email;
         this.role = userRoleEnum;
     }
 
-    public User(String username, String nickname, Long kakaoId, String password, String email, UserRoleEnum role) {
+    public User(String username, String nickname, Long kakaoId, String password, UserRoleEnum role) {
         this.username = username;
         this.nickname = nickname;
         this.kakaoId = kakaoId;
         this.password = password;
-        this.email = email;
         this.role = role;
     }
 

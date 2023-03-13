@@ -4,6 +4,7 @@ import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.security.UserDetailsImpl;
+import com.hanghae.navis.common.util.RedisUtil;
 import com.hanghae.navis.user.dto.LoginRequestDto;
 import com.hanghae.navis.user.dto.LoginResponseDto;
 import com.hanghae.navis.user.dto.SignupRequestDto;
@@ -31,16 +32,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
-
-
+    private final RedisUtil redisUtil;
     @Transactional
     public ResponseEntity<Message> signup(SignupRequestDto signupRequestDto) {
-        String userId = signupRequestDto.getUsername();
+        String username = signupRequestDto.getUsername();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
         String nickname = signupRequestDto.getNickname();
 
         // 회원 중복 확인
-        Optional<User> found = userRepository.findByUsername(userId);
+        Optional<User> found = userRepository.findByUsername(username);
 
         if (found.isPresent()) {
             throw new CustomException(DUPLICATE_USER);
@@ -59,7 +59,7 @@ public class UserService {
             throw new CustomException(NICKNAME_WITH_SPACES);
         }
 
-        User user = new User(userId, nickname, password, "",role);
+        User user = new User(username, nickname, password, role);
         userRepository.save(user);
 
         return Message.toResponseEntity(SIGN_UP_SUCCESS);
