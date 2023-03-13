@@ -58,6 +58,12 @@ dependencies {
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
 
+    //회원가입 메일 구현
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    
+    //레디스
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 }
 
 

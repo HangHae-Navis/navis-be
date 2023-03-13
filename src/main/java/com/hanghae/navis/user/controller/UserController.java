@@ -5,6 +5,7 @@ import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.security.UserDetailsImpl;
+import com.hanghae.navis.email.service.EmailService;
 import com.hanghae.navis.user.dto.LoginRequestDto;
 import com.hanghae.navis.user.dto.SignupRequestDto;
 import com.hanghae.navis.user.service.KakaoService;
@@ -12,6 +13,7 @@ import com.hanghae.navis.user.service.UserService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +29,7 @@ import javax.validation.Valid;
 import static com.hanghae.navis.common.entity.ExceptionMessage.USER_FORBIDDEN;
 
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@Tag(name = "user")
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/user")

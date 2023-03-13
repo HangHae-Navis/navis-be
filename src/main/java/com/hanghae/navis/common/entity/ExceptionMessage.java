@@ -20,6 +20,8 @@ public enum ExceptionMessage {
     NICKNAME_WITH_SPACES(BAD_REQUEST,"공백이 포함된 닉네임입니다."),
     BUDGET_INVALID_RANGE(BAD_REQUEST,"유효한 범위 내에 있는 예산이 아닙니다."),
     IMAGE_INVALID(BAD_REQUEST,"이미지가 잘못 되었습니다."),
+    EMAIL_CODE_INVALID(BAD_REQUEST,"코드가 유효하지 않습니다."),
+    EMAIL_SEND_FAIL(BAD_REQUEST,"이메일 전송에 실패하였습니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
