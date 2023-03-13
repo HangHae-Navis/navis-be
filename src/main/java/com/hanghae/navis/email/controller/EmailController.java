@@ -23,7 +23,7 @@ public class EmailController {
         return emailService.emailConfirm(key);
     }
 
-    @GetMapping("/sendMail")
+    @GetMapping("/sendmail")
     @Operation(summary = "인증 코드 전송", description ="인증 코드 전송")
     public ResponseEntity<Message> sendMail(@RequestParam String email) throws Exception {
         return emailService.sendMail(email);

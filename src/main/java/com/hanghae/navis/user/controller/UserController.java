@@ -62,10 +62,10 @@ public class UserController {
 
         // Cookie 생성 및 직접 브라우저에 Set
         Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, createToken.substring(7));
-        cookie.setPath("/");
+        cookie.setPath("http://hanghae1teamwork.s3-website.ap-northeast-2.amazonaws.com/");
         response.addCookie(cookie);
 
-        return "redirect:/";
+        return "redirect:http://hanghae1teamwork.s3-website.ap-northeast-2.amazonaws.com/";
     }
 
     @RequestMapping("/forbidden")
