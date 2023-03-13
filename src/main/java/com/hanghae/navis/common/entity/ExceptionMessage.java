@@ -34,6 +34,7 @@ public enum ExceptionMessage {
     MEMBER_NOT_FOUND(NOT_FOUND, "해당 유저 정보를 찾을 수 없습니다"),
     BOARD_NOT_FOUND(NOT_FOUND, "해당 게시물을 찾을 수 없습니다"),
     COMMENT_NOT_FOUND(NOT_FOUND, "해당 댓글을 찾을 수 없습니다"),
+    GROUP_NOT_FOUND(NOT_FOUND, "해당 그룹을 찾을 수 없습니다."),
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "로그아웃 된 사용자입니다"),
     NOT_FOLLOW(NOT_FOUND, "팔로우 중이지 않습니다"),
     LIKE_NOT_FOUND(NOT_FOUND, "좋아요를 취소할 수 없습니다."),

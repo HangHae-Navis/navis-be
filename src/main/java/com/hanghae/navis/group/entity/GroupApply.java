@@ -1,19 +1,21 @@
 package com.hanghae.navis.group.entity;
 
 import com.hanghae.navis.common.entity.TimeStamped;
+import com.hanghae.navis.group.dto.ApplyRequestDto;
 import com.hanghae.navis.user.entity.User;
-import com.hanghae.navis.user.entity.UserRoleEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
+
+@Entity
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@Entity(name = "usergrouplist")
-public class UserGroupList extends TimeStamped {
+public class GroupApply extends TimeStamped {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,14 +26,12 @@ public class UserGroupList extends TimeStamped {
     @ManyToOne
     private Group group;
 
-    @Column(nullable = false)
-    @Enumerated(value = EnumType.STRING)
-    private UserGroupRoleEnum groupRole;
+    private boolean handled;
 
-    public UserGroupList(User user, Group group) {
-        this.user = user;
+
+    public GroupApply(Group group, User user) {
         this.group = group;
-        this.groupRole = UserGroupRoleEnum.USER;
+        this.user = user;
     }
-}
 
+}
