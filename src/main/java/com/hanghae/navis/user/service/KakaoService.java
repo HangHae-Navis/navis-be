@@ -4,8 +4,10 @@ package com.hanghae.navis.user.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.user.dto.KakaoUserInfoDto;
+import com.hanghae.navis.user.dto.LoginResponseDto;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -24,6 +26,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
+import static com.hanghae.navis.common.entity.SuccessMessage.LOGIN_SUCCESS;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,7 +36,7 @@ public class KakaoService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    public String kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public ResponseEntity<Message> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -45,8 +49,9 @@ public class KakaoService {
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
 //        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createToken);
+        LoginResponseDto loginResponseDto = new LoginResponseDto(userRepository.findByNickname(kakaoUser.getNickname()).get().getNickname(), createToken);
 
-        return createToken;
+        return Message.toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
     }
 
     // 1. "인가 코드"로 "액세스 토큰" 요청

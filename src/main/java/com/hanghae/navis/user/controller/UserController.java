@@ -56,15 +56,8 @@ public class UserController {
     }
     @GetMapping("/kakao/callback")
     @Operation(hidden = true)
-    public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        // code: 카카오 서버로부터 받은 인가 코드
-        String createToken = kakaoService.kakaoLogin(code, response);
-
-        // Cookie 생성 및 직접 브라우저에 Set
-        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, createToken.substring(7));
-        response.addCookie(cookie);
-
-        return "redirect:http://hanghae1teamwork.s3-website.ap-northeast-2.amazonaws.com/";
+    public ResponseEntity<Message> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        return kakaoService.kakaoLogin(code, response);
     }
 
     @RequestMapping("/forbidden")
