@@ -38,7 +38,6 @@ dependencies {
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -49,10 +48,20 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
 
+    //websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.webjars:sockjs-client:1.1.2'
+    implementation 'org.webjars:stomp-websocket:2.3.3-1'
 
     //querydsl 추가
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
+
+    //회원가입 메일 구현
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    
+    //레디스
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 }
 
@@ -80,4 +89,8 @@ configurations {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+jar {
+    enabled = false
 }

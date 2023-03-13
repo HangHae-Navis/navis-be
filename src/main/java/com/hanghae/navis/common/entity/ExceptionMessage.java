@@ -20,6 +20,8 @@ public enum ExceptionMessage {
     NICKNAME_WITH_SPACES(BAD_REQUEST,"공백이 포함된 닉네임입니다."),
     BUDGET_INVALID_RANGE(BAD_REQUEST,"유효한 범위 내에 있는 예산이 아닙니다."),
     IMAGE_INVALID(BAD_REQUEST,"이미지가 잘못 되었습니다."),
+    EMAIL_CODE_INVALID(BAD_REQUEST,"코드가 유효하지 않습니다."),
+    EMAIL_SEND_FAIL(BAD_REQUEST,"이메일 전송에 실패하였습니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
@@ -41,7 +43,7 @@ public enum ExceptionMessage {
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다"),
-    DUPLICATE_USER(CONFLICT,"중복된 사용자가 존재합니다."),
+    DUPLICATE_EMAIL(CONFLICT,"중복된 이메일이 존재합니다."),
     DUPLICATE_NICKNAME(CONFLICT,"중복된 닉네임이 존재합니다.");
 
     private final HttpStatus httpStatus;

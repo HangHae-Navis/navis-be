@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+if [ $(id -u) -ne 0 ]; then exec sudo bash "$0" "$@"; exit; fi
 PROJECT_ROOT="/home/ubuntu/app"
 JAR_FILE="$PROJECT_ROOT/spring-webapp.jar"
 

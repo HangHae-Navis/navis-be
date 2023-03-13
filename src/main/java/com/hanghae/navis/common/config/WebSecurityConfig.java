@@ -38,14 +38,9 @@ public class WebSecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> {
             web.ignoring()
-                    .requestMatchers(PathRequest.toH2Console())
-                    .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                    .antMatchers(
-                            "/images/**",
-                            "/js/**",
-                            "/css/**",
-                            "/templates/**"
-                            );
+                    //.requestMatchers(PathRequest.toH2Console())
+                    .antMatchers("/swagger-ui/**", "/v3/api-docs/**, /docs/**")
+                    .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
         };
     }
     @Bean
