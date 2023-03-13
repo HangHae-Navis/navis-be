@@ -23,9 +23,9 @@ public class EmailController {
         return emailService.emailConfirm(key);
     }
 
-    @PostMapping("/confirm")
+    @GetMapping("/sendmail")
     @Operation(summary = "인증 코드 전송", description ="인증 코드 전송")
-    public ResponseEntity<Message> sendMail(@RequestParam @Email String email) throws Exception {
+    public ResponseEntity<Message> sendMail(@RequestParam String email) throws Exception {
         return emailService.sendMail(email);
     }
 }

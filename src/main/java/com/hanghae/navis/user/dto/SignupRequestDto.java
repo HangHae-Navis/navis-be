@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 @Setter
 @Getter
@@ -21,6 +18,7 @@ public class SignupRequestDto {
     private String username;
 
     @NotNull(message = "닉네임은 공백일 수 없습니다.")
+    @Min(value = 1, message = "1글자 이상이어야 합니다.")
     @Schema(example = "테스트")
     private String nickname;
 
