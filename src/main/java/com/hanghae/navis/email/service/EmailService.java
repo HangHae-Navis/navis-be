@@ -8,6 +8,7 @@ import javax.mail.internet.MimeMessage;
 
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.util.RedisUtil;
+import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +23,13 @@ import static com.hanghae.navis.common.entity.SuccessMessage.*;
 @RequiredArgsConstructor
 public class EmailService {
 
+    private final UserRepository userRepository;
     @Autowired
     JavaMailSender emailSender;
     private final RedisUtil redisUtil;
 
     public static final String ePw = createKey();
+
 
     private MimeMessage createMessage(String to) throws Exception {
         System.out.println("보내는 대상 : " + to);
@@ -70,6 +73,10 @@ public class EmailService {
     }
 
     public ResponseEntity<Message> sendMail(String to) throws Exception {
+        if (userRepository.findByUsername(to).isPresent()) {
+            return Message.toExceptionResponseEntity(DUPLICATE_EMAIL);
+        }
+
         MimeMessage sendMessage = createMessage(to);
 
         try {
@@ -81,7 +88,7 @@ public class EmailService {
         return Message.toResponseEntity(EMAIL_SEND_SUCCESS);
     }
 
-    public ResponseEntity<Message> emailConfirm(String key){
+    public ResponseEntity<Message> emailConfirm(String key) {
         //코드가 유효하지 않으면
         if (redisUtil.get(key) == null) {
             return Message.toExceptionResponseEntity(EMAIL_CODE_INVALID);

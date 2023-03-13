@@ -43,12 +43,7 @@ public class UserService {
         Optional<User> found = userRepository.findByUsername(username);
 
         if (found.isPresent()) {
-            throw new CustomException(DUPLICATE_USER);
-        }
-
-        found = userRepository.findByNickname(nickname);
-        if (found.isPresent()) {
-            throw new CustomException(DUPLICATE_NICKNAME);
+            throw new CustomException(DUPLICATE_EMAIL);
         }
 
         // 사용자 ROLE 확인
