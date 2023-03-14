@@ -46,8 +46,10 @@ public class BoardService {
             Board board = new Board(requestDto, user);
 
             for(MultipartFile file : multipartFiles) {
+                String fileTitle = file.getOriginalFilename();
+                System.out.println(fileTitle);
                 String fileUrl = s3Uploader.upload(file);
-                BoardFile boardFile = new BoardFile(fileUrl, board);
+                BoardFile boardFile = new BoardFile(fileTitle, fileUrl, board);
                 fileRepository.save(boardFile);
                 board.addFile(boardFile);
             }

@@ -33,17 +33,17 @@ public class BoardController {
         return boardService.boardList();
     }
 
-    @PostMapping("/posts")
+    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "게시글 등록", description = "게시글 등록, 파일 다중 업로드")
     public ResponseEntity<Message> createBoard(@RequestPart BoardRequestDto requestDto,
-                                               @RequestPart("multipartFiles") List<MultipartFile> multipartFiles,
+                                               @ModelAttribute List<MultipartFile> multipartFiles,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.createBoard(requestDto, multipartFiles, userDetails.getUser());
     }
 
     @PutMapping("/{boardId}")
-    @Operation(summary = "게시글 수정" ,description = "게시글 수정")
-    public BoardResponseDto updateBoard(@PathVariable Long boardId,
+    @Operation(summary = "게시글 수정", description = "게시글 수정")
+    public ResponseEntity<Message> updateBoard(@PathVariable Long boardId,
                                         @ModelAttribute BoardRequestDto requestDto,
                                         @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return null;
@@ -51,8 +51,8 @@ public class BoardController {
 
     @DeleteMapping("/{boardId}")
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
-    public void deleteBoard(@PathVariable Long boardId,
+    public ResponseEntity<Message> deleteBoard(@PathVariable Long boardId,
                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return;
+        return null;
     }
 }

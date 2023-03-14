@@ -23,8 +23,8 @@ public class BoardFile extends TimeStamped {
     @ManyToOne
     private Board board;
 
-    public BoardFile(String fileUrl, Board board) {
-//        this.fileTitle = fileTitle;
+    public BoardFile(String fileTitle, String fileUrl, Board board) {
+        this.fileTitle = fileTitle;
         this.fileUrl = fileUrl;
         this.board = board;
     }
