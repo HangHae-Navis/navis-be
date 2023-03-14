@@ -5,10 +5,12 @@ import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @Entity(name = "usergrouplist")
 public class UserGroupList extends TimeStamped {
@@ -25,5 +27,11 @@ public class UserGroupList extends TimeStamped {
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserGroupRoleEnum groupRole;
+
+    public UserGroupList(User user, Group group) {
+        this.user = user;
+        this.group = group;
+        this.groupRole = UserGroupRoleEnum.USER;
+    }
 }
 

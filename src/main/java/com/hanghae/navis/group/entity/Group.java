@@ -6,12 +6,14 @@ import com.hanghae.navis.meet.entity.MeetRoom;
 import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @Entity(name = "group")
 public class Group extends TimeStamped {
@@ -21,6 +23,8 @@ public class Group extends TimeStamped {
 
     @Column(nullable = false)
     private String groupName;
+    @Column
+    private String groupInfo;
 
     @Column(nullable = false, unique = true)
     private String groupCode;
@@ -35,4 +39,9 @@ public class Group extends TimeStamped {
 
     @OneToMany(mappedBy = "group")
     List<Homework> homeworkList = new ArrayList<>();
+
+    public Group(String groupName, User user) {
+        this.groupName = groupName;
+        this.user = user;
+    }
 }
