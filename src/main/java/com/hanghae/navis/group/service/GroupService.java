@@ -7,10 +7,8 @@ import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.group.dto.GroupRequestDto;
 import com.hanghae.navis.group.dto.ApplyRequestDto;
 import com.hanghae.navis.group.entity.Group;
-import com.hanghae.navis.group.entity.GroupApply;
 import com.hanghae.navis.group.entity.UserGroupList;
 import com.hanghae.navis.group.entity.UserGroupRoleEnum;
-import com.hanghae.navis.group.repository.GroupApplyRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserGroupListRepository;
@@ -28,7 +26,6 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final UserGroupListRepository userGroupListRepository;
-    private final GroupApplyRepository groupApplyRepository;
 
     @Transactional
     public ResponseEntity<Message> createGroup(GroupRequestDto requestDto, User user) {
@@ -53,20 +50,30 @@ public class GroupService {
         return Message.toResponseEntity(SuccessMessage.GROUP_CREATE_SUCCESS);
     }
 
+    @Transactional
+    public ResponseEntity<Message> applyGroup(ApplyRequestDto requestDto, User user) {
 
-//    public ResponseEntity<Message> applyGroup(ApplyRequestDto requestDto, User user) {
-//
-//        Optional<Group> group = groupRepository.findByGroupCode(requestDto.getGroupCode());
-//
-//        if(group.isEmpty()) {
-//            throw new CustomException(ExceptionMessage.GROUP_NOT_FOUND);
-//        }
-//
-//
-//        GroupApply groupApply = new GroupApply(group.get(), user);
-//
-//
-//    }
+        Optional<Group> gr = groupRepository.findByGroupCode(requestDto.getGroupCode());
+
+        if(gr.isEmpty()) {
+            throw new CustomException(ExceptionMessage.GROUP_NOT_FOUND);
+        }
+
+        Group group = gr.get();
+        //이미 가입한 그룹일 경우 튕겨냄
+        Optional<UserGroupList> ugl = userGroupListRepository.findByUserAndGroup(user, group);
+        if(ugl.isPresent()) {
+            throw new CustomException(ExceptionMessage.ALREADY_JOINED);
+        }
+
+        UserGroupList userGroupList = new UserGroupList(user, group);
+        userGroupListRepository.save(userGroupList);
+
+        return Message.toResponseEntity(SuccessMessage.GROUP_APPLY_SUCCESS);
+    }
+
+
+
 
     private String generateGroupCode() {
         StringBuilder groupCode = new StringBuilder();

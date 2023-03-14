@@ -42,6 +42,8 @@ public enum ExceptionMessage {
     LIKE_NOT_FOUND(NOT_FOUND, "좋아요를 취소할 수 없습니다."),
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
+    ALREADY_APPLIED(CONFLICT, "이미 신청이 진행중입니다."),
+    ALREADY_JOINED(CONFLICT, "이미 가입한 그룹입니다."),
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다"),
     DUPLICATE_EMAIL(CONFLICT,"중복된 이메일이 존재합니다."),
     DUPLICATE_NICKNAME(CONFLICT,"중복된 닉네임이 존재합니다.");
