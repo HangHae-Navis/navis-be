@@ -50,7 +50,8 @@ public class KakaoService {
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createToken);
         LoginResponseDto loginResponseDto = new LoginResponseDto(userRepository.findByNickname(kakaoUser.getNickname()).get().getNickname(), createToken);
-
+        log.warn(createToken);
+        log.warn(loginResponseDto.toString() + loginResponseDto.getNickname());
         return Message.toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
     }
 
