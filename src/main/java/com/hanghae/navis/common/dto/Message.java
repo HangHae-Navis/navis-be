@@ -59,7 +59,7 @@ public class Message<T> {
     }
 
     //리턴 값 있을때 사용
-    public static <T> ResponseEntity<Message> toResponseEntity(SuccessMessage successMessage, T data) {
+    public static ResponseEntity<Message> toResponseEntity(SuccessMessage successMessage, Object data) {
         return ResponseEntity
                 .status(successMessage.getHttpStatus())
                 .body(Message.builder()

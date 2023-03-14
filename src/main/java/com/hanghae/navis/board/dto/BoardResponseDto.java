@@ -25,7 +25,7 @@ public class BoardResponseDto {
 
     private String content;
 
-//    private String groupName;
+    private String groupName;
 
     private LocalDateTime createAt;
 
@@ -34,7 +34,7 @@ public class BoardResponseDto {
         this.nickname = board.getUser().getNickname();
         this.fileList = board.getFileList();
         this.content = board.getContent();
-//        this.groupName = board.getGroup().getGroupName();
+        this.groupName = board.getGroup().getGroupName();
         this.createAt = board.getCreatedAt();
     }
 }

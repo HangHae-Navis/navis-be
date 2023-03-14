@@ -27,13 +27,13 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
 
-    @GetMapping("/")
+    @GetMapping("/posts")
     @Operation(summary = "게시글 목록", description = "게시글 목록")
     public ResponseEntity<Message> boardList(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.boardList();
     }
 
-    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "게시글 등록", description = "게시글 등록, 파일 다중 업로드")
     public ResponseEntity<Message> createBoard(@RequestPart BoardRequestDto requestDto,
                                                @ModelAttribute List<MultipartFile> multipartFiles,
@@ -44,15 +44,16 @@ public class BoardController {
     @PutMapping("/{boardId}")
     @Operation(summary = "게시글 수정", description = "게시글 수정")
     public ResponseEntity<Message> updateBoard(@PathVariable Long boardId,
-                                        @ModelAttribute BoardRequestDto requestDto,
-                                        @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return null;
+                                               @RequestPart BoardRequestDto requestDto,
+                                               @ModelAttribute List<MultipartFile> multipartFiles,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.updateBoard(boardId, requestDto, multipartFiles, userDetails.getUser());
     }
 
     @DeleteMapping("/{boardId}")
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
     public ResponseEntity<Message> deleteBoard(@PathVariable Long boardId,
-                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return null;
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.deleteBoard(boardId, userDetails.getUser());
     }
 }
