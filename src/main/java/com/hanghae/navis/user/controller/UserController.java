@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -33,6 +34,7 @@ import static com.hanghae.navis.common.entity.ExceptionMessage.USER_FORBIDDEN;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
+@Slf4j
 public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
@@ -57,6 +59,7 @@ public class UserController {
     @GetMapping("/kakao/callback")
     @Operation(hidden = true)
     public ResponseEntity<Message> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+        log.warn("code1" + code);
         return kakaoService.kakaoLogin(code, response);
     }
 

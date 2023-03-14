@@ -39,7 +39,7 @@ public class KakaoService {
     public ResponseEntity<Message> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
-
+        log.warn(accessToken);
         // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
         KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
 
@@ -50,7 +50,8 @@ public class KakaoService {
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createToken);
         LoginResponseDto loginResponseDto = new LoginResponseDto(userRepository.findByNickname(kakaoUser.getNickname()).get().getNickname(), createToken);
-
+        log.warn(createToken);
+        log.warn(loginResponseDto.toString() + loginResponseDto.getNickname());
         return Message.toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
     }
 
@@ -64,8 +65,9 @@ public class KakaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "824bc0f4442a06c2905b527703106262");
-        body.add("redirect_uri", "http://hanghae1teamwork.s3-website.ap-northeast-2.amazonaws.com/");
+        body.add("redirect_uri", "http://hanghae1teamwork.s3-website.ap-northeast-2.amazonaws.com");
         body.add("code", code);
+        log.warn("code" + code);
 
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
