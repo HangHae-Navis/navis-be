@@ -59,7 +59,7 @@ public class UserController {
     @GetMapping("/kakao/callback")
     @Operation(hidden = true)
     public ResponseEntity<Message> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-        log.warn("code", code);
+        log.warn("code1" + code);
         return kakaoService.kakaoLogin(code, response);
     }
 

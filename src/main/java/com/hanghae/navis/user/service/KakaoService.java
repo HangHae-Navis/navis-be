@@ -66,7 +66,7 @@ public class KakaoService {
         body.add("client_id", "824bc0f4442a06c2905b527703106262");
         body.add("redirect_uri", "http://hanghae1teamwork.s3-website.ap-northeast-2.amazonaws.com/");
         body.add("code", code);
-        log.warn("code", code);
+        log.warn("code" + code);
 
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
