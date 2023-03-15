@@ -1,39 +1,31 @@
 package com.hanghae.navis.board.dto;
 
 import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.board.entity.File;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class BoardResponseDto {
+public class BoardListResponseDto {
     private Long id;
 
-    private String nickname;
-
-    private List<File> fileList;
-    private String title;
+    private String subtitle;
 
     private String content;
 
-    private String subtitle;
+    private String nickName;
 
     private String groupName;
 
     private LocalDateTime createAt;
 
-    public BoardResponseDto(Board board) {
+    public BoardListResponseDto(Board board) {
         this.id = board.getId();
-        this.nickname = board.getUser().getNickname();
-        this.fileList = board.getFileList();
-        this.content = board.getContent();
-        this.title = board.getTitle();
         this.subtitle = board.getSubtitle();
+        this.content = board.getContent();
+        this.nickName = board.getUser().getNickname();
         this.groupName = board.getGroup().getGroupName();
         this.createAt = board.getCreatedAt();
     }

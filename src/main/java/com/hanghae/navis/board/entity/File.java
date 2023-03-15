@@ -1,17 +1,15 @@
 package com.hanghae.navis.board.entity;
 
-import com.hanghae.navis.board.dto.BoardFileRequestDto;
-import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.common.entity.TimeStamped;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity(name = "board_file")
+@Entity(name = "file")
 @Getter
 @NoArgsConstructor
-public class BoardFile extends TimeStamped {
+public class File extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,9 +21,14 @@ public class BoardFile extends TimeStamped {
     @ManyToOne
     private Board board;
 
-    public BoardFile(String fileTitle, String fileUrl, Board board) {
+    public File(String fileTitle, String fileUrl, Board board) {
         this.fileTitle = fileTitle;
         this.fileUrl = fileUrl;
         this.board = board;
+    }
+
+    public void updateFile(String fileTitle, String fileUrl) {
+        this.fileTitle = fileTitle;
+        this.fileUrl = fileUrl;
     }
 }

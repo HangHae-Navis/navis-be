@@ -1,7 +1,10 @@
 package com.hanghae.navis.board.repository;
 
-import com.hanghae.navis.board.entity.BoardFile;
+import com.hanghae.navis.board.entity.File;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BoardFileRepository extends JpaRepository<BoardFile, Long> {
+import java.util.List;
+
+public interface BoardFileRepository extends JpaRepository<File, Long> {
+    List<File> findFileUrlByBoardId(Long boardId);
 }

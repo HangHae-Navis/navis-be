@@ -20,12 +20,6 @@ import static com.hanghae.navis.common.entity.ExceptionMessage.UNAUTHORIZED_MEMB
 @Slf4j
 @RestControllerAdvice
 public class ExceptionController {
-    @ExceptionHandler(value = { ConstraintViolationException.class, DataIntegrityViolationException.class})
-    protected ResponseEntity<Message> handleDataException() {
-        log.error("handleDataException throw Exception : {}", DUPLICATE_RESOURCE);
-        return Message.toExceptionResponseEntity(DUPLICATE_RESOURCE);
-    }
-
     @ExceptionHandler(value = { CustomException.class })
     protected ResponseEntity<Message> handleCustomException(CustomException e) {
         log.error("handleCustomException throw CustomException : {}", e.getExceptionMessage());
