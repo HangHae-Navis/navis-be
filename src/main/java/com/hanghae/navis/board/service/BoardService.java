@@ -1,9 +1,6 @@
 package com.hanghae.navis.board.service;
 
-import com.hanghae.navis.board.dto.BoardListResponseDto;
-import com.hanghae.navis.board.dto.BoardRequestDto;
-import com.hanghae.navis.board.dto.BoardResponseDto;
-import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
+import com.hanghae.navis.board.dto.*;
 import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.repository.FileRepository;
@@ -75,11 +72,16 @@ public class BoardService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, new BoardResponseDto(board));
+        List<FileResponseDto> fileResponseDto = new ArrayList<>();
+        for (File file: board.getFileList()) {
+            fileResponseDto.add(new FileResponseDto(file.getFileTitle(), file.getFileUrl()));
+        }
+        BoardResponseDto boardResponseDto = new BoardResponseDto(board, fileResponseDto);
+        return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, boardResponseDto);
     }
 
     @Transactional
-    public ResponseEntity<Message> createBoard(Long groupId, BoardRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    public ResponseEntity<Message>  createBoard(Long groupId, BoardRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
         try {
             user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                     () -> new CustomException(MEMBER_NOT_FOUND)
@@ -92,15 +94,18 @@ public class BoardService {
             Board board = new Board(requestDto, user, group);
             boardRepository.save(board);
 
-            for (MultipartFile file : multipartFiles) {
-                String fileTitle = file.getOriginalFilename();
-                String fileUrl = s3Uploader.upload(file);
-                File boardFile = new File(fileTitle, fileUrl, board);
-                fileRepository.save(boardFile);
-                board.addFile(boardFile);
+            List<FileResponseDto> fileResponseDto = new ArrayList<>();
+            if(multipartFiles != null) {
+                for (MultipartFile file : multipartFiles) {
+                    String fileTitle = file.getOriginalFilename();
+                    String fileUrl = s3Uploader.upload(file);
+                    File boardFile = new File(fileTitle, fileUrl, board);
+                    fileRepository.save(boardFile);
+                    fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
+                }
             }
-
-            return Message.toResponseEntity(BOARD_POST_SUCCESS, new BoardResponseDto(board));
+            BoardResponseDto boardResponseDto = new BoardResponseDto(board, fileResponseDto);
+            return Message.toResponseEntity(BOARD_POST_SUCCESS, boardResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -120,9 +125,12 @@ public class BoardService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
+        BoardResponseDto boardResponseDto = new BoardResponseDto(board, null);
+
         if (!user.getUsername().equals(board.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
+
 
         board.update(requestDto);
 
@@ -146,20 +154,23 @@ public class BoardService {
 
         try {
             if(multipartFiles != null) {
+                List<FileResponseDto> fileResponseDto = new ArrayList<>();
                 if(!multipartFiles.isEmpty() && !multipartFiles.get(0).isEmpty()) {
                     for (MultipartFile file : multipartFiles) {
                         String fileTitle = file.getOriginalFilename();
                         String fileUrl = s3Uploader.upload(file);
                         File boardFile = new File(fileTitle, fileUrl, board);
                         fileRepository.save(boardFile);
-                        board.addFile(boardFile);
+                        fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
                     }
+                    boardResponseDto = new BoardResponseDto(board, fileResponseDto);
                 }
+
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return Message.toResponseEntity(BOARD_PUT_SUCCESS, new BoardResponseDto(board));
+        return Message.toResponseEntity(BOARD_PUT_SUCCESS, boardResponseDto);
     }
 
     @Transactional
