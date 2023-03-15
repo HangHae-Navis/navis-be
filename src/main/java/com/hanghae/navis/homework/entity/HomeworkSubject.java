@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "homeworksubject")
+@Entity(name = "homework_subject")
 @Getter
 @NoArgsConstructor
 public class HomeworkSubject extends TimeStamped {
@@ -22,6 +22,6 @@ public class HomeworkSubject extends TimeStamped {
     @ManyToOne
     private Group group;
 
-    @OneToMany(mappedBy = "homeworkSubject")
+    @OneToMany(mappedBy = "homework_subject")
     List<HomeworkSubjectFile> homeworkSubjectFileList = new ArrayList<>();
 }
