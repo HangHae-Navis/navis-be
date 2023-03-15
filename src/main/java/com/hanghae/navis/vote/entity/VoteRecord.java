@@ -1,6 +1,7 @@
 package com.hanghae.navis.vote.entity;
 
-import com.hanghae.navis.group.entity.UserGroupList;
+import com.hanghae.navis.common.entity.TimeStamped;
+import com.hanghae.navis.group.entity.GroupMember;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,14 +10,15 @@ import javax.persistence.*;
 @Entity(name = "voteRecord")
 @Getter
 @NoArgsConstructor
-public class VoteRecord {
+public class VoteRecord extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    private VoteContent voteContent;
+    private VoteOption voteOption;
 
     @ManyToOne
-    private UserGroupList userGroupList;
+    @JoinColumn(name = "groupmember_id")
+    private GroupMember groupMember;
 }

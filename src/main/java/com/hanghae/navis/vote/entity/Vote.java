@@ -13,5 +13,5 @@ import java.util.List;
 @NoArgsConstructor
 public class Vote extends Board {
     @OneToMany(mappedBy = "vote")
-    private List<VoteContent> voteContentList;
+    private List<VoteOption> voteOptionList;
 }
