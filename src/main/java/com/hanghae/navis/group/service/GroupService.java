@@ -7,11 +7,11 @@ import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.group.dto.GroupRequestDto;
 import com.hanghae.navis.group.dto.ApplyRequestDto;
 import com.hanghae.navis.group.entity.Group;
-import com.hanghae.navis.group.entity.UserGroupList;
-import com.hanghae.navis.group.entity.UserGroupRoleEnum;
+import com.hanghae.navis.group.entity.GroupMember;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
-import com.hanghae.navis.user.repository.UserGroupListRepository;
+import com.hanghae.navis.user.repository.GroupMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.Random;
 public class GroupService {
 
     private final GroupRepository groupRepository;
-    private final UserGroupListRepository userGroupListRepository;
+    private final GroupMemberRepository groupMemberRepository;
 
     @Transactional
     public ResponseEntity<Message> createGroup(GroupRequestDto requestDto, User user) {
@@ -41,11 +41,11 @@ public class GroupService {
         group.setGroupCode(groupCode);
 
         //설립자 소속 설정, 권한 ADMIN 설정
-        UserGroupList userGroupList = new UserGroupList(user, group);
-        userGroupList.setGroupRole(UserGroupRoleEnum.ADMIN);
+        GroupMember groupMember = new GroupMember(user, group);
+        groupMember.setGroupRole(GroupMemberRoleEnum.ADMIN);
 
         groupRepository.save(group);
-        userGroupListRepository.save(userGroupList);
+        groupMemberRepository.save(groupMember);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_CREATE_SUCCESS);
     }
@@ -61,13 +61,13 @@ public class GroupService {
 
         Group group = gr.get();
         //이미 가입한 그룹일 경우 튕겨냄
-        Optional<UserGroupList> ugl = userGroupListRepository.findByUserAndGroup(user, group);
+        Optional<GroupMember> ugl = groupMemberRepository.findByUserAndGroup(user, group);
         if(ugl.isPresent()) {
             throw new CustomException(ExceptionMessage.ALREADY_JOINED);
         }
 
-        UserGroupList userGroupList = new UserGroupList(user, group);
-        userGroupListRepository.save(userGroupList);
+        GroupMember groupMember = new GroupMember(user, group);
+        groupMemberRepository.save(groupMember);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_APPLY_SUCCESS);
     }
@@ -85,4 +85,14 @@ public class GroupService {
 
         return groupCode.toString();
     }
+
+//    public ResponseEntity<Message<Page<GroupResponseDto>>> getGroups(int page, int size, String category, User user) {
+//        Pageable pageable = PageRequest.of(page, size);
+//
+//        Page<GroupResponseDto> responseDtoPage;
+//
+//        if(category.equals("all")) {
+//            responseDtoPage =
+//        }
+//    }
 }

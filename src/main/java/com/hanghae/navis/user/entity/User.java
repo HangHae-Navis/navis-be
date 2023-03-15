@@ -4,7 +4,7 @@ import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.board.entity.Comment;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
-import com.hanghae.navis.group.entity.UserGroupList;
+import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.entity.HomeworkComment;
 import lombok.Getter;
@@ -44,7 +44,7 @@ public class User extends TimeStamped {
     List<Group> groupList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    List<UserGroupList> userGroupList = new ArrayList<>();
+    List<GroupMember> userGroupList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     List<Board> boardList = new ArrayList<>();
