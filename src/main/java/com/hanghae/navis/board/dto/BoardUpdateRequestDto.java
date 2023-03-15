@@ -10,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 public class BoardUpdateRequestDto {
     private String subtitle;
+    private String title;
     private String content;
     private List<String> updateUrlList = new ArrayList<>();
 }
