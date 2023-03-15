@@ -1,6 +1,6 @@
 package com.hanghae.navis.comment.dto;
 
-import com.hanghae.navis.board.entity.Comment;
+import com.hanghae.navis.common.entity.Comment;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

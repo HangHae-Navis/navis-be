@@ -1,5 +1,6 @@
 package com.hanghae.navis.common.entity;
 
+import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.comment.dto.CommentRequestDto;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.user.entity.User;

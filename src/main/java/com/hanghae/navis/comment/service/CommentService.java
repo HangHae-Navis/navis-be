@@ -1,9 +1,7 @@
 package com.hanghae.navis.comment.service;
 
-import com.amazonaws.Response;
-import com.hanghae.navis.board.dto.BoardResponseDto;
 import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.board.entity.Comment;
+import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.comment.dto.CommentRequestDto;
 import com.hanghae.navis.comment.dto.CommentResponseDto;
