@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "homeworksubject")
+@Entity(name = "homework_subject")
 @Getter
 @NoArgsConstructor
 public class HomeworkSubject extends TimeStamped {

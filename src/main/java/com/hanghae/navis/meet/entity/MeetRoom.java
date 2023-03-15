@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity(name = "meetroom")
+@Entity(name = "meet_room")
 @Getter
 @NoArgsConstructor
 public class MeetRoom extends TimeStamped {

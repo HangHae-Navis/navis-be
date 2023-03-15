@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "groupmember")
+@Entity(name = "group_member")
 public class GroupMember extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
