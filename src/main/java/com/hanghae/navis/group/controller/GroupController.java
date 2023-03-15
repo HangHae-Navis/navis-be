@@ -32,12 +32,12 @@ public class GroupController {
         return groupService.applyGroup(requestDto, userDetails.getUser());
     }
 
-//    @GetMapping("")
-//    @ResponseBody
-//    public ResponseEntity<Message<Page<GroupResponseDto>>> getGroups(@RequestParam int page,
-//                                                                     @RequestParam int size,
-//                                                                     @RequestParam(required = false, defaultValue = "all") String category,
-//                                                                     @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        return groupService.getGroups(page-1, size, category, userDetails.getUser());
-//    }
+    @GetMapping("")
+    @ResponseBody
+    public ResponseEntity<Message> getGroups(@RequestParam int page,
+                                                                     @RequestParam int size,
+                                                                     @RequestParam(required = false, defaultValue = "all") String category,
+                                                                     @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return groupService.getGroups(page-1, size, category, userDetails.getUser());
+    }
 }

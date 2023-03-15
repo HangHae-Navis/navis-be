@@ -6,6 +6,7 @@ import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.group.dto.GroupRequestDto;
 import com.hanghae.navis.group.dto.ApplyRequestDto;
+import com.hanghae.navis.group.dto.GroupResponseDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
@@ -13,10 +14,14 @@ import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.GroupMemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -30,7 +35,7 @@ public class GroupService {
     @Transactional
     public ResponseEntity<Message> createGroup(GroupRequestDto requestDto, User user) {
 
-        Group group = new Group(requestDto.getGroupName(), user);
+        Group group = new Group(requestDto, user);
 
         //그룹코드
         String groupCode = generateGroupCode();
@@ -86,13 +91,22 @@ public class GroupService {
         return groupCode.toString();
     }
 
-//    public ResponseEntity<Message<Page<GroupResponseDto>>> getGroups(int page, int size, String category, User user) {
-//        Pageable pageable = PageRequest.of(page, size);
-//
-//        Page<GroupResponseDto> responseDtoPage;
-//
-//        if(category.equals("all")) {
-//            responseDtoPage =
-//        }
-//    }
+    public ResponseEntity<Message> getGroups(int page, int size, String category, User user) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<GroupMember> groupMemberPage;
+
+        if(category.equals("joined")) {
+            groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.USER, pageable);
+        } else if(category.equals("myGroups")) {
+            groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.ADMIN, pageable);
+        } else {
+            groupMemberPage = groupMemberRepository.findAllByUser(user, pageable);
+        }
+
+        Page<GroupResponseDto> groupResponseDtoPage = GroupResponseDto.toDtoPage(groupMemberPage);
+
+        return Message.toResponseEntity(SuccessMessage.GROUPS_GET_SUCCESS, groupResponseDtoPage);
+
+    }
 }

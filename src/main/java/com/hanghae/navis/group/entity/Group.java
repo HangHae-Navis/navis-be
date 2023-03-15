@@ -1,6 +1,7 @@
 package com.hanghae.navis.group.entity;
 
 import com.hanghae.navis.common.entity.TimeStamped;
+import com.hanghae.navis.group.dto.GroupRequestDto;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.meet.entity.MeetRoom;
 import com.hanghae.navis.user.entity.User;
@@ -40,8 +41,15 @@ public class Group extends TimeStamped {
     @OneToMany(mappedBy = "group")
     List<Homework> homeworkList = new ArrayList<>();
 
-    public Group(String groupName, User user) {
+    public Group(String groupName, String groupInfo, User user) {
         this.groupName = groupName;
+        this.groupInfo = groupInfo;
+        this.user = user;
+    }
+
+    public Group(GroupRequestDto groupRequestDto, User user) {
+        this.groupName = groupRequestDto.getGroupName();
+        this.groupInfo = groupRequestDto.getGroupInfo();
         this.user = user;
     }
 }
