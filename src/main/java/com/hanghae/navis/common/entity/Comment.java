@@ -1,4 +1,4 @@
-package com.hanghae.navis.board.entity;
+package com.hanghae.navis.common.entity;
 
 import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.entity.TimeStamped;

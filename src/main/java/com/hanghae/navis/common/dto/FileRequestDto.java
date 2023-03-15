@@ -1,4 +1,4 @@
-package com.hanghae.navis.board.dto;
+package com.hanghae.navis.common.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,10 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BoardFileRequestDto {
+public class FileRequestDto {
     private MultipartFile fileUrl;
 
-    public BoardFileRequestDto (MultipartFile fileUrl) {
+    public FileRequestDto(MultipartFile fileUrl) {
         this.fileUrl = fileUrl;
     }
 }

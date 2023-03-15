@@ -1,12 +1,11 @@
 package com.hanghae.navis.user.entity;
 
 import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.board.entity.Comment;
+import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.homework.entity.Homework;
-import com.hanghae.navis.homework.entity.HomeworkComment;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -55,8 +54,6 @@ public class User extends TimeStamped {
     @OneToMany(mappedBy = "user")
     List<Homework> homeworkList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    List<HomeworkComment> homeworkCommentList = new ArrayList<>();
 
 
     public User(String username, String nickname, String password, UserRoleEnum userRoleEnum) {
