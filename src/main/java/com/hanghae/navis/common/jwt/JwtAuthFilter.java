@@ -29,7 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = jwtUtil.resolveToken(request);
         System.out.println(request.getMethod());
 
-        if(token != null && !request.getMethod().equals("GET")) {
+        if(token != null) {
             if(!jwtUtil.validateToken(token)){
                 jwtExceptionHandler(response, "토큰이 만료되었거나 잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED.value());
                 return;
