@@ -17,6 +17,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn()
 public abstract class BasicBoard extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

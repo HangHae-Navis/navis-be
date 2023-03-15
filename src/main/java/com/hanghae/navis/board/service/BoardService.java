@@ -11,10 +11,12 @@ import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.common.entity.QBasicBoard;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,8 @@ public class BoardService {
     private final GroupRepository groupRepository;
     private final S3Uploader s3Uploader;
 
+
+
     @Transactional(readOnly = true)
     public ResponseEntity<Message> boardList(Long groupId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
@@ -50,6 +54,7 @@ public class BoardService {
         );
 
         List<BoardListResponseDto> responseList = new ArrayList<>();
+
         List<Board> boardList = boardRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId);
 
         for (Board board : boardList) {
