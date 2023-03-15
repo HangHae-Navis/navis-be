@@ -14,6 +14,7 @@ public enum SuccessMessage {
     BOARD_GET_SUCCESS(HttpStatus.OK,"게시물 랜덤 보기 완료"),
     GROUP_CREATE_SUCCESS(HttpStatus.CREATED, "그룹 생성 완료"),
     GROUP_APPLY_SUCCESS(HttpStatus.CREATED, "그룹 가입 완료"),
+    GROUPS_GET_SUCCESS(HttpStatus.OK, "그룹 리스트 조회 성공"),
     BOARD_POST_SUCCESS(HttpStatus.CREATED, "게시물 작성 완료"),
     BOARD_PUT_SUCCESS(HttpStatus.CREATED,"게시물 수정 완료"),
     BOARD_DELETE_SUCCESS(HttpStatus.CREATED,"게시물 삭제 완료"),

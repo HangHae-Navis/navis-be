@@ -7,4 +7,5 @@ import lombok.Getter;
 public class GroupRequestDto {
 
     private String groupName;
+    private String groupInfo;
 }
