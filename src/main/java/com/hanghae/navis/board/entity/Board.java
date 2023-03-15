@@ -18,7 +18,6 @@ import java.util.List;
 
 @Entity(name = "board")
 @Getter
-@DiscriminatorColumn(columnDefinition = "board", discriminatorType = DiscriminatorType.STRING)
 @NoArgsConstructor
 public class Board extends BasicBoard {
     public Board(BoardRequestDto requestDto, User user, Group group) {
