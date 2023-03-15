@@ -23,6 +23,9 @@ public class Board extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = true)
+    private String subtitle;
+
     @Column(nullable = false)
     private String content;
 
@@ -38,9 +41,16 @@ public class Board extends TimeStamped {
     @OneToMany(mappedBy = "board")
     private List<Comment> commentList = new ArrayList<>();
 
-    public Board(BoardRequestDto requestDto, User user) {
+    public Board(BoardRequestDto requestDto, User user, Group group) {
         this.content = requestDto.getContent();
+        this.subtitle = requestDto.getSubtitle();
         this.user = user;
+        this.group = group;
+    }
+
+    public void update(BoardRequestDto requestDto) {
+        this.content = requestDto.getContent();
+        this.subtitle = requestDto.getSubtitle();
     }
 
     public void addFile(BoardFile boardFile) {

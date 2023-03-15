@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "group")
+@Entity(name = "groups")
 public class Group extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

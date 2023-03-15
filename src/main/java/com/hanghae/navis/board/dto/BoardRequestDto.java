@@ -7,9 +7,11 @@ import lombok.NoArgsConstructor;
 //@Setter
 @NoArgsConstructor
 public class BoardRequestDto {
+    private String subtitle;
     private String content;
 
-    public BoardRequestDto(String content) {
+    public BoardRequestDto(String content, String subtitle) {
         this.content = content;
+        this.subtitle = subtitle;
     }
 }

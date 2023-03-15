@@ -28,4 +28,9 @@ public class BoardFile extends TimeStamped {
         this.fileUrl = fileUrl;
         this.board = board;
     }
+
+    public void updateFile(String fileTitle, String fileUrl) {
+        this.fileTitle = fileTitle;
+        this.fileUrl = fileUrl;
+    }
 }

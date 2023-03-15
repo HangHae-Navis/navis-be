@@ -10,6 +10,8 @@ import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +33,22 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardFileRepository fileRepository;
     private final UserRepository userRepository;
+    private final GroupRepository groupRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> boardList() {
+    public ResponseEntity<Message> boardList(Long groupId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
         List<BoardListResponseDto> responseList = new ArrayList<>();
-        List<Board> boardList = boardRepository.findAllByOrderByCreatedAtDesc();
+        List<Board> boardList = boardRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId);
+//        List<Board> boardList = boardRepository.findAllByIdOrderByCreatedAtDesc(groupId);       //groupId 받아오는 부분
 
         for (Board board : boardList) {
             responseList.add(new BoardListResponseDto(board));
@@ -45,15 +57,20 @@ public class BoardService {
     }
 
     @Transactional
-    public ResponseEntity<Message> createBoard(BoardRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    public ResponseEntity<Message> createBoard(Long groupId, BoardRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
         try {
             user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                     () -> new CustomException(MEMBER_NOT_FOUND)
             );
-            Board board = new Board(requestDto, user);
+
+            Group group = groupRepository.findById(groupId).orElseThrow(
+                    () -> new CustomException(GROUP_NOT_FOUND)
+            );
+
+            Board board = new Board(requestDto, user, group);
             boardRepository.save(board);
 
-            for(MultipartFile file : multipartFiles) {
+            for (MultipartFile file : multipartFiles) {
                 String fileTitle = file.getOriginalFilename();
                 System.out.println(fileTitle);
                 String fileUrl = s3Uploader.upload(file);
@@ -62,13 +79,13 @@ public class BoardService {
                 board.addFile(boardFile);
             }
 
-            return Message.toResponseEntity(BOARD_POST_SUCCESS, new BoardResponseDto(board));
+            return Message.toResponseEntity(BOARD_POST_SUCCESS, new BoardResponseDto(board));        //responseDto 추가해서 테스트
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public ResponseEntity<Message> updateBoard(Long boardId, BoardRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    public ResponseEntity<Message> updateBoard(Long groupId, Long boardId, BoardRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
         try {
             user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                     () -> new CustomException(MEMBER_NOT_FOUND)
@@ -78,7 +95,15 @@ public class BoardService {
                     () -> new CustomException(BOARD_NOT_FOUND)
             );
 
-            for(MultipartFile file : multipartFiles) {
+            Group group = groupRepository.findById(groupId).orElseThrow(
+                    () -> new CustomException(GROUP_NOT_FOUND)
+            );
+
+            if (!user.getUsername().equals(board.getUser().getUsername())) {
+                throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+            }
+
+            for (MultipartFile file : multipartFiles) {
                 String fileTitle = file.getOriginalFilename();
                 System.out.println(fileTitle);
                 String fileUrl = s3Uploader.upload(file);
@@ -86,15 +111,19 @@ public class BoardService {
                 fileRepository.save(boardFile);
                 board.addFile(boardFile);
             }
-            boardRepository.save(board);
+            board.update(requestDto);
 
-            return Message.toResponseEntity(BOARD_POST_SUCCESS);
+            return Message.toResponseEntity(BOARD_PUT_SUCCESS, new BoardResponseDto(board));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public ResponseEntity<Message> deleteBoard(Long boardId, User user) {
+    public ResponseEntity<Message> deleteBoard(Long groupId, Long boardId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
@@ -103,7 +132,7 @@ public class BoardService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if(!user.getId().equals(board.getUser().getId())) {
+        if (!user.getId().equals(board.getUser().getId())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 

@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 public class BoardListResponseDto {
     private Long id;
 
+    private String subtitle;
+
     private String content;
 
     private String nickName;
@@ -21,6 +23,7 @@ public class BoardListResponseDto {
 
     public BoardListResponseDto(Board board) {
         this.id = board.getId();
+        this.subtitle = board.getSubtitle();
         this.content = board.getContent();
         this.nickName = board.getUser().getNickname();
         this.groupName = board.getGroup().getGroupName();
