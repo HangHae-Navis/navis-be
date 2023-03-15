@@ -5,7 +5,7 @@ import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardResponseDto;
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.board.entity.BoardFile;
+import com.hanghae.navis.board.entity.File;
 import com.hanghae.navis.board.repository.BoardFileRepository;
 import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
@@ -97,7 +97,7 @@ public class BoardService {
             for (MultipartFile file : multipartFiles) {
                 String fileTitle = file.getOriginalFilename();
                 String fileUrl = s3Uploader.upload(file);
-                BoardFile boardFile = new BoardFile(fileTitle, fileUrl, board);
+                File boardFile = new File(fileTitle, fileUrl, board);
                 fileRepository.save(boardFile);
                 board.addFile(boardFile);
             }
@@ -130,10 +130,10 @@ public class BoardService {
 
         List<String> remainUrl = requestDto.getUpdateUrlList();
 
-        List<BoardFile> files = fileRepository.findFileUrlByBoardId(boardId);
+        List<File> files = fileRepository.findFileUrlByBoardId(boardId);
 
         try {
-            for(BoardFile boardFile : files) {
+            for(File boardFile : files) {
                 if(!remainUrl.contains(boardFile.getFileUrl())) {
                     board.getFileList().remove(boardFile);
                     String source = URLDecoder.decode(boardFile.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
@@ -152,7 +152,7 @@ public class BoardService {
                     for (MultipartFile file : multipartFiles) {
                         String fileTitle = file.getOriginalFilename();
                         String fileUrl = s3Uploader.upload(file);
-                        BoardFile boardFile = new BoardFile(fileTitle, fileUrl, board);
+                        File boardFile = new File(fileTitle, fileUrl, board);
                         fileRepository.save(boardFile);
                         board.addFile(boardFile);
                     }
@@ -184,8 +184,8 @@ public class BoardService {
 
         if(board.getFileList().size() > 0) {
             try {
-                for (BoardFile boardFile : board.getFileList()) {
-                    String source = URLDecoder.decode(boardFile.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
+                for (File file : board.getFileList()) {
+                    String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
                     s3Uploader.delete(source);
                 }
             } catch (UnsupportedEncodingException e) {

@@ -1,7 +1,5 @@
 package com.hanghae.navis.common.dto;
 
-import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.board.entity.BoardFile;
 import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import lombok.Builder;

@@ -2,8 +2,8 @@ package com.hanghae.navis.common.entity;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
-import com.hanghae.navis.board.entity.BoardFile;
 import com.hanghae.navis.board.entity.Comment;
+import com.hanghae.navis.board.entity.File;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
@@ -22,6 +22,8 @@ public abstract class BasicBoard extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
+    @Column(nullable = false)
+    protected String title;
     @Column(nullable = true)
     protected String subtitle;
 
@@ -35,12 +37,13 @@ public abstract class BasicBoard extends TimeStamped {
     protected Group group;
 
     @OneToMany(mappedBy = "board", cascade = {CascadeType.ALL})
-    private List<BoardFile> fileList = new ArrayList<>();
+    private List<File> fileList = new ArrayList<>();
 
     @OneToMany(mappedBy = "board", cascade = {CascadeType.ALL})
     private List<Comment> commentList = new ArrayList<>();
 
     public BasicBoard(BoardRequestDto requestDto, User user, Group group) {
+        this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.subtitle = requestDto.getSubtitle();
         this.user = user;
@@ -52,7 +55,7 @@ public abstract class BasicBoard extends TimeStamped {
         this.subtitle = requestDto.getSubtitle();
     }
 
-    public void addFile(BoardFile boardFile) {
+    public void addFile(File boardFile) {
         fileList.add(boardFile);
     }
 }

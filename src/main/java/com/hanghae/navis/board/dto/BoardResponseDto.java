@@ -1,7 +1,7 @@
 package com.hanghae.navis.board.dto;
 
 import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.board.entity.BoardFile;
+import com.hanghae.navis.board.entity.File;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,7 +16,8 @@ public class BoardResponseDto {
 
     private String nickname;
 
-    private List<BoardFile> fileList;
+    private List<File> fileList;
+    private String title;
 
     private String content;
 
@@ -31,6 +32,7 @@ public class BoardResponseDto {
         this.nickname = board.getUser().getNickname();
         this.fileList = board.getFileList();
         this.content = board.getContent();
+        this.title = board.getTitle();
         this.subtitle = board.getSubtitle();
         this.groupName = board.getGroup().getGroupName();
         this.createAt = board.getCreatedAt();
