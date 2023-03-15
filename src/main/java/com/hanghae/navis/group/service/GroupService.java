@@ -40,7 +40,7 @@ public class GroupService {
         //그룹코드
         String groupCode = generateGroupCode();
         //그룹코드 중복시 다시 지정
-        while(groupRepository.findByGroupCode(groupCode).isPresent()) {
+        while (groupRepository.findByGroupCode(groupCode).isPresent()) {
             groupCode = generateGroupCode();
         }
         group.setGroupCode(groupCode);
@@ -60,14 +60,14 @@ public class GroupService {
 
         Optional<Group> gr = groupRepository.findByGroupCode(requestDto.getGroupCode());
 
-        if(gr.isEmpty()) {
+        if (gr.isEmpty()) {
             throw new CustomException(ExceptionMessage.GROUP_NOT_FOUND);
         }
 
         Group group = gr.get();
         //이미 가입한 그룹일 경우 튕겨냄
         Optional<GroupMember> ugl = groupMemberRepository.findByUserAndGroup(user, group);
-        if(ugl.isPresent()) {
+        if (ugl.isPresent()) {
             throw new CustomException(ExceptionMessage.ALREADY_JOINED);
         }
 
@@ -78,13 +78,11 @@ public class GroupService {
     }
 
 
-
-
     private String generateGroupCode() {
         StringBuilder groupCode = new StringBuilder();
         for (int i = 0; i < 10; i++) {
             Random random = new Random();
-            char c = (char)(random.nextInt(26)+97);
+            char c = (char) (random.nextInt(26) + 97);
             groupCode.append(c);
         }
 
@@ -96,12 +94,14 @@ public class GroupService {
 
         Page<GroupMember> groupMemberPage;
 
-        if(category.equals("joined")) {
+        if (category.equals("joined")) {
             groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.USER, pageable);
-        } else if(category.equals("myGroups")) {
+        } else if (category.equals("myGroups")) {
             groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.ADMIN, pageable);
-        } else {
+        } else if (category.equals("all")) {
             groupMemberPage = groupMemberRepository.findAllByUser(user, pageable);
+        } else {
+            throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
         }
 
         Page<GroupResponseDto> groupResponseDtoPage = GroupResponseDto.toDtoPage(groupMemberPage);
@@ -110,3 +110,4 @@ public class GroupService {
 
     }
 }
+
