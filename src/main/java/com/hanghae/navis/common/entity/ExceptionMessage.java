@@ -22,6 +22,7 @@ public enum ExceptionMessage {
     IMAGE_INVALID(BAD_REQUEST,"이미지가 잘못 되었습니다."),
     EMAIL_CODE_INVALID(BAD_REQUEST,"코드가 유효하지 않습니다."),
     EMAIL_SEND_FAIL(BAD_REQUEST,"이메일 전송에 실패하였습니다."),
+    INVALID_CATEGORY(BAD_REQUEST, "올바른 카테고리를 입력해주세요."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),

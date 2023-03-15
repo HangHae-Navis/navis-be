@@ -31,13 +31,7 @@ public class GroupResponseDto {
     }
 
     public static Page<GroupResponseDto> toDtoPage(Page<GroupMember> groupMemberPage) {
-        return groupMemberPage.map(m -> GroupResponseDto.builder()
-                .groupId(m.getId())
-                .groupName(m.getGroup().getGroupName())
-                .groupInfo(m.getGroup().getGroupInfo())
-                .adminName(m.getUser().getNickname())
-                .memberNumber(m.getGroup().getGroupMember().size())
-                .build());
+        return groupMemberPage.map(m -> GroupResponseDto.of(m.getGroup()));
     }
 
 }
