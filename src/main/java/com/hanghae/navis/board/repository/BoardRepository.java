@@ -7,8 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
-    List<Board> findAllByOrderByCreatedAtDesc();
-    List<Board> findAllByIdOrderByCreatedAtDesc(Long groupId);
-
     List<Board> findAllByGroupIdOrderByCreatedAtDesc(Long groupId);
 }

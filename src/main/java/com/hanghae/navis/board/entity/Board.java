@@ -2,6 +2,7 @@ package com.hanghae.navis.board.entity;
 
 import com.hanghae.navis.board.dto.BoardFileRequestDto;
 import com.hanghae.navis.board.dto.BoardRequestDto;
+import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.user.entity.User;
@@ -30,7 +31,7 @@ public class Board extends TimeStamped {
     @Column(nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = {CascadeType.ALL})
     private List<BoardFile> fileList = new ArrayList<>();
 
     @ManyToOne
@@ -39,7 +40,7 @@ public class Board extends TimeStamped {
     @ManyToOne
     private Group group;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = {CascadeType.ALL})
     private List<Comment> commentList = new ArrayList<>();
 
     public Board(BoardRequestDto requestDto, User user, Group group) {
@@ -49,7 +50,7 @@ public class Board extends TimeStamped {
         this.group = group;
     }
 
-    public void update(BoardRequestDto requestDto) {
+    public void update(BoardUpdateRequestDto requestDto) {
         this.content = requestDto.getContent();
         this.subtitle = requestDto.getSubtitle();
     }

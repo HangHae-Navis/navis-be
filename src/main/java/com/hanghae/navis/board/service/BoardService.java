@@ -3,6 +3,7 @@ package com.hanghae.navis.board.service;
 import com.hanghae.navis.board.dto.BoardListResponseDto;
 import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardResponseDto;
+import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.board.entity.BoardFile;
 import com.hanghae.navis.board.repository.BoardFileRepository;
@@ -21,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,12 +51,28 @@ public class BoardService {
 
         List<BoardListResponseDto> responseList = new ArrayList<>();
         List<Board> boardList = boardRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId);
-//        List<Board> boardList = boardRepository.findAllByIdOrderByCreatedAtDesc(groupId);       //groupId 받아오는 부분
 
         for (Board board : boardList) {
             responseList.add(new BoardListResponseDto(board));
         }
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, responseList);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> getBoard(Long groupId, Long boardId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        Board board = boardRepository.findById(boardId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, new BoardResponseDto(board));
     }
 
     @Transactional
@@ -72,53 +91,75 @@ public class BoardService {
 
             for (MultipartFile file : multipartFiles) {
                 String fileTitle = file.getOriginalFilename();
-                System.out.println(fileTitle);
                 String fileUrl = s3Uploader.upload(file);
                 BoardFile boardFile = new BoardFile(fileTitle, fileUrl, board);
                 fileRepository.save(boardFile);
                 board.addFile(boardFile);
             }
 
-            return Message.toResponseEntity(BOARD_POST_SUCCESS, new BoardResponseDto(board));        //responseDto 추가해서 테스트
+            return Message.toResponseEntity(BOARD_POST_SUCCESS, new BoardResponseDto(board));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public ResponseEntity<Message> updateBoard(Long groupId, Long boardId, BoardRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    @Transactional
+    public ResponseEntity<Message> updateBoard(Long groupId, Long boardId, BoardUpdateRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        Board board = boardRepository.findById(boardId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        if (!user.getUsername().equals(board.getUser().getUsername())) {
+            throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+        }
+
+        board.update(requestDto);
+
+        List<String> remainUrl = requestDto.getUpdateUrlList();
+
+        List<BoardFile> files = fileRepository.findFileUrlByBoardId(boardId);
+
         try {
-            user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                    () -> new CustomException(MEMBER_NOT_FOUND)
-            );
-
-            Board board = boardRepository.findById(boardId).orElseThrow(
-                    () -> new CustomException(BOARD_NOT_FOUND)
-            );
-
-            Group group = groupRepository.findById(groupId).orElseThrow(
-                    () -> new CustomException(GROUP_NOT_FOUND)
-            );
-
-            if (!user.getUsername().equals(board.getUser().getUsername())) {
-                throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+            for(BoardFile boardFile : files) {
+                if(!remainUrl.contains(boardFile.getFileUrl())) {
+                    board.getFileList().remove(boardFile);
+                    String source = URLDecoder.decode(boardFile.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
+                    s3Uploader.delete(source);
+                    fileRepository.delete(boardFile);
+                }
             }
 
-            for (MultipartFile file : multipartFiles) {
-                String fileTitle = file.getOriginalFilename();
-                System.out.println(fileTitle);
-                String fileUrl = s3Uploader.upload(file);
-                BoardFile boardFile = new BoardFile(fileTitle, fileUrl, board);
-                fileRepository.save(boardFile);
-                board.addFile(boardFile);
-            }
-            board.update(requestDto);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
 
-            return Message.toResponseEntity(BOARD_PUT_SUCCESS, new BoardResponseDto(board));
+        try {
+            if(multipartFiles != null) {
+                if(!multipartFiles.isEmpty() && !multipartFiles.get(0).isEmpty()) {
+                    for (MultipartFile file : multipartFiles) {
+                        String fileTitle = file.getOriginalFilename();
+                        String fileUrl = s3Uploader.upload(file);
+                        BoardFile boardFile = new BoardFile(fileTitle, fileUrl, board);
+                        fileRepository.save(boardFile);
+                        board.addFile(boardFile);
+                    }
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return Message.toResponseEntity(BOARD_PUT_SUCCESS, new BoardResponseDto(board));
     }
 
+    @Transactional
     public ResponseEntity<Message> deleteBoard(Long groupId, Long boardId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
@@ -136,6 +177,16 @@ public class BoardService {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
+        if(board.getFileList().size() > 0) {
+            try {
+                for (BoardFile boardFile : board.getFileList()) {
+                    String source = URLDecoder.decode(boardFile.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
+                    s3Uploader.delete(source);
+                }
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }
         boardRepository.deleteById(boardId);
         return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
     }

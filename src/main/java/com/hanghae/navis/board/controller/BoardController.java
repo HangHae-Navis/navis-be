@@ -1,9 +1,11 @@
 package com.hanghae.navis.board.controller;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
+import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.board.service.BoardService;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
+import com.hanghae.navis.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +32,13 @@ public class BoardController {
         return boardService.boardList(groupId, userDetails.getUser());
     }
 
+    @GetMapping("/{boardId}")
+    @Operation(summary = "게시글 상세 조회", description = "게시글 상세 조회")
+    public ResponseEntity<Message> getBoard(@PathVariable Long groupId, @PathVariable Long boardId,
+                                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.getBoard(groupId, boardId, userDetails.getUser());
+    }
+
     @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "게시글 등록", description = "게시글 등록, 파일 다중 업로드")
     public ResponseEntity<Message> createBoard(@PathVariable Long groupId,
@@ -43,7 +52,7 @@ public class BoardController {
     @Operation(summary = "게시글 수정", description = "게시글 수정")
     public ResponseEntity<Message> updateBoard(@PathVariable Long groupId,
                                                @PathVariable Long boardId,
-                                               @RequestPart BoardRequestDto requestDto,
+                                               @RequestPart BoardUpdateRequestDto requestDto,
                                                @ModelAttribute List<MultipartFile> multipartFiles,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.updateBoard(groupId, boardId, requestDto, multipartFiles, userDetails.getUser());
