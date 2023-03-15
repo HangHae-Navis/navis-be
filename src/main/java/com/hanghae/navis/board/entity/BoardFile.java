@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity(name = "boardFile")
+@Entity(name = "board_file")
 @Getter
 @NoArgsConstructor
 public class BoardFile extends TimeStamped {

@@ -2,7 +2,6 @@ package com.hanghae.navis.group.entity;
 
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.user.entity.User;
-import com.hanghae.navis.user.entity.UserRoleEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,8 +11,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "usergrouplist")
-public class UserGroupList extends TimeStamped {
+@Entity(name = "group_member")
+public class GroupMember extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,12 +25,12 @@ public class UserGroupList extends TimeStamped {
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private UserGroupRoleEnum groupRole;
+    private GroupMemberRoleEnum groupRole;
 
-    public UserGroupList(User user, Group group) {
+    public GroupMember(User user, Group group) {
         this.user = user;
         this.group = group;
-        this.groupRole = UserGroupRoleEnum.USER;
+        this.groupRole = GroupMemberRoleEnum.USER;
     }
 }
 

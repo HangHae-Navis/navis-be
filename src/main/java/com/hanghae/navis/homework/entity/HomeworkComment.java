@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity(name = "homeworkcomment")
+@Entity(name = "homework_comment")
 @Getter
 @NoArgsConstructor
 public class HomeworkComment extends TimeStamped {

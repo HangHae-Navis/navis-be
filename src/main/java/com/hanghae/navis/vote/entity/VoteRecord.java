@@ -1,26 +1,24 @@
-package com.hanghae.navis.meet.entity;
+package com.hanghae.navis.vote.entity;
 
 import com.hanghae.navis.common.entity.TimeStamped;
-import com.hanghae.navis.group.entity.Group;
-import com.hanghae.navis.user.entity.User;
+import com.hanghae.navis.group.entity.GroupMember;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity(name = "meet_room")
+@Entity(name = "voteRecord")
 @Getter
 @NoArgsConstructor
-public class MeetRoom extends TimeStamped {
+public class VoteRecord extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    private User user;
+    private VoteOption voteOption;
 
     @ManyToOne
-    private Group group;
-
-    Long participantCount;
+    @JoinColumn(name = "groupmember_id")
+    private GroupMember groupMember;
 }

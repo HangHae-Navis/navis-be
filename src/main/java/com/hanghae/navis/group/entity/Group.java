@@ -32,7 +32,7 @@ public class Group extends TimeStamped {
     @ManyToOne
     private User user;
     @OneToMany(mappedBy = "group")
-    List<UserGroupList> userGroupList = new ArrayList<>();
+    List<GroupMember> groupMember = new ArrayList<>();
 
     @OneToMany(mappedBy = "group")
     List<MeetRoom> meetRoomList = new ArrayList<>();

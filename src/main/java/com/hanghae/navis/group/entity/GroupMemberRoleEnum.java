@@ -1,14 +1,14 @@
 package com.hanghae.navis.group.entity;
 
 
-public enum UserGroupRoleEnum {
+public enum GroupMemberRoleEnum {
     USER(Authority.USER),  // 사용자 권한
     SUPPORT(Authority.SUPPORT),  // 서포트 권한
     ADMIN(Authority.ADMIN);  // 관리자 권한
 
     private final String authority;
 
-    UserGroupRoleEnum(String authority) {
+    GroupMemberRoleEnum(String authority) {
         this.authority = authority;
     }
 

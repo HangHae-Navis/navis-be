@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity(name = "homeworksubjectfile")
+@Entity(name = "homework_subject_file")
 @Getter
 @NoArgsConstructor
 public class HomeworkSubjectFile extends TimeStamped {

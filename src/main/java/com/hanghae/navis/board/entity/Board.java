@@ -4,7 +4,6 @@ import com.hanghae.navis.board.dto.BoardFileRequestDto;
 import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
-import com.hanghae.navis.group.entity.QUserGroupList;
 import com.hanghae.navis.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +17,8 @@ import java.util.List;
 @Entity(name = "board")
 @Getter
 @NoArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn
 public class Board extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
