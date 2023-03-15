@@ -22,6 +22,6 @@ public class HomeworkSubject extends TimeStamped {
     @ManyToOne
     private Group group;
 
-    @OneToMany(mappedBy = "homework_subject")
+    @OneToMany(mappedBy = "homeworkSubject")
     List<HomeworkSubjectFile> homeworkSubjectFileList = new ArrayList<>();
 }

@@ -4,7 +4,6 @@ import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.group.dto.GroupRequestDto;
 import com.hanghae.navis.group.dto.ApplyRequestDto;
-import com.hanghae.navis.group.dto.GroupResponseDto;
 import com.hanghae.navis.group.service.GroupService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
