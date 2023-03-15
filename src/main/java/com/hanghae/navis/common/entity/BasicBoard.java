@@ -2,8 +2,6 @@ package com.hanghae.navis.common.entity;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
-import com.hanghae.navis.board.entity.Comment;
-import com.hanghae.navis.board.entity.File;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.user.entity.User;
 import lombok.Getter;

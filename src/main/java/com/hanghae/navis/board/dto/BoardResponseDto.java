@@ -1,7 +1,7 @@
 package com.hanghae.navis.board.dto;
 
 import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.board.entity.File;
+import com.hanghae.navis.common.entity.File;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

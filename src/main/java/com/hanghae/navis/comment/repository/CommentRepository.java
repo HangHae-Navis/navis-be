@@ -1,6 +1,6 @@
 package com.hanghae.navis.comment.repository;
 
-import com.hanghae.navis.board.entity.Comment;
+import com.hanghae.navis.common.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
