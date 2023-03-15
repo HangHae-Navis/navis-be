@@ -1,9 +1,13 @@
 package com.hanghae.navis.board.entity;
 
+import com.hanghae.navis.board.dto.BoardFileRequestDto;
 import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.entity.QUserGroupList;
 import com.hanghae.navis.user.entity.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +26,9 @@ public class Board extends TimeStamped {
     @Column(nullable = false)
     private String content;
 
+    @OneToMany(mappedBy = "board")
+    private List<BoardFile> fileList = new ArrayList<>();
+
     @ManyToOne
     private User user;
 
@@ -31,9 +38,12 @@ public class Board extends TimeStamped {
     @OneToMany(mappedBy = "board")
     private List<Comment> commentList = new ArrayList<>();
 
-    public Board(BoardRequestDto requestDto, User user, Group group) {
+    public Board(BoardRequestDto requestDto, User user) {
         this.content = requestDto.getContent();
         this.user = user;
-        this.group = group;
+    }
+
+    public void addFile(BoardFile boardFile) {
+        fileList.add(boardFile);
     }
 }
