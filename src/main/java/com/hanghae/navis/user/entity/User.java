@@ -44,7 +44,7 @@ public class User extends TimeStamped {
     List<Group> groupList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    List<GroupMember> userGroupList = new ArrayList<>();
+    List<GroupMember> groupMemberList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     List<Board> boardList = new ArrayList<>();
