@@ -33,7 +33,4 @@ public class Homework extends TimeStamped {
 
     @Column(nullable = true)
     private LocalDateTime expirationDate;
-
-    @OneToMany(mappedBy = "homework")
-    List<HomeworkComment> homeworkCommentList = new ArrayList<>();
 }

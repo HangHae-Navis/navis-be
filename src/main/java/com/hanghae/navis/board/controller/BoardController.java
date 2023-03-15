@@ -5,7 +5,6 @@ import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.board.service.BoardService;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
-import com.hanghae.navis.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +20,7 @@ import java.util.List;
 @Tag(name = "board")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/boards/{groupId}")
+@RequestMapping("/api/{groupId}/boards/")
 public class BoardController {
     private final BoardService boardService;
 
