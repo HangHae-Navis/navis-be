@@ -1,15 +1,15 @@
 package com.hanghae.navis.homework.dto;
 
+import com.hanghae.navis.board.dto.BoardListResponseDto;
 import com.hanghae.navis.homework.entity.Homework;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
-public class HomeworkListReponseDto {
+public class HomeworkListResponseDto extends BoardListResponseDto {
     private Long id;
 
     private String title;
@@ -26,7 +26,7 @@ public class HomeworkListReponseDto {
 
     private LocalDateTime expirationDate;
 
-    public HomeworkListReponseDto(Homework homework) {
+    public HomeworkListResponseDto(Homework homework) {
         this.id = homework.getId();
         this.title = homework.getTitle();
         this.subtitle = homework.getSubtitle();
