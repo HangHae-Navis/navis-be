@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "group")
 @Controller
@@ -23,9 +25,9 @@ public class GroupController {
 
     private final GroupService groupService;
 
-    @PostMapping("")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "그룹 개설", description ="그룹명 필수, groupInfo는 생략 가능")
-    public ResponseEntity<Message> createGroup(@RequestBody GroupRequestDto requestDto,
+    public ResponseEntity<Message> createGroup(@ModelAttribute GroupRequestDto requestDto,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return groupService.createGroup(requestDto, userDetails.getUser());
     }
