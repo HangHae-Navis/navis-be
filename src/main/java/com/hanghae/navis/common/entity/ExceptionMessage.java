@@ -15,6 +15,7 @@ public enum ExceptionMessage {
     INVALID_TOKEN(BAD_REQUEST, "Invalid JWT signature, 유효하지 않는 JWT 서명 입니다"),
     UNSUPPORTED_TOKEN(BAD_REQUEST, "Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다"),
     ILLEAGAL_TOKEN(BAD_REQUEST, "JWT claims is empty, 잘못된 JWT 토큰 입니다."),
+    VOTE_EXPIRED(NOT_FOUND, "투표가 종료되었습니다."),
 
     CANNOT_FOLLOW_MYSELF(BAD_REQUEST, "자기 자신은 팔로우 할 수 없습니다"),
     NICKNAME_WITH_SPACES(BAD_REQUEST,"공백이 포함된 닉네임입니다."),
@@ -41,6 +42,11 @@ public enum ExceptionMessage {
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "로그아웃 된 사용자입니다"),
     NOT_FOLLOW(NOT_FOUND, "팔로우 중이지 않습니다"),
     LIKE_NOT_FOUND(NOT_FOUND, "좋아요를 취소할 수 없습니다."),
+    GROUP_MEMBER_NOT_FOUND(NOT_FOUND,"그룹에 가입되어있지 않습니다."),
+    VOTE_OPTION_NOT_FOUND(NOT_FOUND, "해당 옵션을 찾을수 없습니다."),
+
+
+
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
     ALREADY_APPLIED(CONFLICT, "이미 신청이 진행중입니다."),
