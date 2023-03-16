@@ -19,4 +19,13 @@ public class VoteOption {
 
     @OneToMany(mappedBy = "voteOption")
     private List<VoteRecord> voteRecordList;
+
+    public VoteOption(Vote vote, String option) {
+        this.vote = vote;
+        this.option = option;
+    }
+
+    public VoteOption(String option) {
+        this.option = option;
+    }
 }
