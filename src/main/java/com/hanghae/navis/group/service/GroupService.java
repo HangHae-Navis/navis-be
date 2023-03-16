@@ -41,7 +41,7 @@ public class GroupService {
     public ResponseEntity<Message> createGroup(@RequestBody GroupRequestDto requestDto, User user) {
 
         Group group = new Group(requestDto, user);
-        MultipartFile multipartFile = requestDto.getMultipartFile();
+        MultipartFile multipartFile = requestDto.getGroupImage();
 
         if(!(multipartFile == null || multipartFile.isEmpty())) {
             try{
