@@ -20,11 +20,11 @@ import java.util.List;
 @Tag(name = "board")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/{groupId}/boards/")
+@RequestMapping("/api/{groupId}/boards")
 public class BoardController {
     private final BoardService boardService;
 
-    @GetMapping("/posts")
+    @GetMapping("/")
     @Operation(summary = "게시글 목록", description = "게시글 목록")
     public ResponseEntity<Message> boardList(@PathVariable Long groupId,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -38,7 +38,7 @@ public class BoardController {
         return boardService.getBoard(groupId, boardId, userDetails.getUser());
     }
 
-    @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "게시글 등록", description = "게시글 등록, 파일 다중 업로드")
     public ResponseEntity<Message> createBoard(@PathVariable Long groupId,
                                                @RequestPart BoardRequestDto requestDto,
