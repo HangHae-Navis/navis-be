@@ -21,4 +21,9 @@ public class VoteRecord extends TimeStamped {
     @ManyToOne
     @JoinColumn(name = "groupmember_id")
     private GroupMember groupMember;
+
+    public VoteRecord(VoteOption voteOption, GroupMember groupMember) {
+        this.voteOption = voteOption;
+        this.groupMember = groupMember;
+    }
 }
