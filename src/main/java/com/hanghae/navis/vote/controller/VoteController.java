@@ -24,6 +24,19 @@ import java.util.List;
 public class VoteController {
 
     private final VoteService voteService;
+    @GetMapping("")
+    @Operation(summary = "투표 전체목록", description = "투표 전체목록")
+    public ResponseEntity<Message> getVoteList(@PathVariable Long groupId,
+                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.getVoteList(groupId, userDetails.getUser());
+    }
+
+    @GetMapping("/{voteId}")
+    @Operation(summary = "투표 상세 조회", description = "투표 상세 조회, 만료시간은 유닉스 시간으로.")
+    public ResponseEntity<Message> getBoard(@PathVariable Long groupId, @PathVariable Long voteId,
+                                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.getVote(groupId, voteId, userDetails.getUser());
+    }
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "투표등록", description = "투표 등록, 파일 다중 업로드")
     public ResponseEntity<Message> createBoard(@PathVariable Long groupId,

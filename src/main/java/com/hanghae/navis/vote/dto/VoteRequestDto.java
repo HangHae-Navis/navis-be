@@ -12,10 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 public class VoteRequestDto extends BoardRequestDto {
 
+    private long expirationDate;
     private List<OptionRequestDto> optionRequestDto;
 
-    public VoteRequestDto(String title, String content, String subtitle, List<OptionRequestDto> optionRequestDto) {
+    public VoteRequestDto(String title, String content, String subtitle, long expirationDate, List<OptionRequestDto> optionRequestDto) {
         super(title, content, subtitle);
+        this.expirationDate = expirationDate;
         this.optionRequestDto = optionRequestDto;
     }
 }
