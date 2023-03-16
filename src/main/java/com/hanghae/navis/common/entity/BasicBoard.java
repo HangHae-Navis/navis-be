@@ -34,10 +34,10 @@ public abstract class BasicBoard extends TimeStamped {
     @ManyToOne
     protected Group group;
 
-    @OneToMany(mappedBy = "board", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "basicBoard", cascade = {CascadeType.ALL})
     private List<File> fileList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "basicBoard", cascade = {CascadeType.ALL})
     private List<Comment> commentList = new ArrayList<>();
 
     public BasicBoard(BoardRequestDto requestDto, User user, Group group) {

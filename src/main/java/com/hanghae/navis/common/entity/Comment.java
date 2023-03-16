@@ -24,12 +24,12 @@ public class Comment extends TimeStamped {
     private User user;
 
     @ManyToOne
-    private Board board;
+    private BasicBoard basicBoard;
 
-    public Comment(CommentRequestDto requestDto, User user, Board board) {
+    public Comment(CommentRequestDto requestDto, User user, BasicBoard basicBoard) {
         this.content = requestDto.getContent();
         this.user = user;
-        this.board = board;
+        this.basicBoard = basicBoard;
     }
 
     public void updateComment(CommentRequestDto requestDto) {

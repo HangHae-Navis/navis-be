@@ -1,6 +1,7 @@
 package com.hanghae.navis.board.dto;
 
 import com.hanghae.navis.board.entity.Board;
+import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.File;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +28,7 @@ public class BoardResponseDto {
 
     private LocalDateTime createAt;
 
-    public BoardResponseDto(Board board, List<FileResponseDto> fileList) {
+    public BoardResponseDto(BasicBoard board, List<FileResponseDto> fileList) {
         this.id = board.getId();
         this.nickname = board.getUser().getNickname();
         this.content = board.getContent();

@@ -20,4 +20,5 @@ public class Vote extends BasicBoard {
     }
     @OneToMany(mappedBy = "vote")
     private List<VoteOption> voteOptionList;
+
 }

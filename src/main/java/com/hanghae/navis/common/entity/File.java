@@ -20,12 +20,12 @@ public class File extends TimeStamped {
     private String fileUrl;
 
     @ManyToOne
-    private BasicBoard board;
+    private BasicBoard basicBoard;
 
-    public File(String fileTitle, String fileUrl, BasicBoard board) {
+    public File(String fileTitle, String fileUrl, BasicBoard basicBoard) {
         this.fileTitle = fileTitle;
         this.fileUrl = fileUrl;
-        this.board = board;
+        this.basicBoard = basicBoard;
     }
 
     public void updateFile(String fileTitle, String fileUrl) {

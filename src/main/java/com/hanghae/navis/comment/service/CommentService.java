@@ -47,7 +47,7 @@ public class CommentService {
         );
 
         List<CommentResponseDto> responseList = new ArrayList<>();
-        List<Comment> commentList = commentRepository.findAllByBoardIdOrderByCreatedAtDesc(boardId);
+        List<Comment> commentList = commentRepository.findAllByIdOrderByCreatedAtDesc(boardId);
 
         for(Comment comment : commentList) {
             responseList.add(new CommentResponseDto(comment));
