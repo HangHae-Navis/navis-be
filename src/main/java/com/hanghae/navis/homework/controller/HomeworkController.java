@@ -6,6 +6,7 @@ import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.homework.dto.HomeworkRequestDto;
+import com.hanghae.navis.homework.dto.HomeworkUpdateRequestDto;
 import com.hanghae.navis.homework.service.HomeworkService;
 import com.hanghae.navis.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,12 +55,16 @@ public class HomeworkController {
     @Operation(summary = "과제 게시글 수정", description = "과제 게시글 수정, 일반 유저는 불가능")
     @PutMapping("/{boardId}")
     public ResponseEntity<Message> updateHomework(@PathVariable Long groupId, @PathVariable Long boardId,
-                                                  @RequestPart BoardUpdateRequestDto updateRequestDto,
-                                                  @RequestPart HomeworkRequestDto homeworkUpdateDto,
+                                                  @RequestPart HomeworkUpdateRequestDto requestDto,
                                                   @ModelAttribute List<MultipartFile> multipartFiles,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return homeworkService.updateHomework(groupId, boardId, updateRequestDto, homeworkUpdateDto, multipartFiles, userDetails.getUser());
+        return homeworkService.updateHomework(groupId, boardId, requestDto, multipartFiles, userDetails.getUser());
     }
 
-
+    @Operation(summary = "과제 게시글 삭제", description = "과제 게시글 삭제, 일반 유저는 불가능")
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<Message> deleteHomework(@PathVariable Long groupId, @PathVariable Long boardId,
+                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return homeworkService.deleteHomework(groupId, boardId, userDetails.getUser());
+    }
 }
