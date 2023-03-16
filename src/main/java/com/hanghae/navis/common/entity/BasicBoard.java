@@ -50,6 +50,7 @@ public abstract class BasicBoard extends TimeStamped {
     }
 
     public void update(BoardUpdateRequestDto requestDto) {
+        this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.subtitle = requestDto.getSubtitle();
     }

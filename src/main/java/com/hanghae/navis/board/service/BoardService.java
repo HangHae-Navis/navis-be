@@ -138,7 +138,7 @@ public class BoardService {
 
         List<String> remainUrl = requestDto.getUpdateUrlList();
 
-        List<File> files = fileRepository.findFileUrlById(boardId);
+        List<File> files = fileRepository.findFileUrlByBasicBoardId(boardId);
 
         try {
             for(File boardFile : files) {

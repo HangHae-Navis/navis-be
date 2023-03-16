@@ -29,7 +29,10 @@ public enum SuccessMessage {
     LIKE_DELETE_SUCCESS(HttpStatus.CREATED, "좋아요 취소 완료"),
     EMAIL_SEND_SUCCESS(HttpStatus.CREATED, "메일 전송 완료"),
     EMAIL_CONFIRM_SUCCESS(HttpStatus.OK, "메일 인증 완료"),
-    BOARD_LIST_GET_SUCCESS(HttpStatus.OK, "게시글 리스트 조회 성공");
+    BOARD_LIST_GET_SUCCESS(HttpStatus.OK, "게시글 리스트 조회 성공"),
+    VOTE_PICK_SUCCESS(HttpStatus.OK, "투표 등록 성공"),
+    VOTE_CANCEL_SUCCESS(HttpStatus.OK, "투표 취소 성공"),
+    VOTE_FORCE_EXPIRED_SUCCESS(HttpStatus.OK,"투표 강제 만료 성공");
     private final HttpStatus httpStatus;
     private final String detail;
 }

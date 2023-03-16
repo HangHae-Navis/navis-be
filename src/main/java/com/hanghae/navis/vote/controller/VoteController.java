@@ -1,6 +1,7 @@
 package com.hanghae.navis.vote.controller;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
+import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.vote.dto.VoteRequestDto;
@@ -24,12 +25,62 @@ import java.util.List;
 public class VoteController {
 
     private final VoteService voteService;
+
+    @GetMapping("")
+    @Operation(summary = "투표 전체목록", description = "투표 전체목록")
+    public ResponseEntity<Message> getVoteList(@PathVariable Long groupId,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.getVoteList(groupId, userDetails.getUser());
+    }
+
+    @GetMapping("/{voteId}")
+    @Operation(summary = "투표 상세 조회", description = "투표 상세 조회, 만료시간은 유닉스 시간으로.")
+    public ResponseEntity<Message> getBoard(@PathVariable Long groupId, @PathVariable Long voteId,
+                                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.getVote(groupId, voteId, userDetails.getUser());
+    }
+
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "투표등록", description = "투표 등록, 파일 다중 업로드")
+    @Operation(summary = "투표등록", description = "투표 등록, 파일 다중 업로드, updateUrlList 빼고 해주세요")
     public ResponseEntity<Message> createBoard(@PathVariable Long groupId,
                                                @RequestPart VoteRequestDto requestDto,
                                                @ModelAttribute List<MultipartFile> multipartFiles,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return voteService.createVote(groupId, requestDto, multipartFiles, userDetails.getUser());
+    }
+
+//    @PutMapping("/{voteId}")
+//    @Operation(summary = "투표 수정", description = "투표 수정")
+//    public ResponseEntity<Message> updateBoard(@PathVariable Long groupId,
+//                                               @PathVariable Long voteId,
+//                                               @RequestPart VoteRequestDto requestDto,
+//                                               @ModelAttribute List<MultipartFile> multipartFiles,
+//                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        return voteService.updateVote(groupId, voteId, requestDto, multipartFiles, userDetails.getUser());
+//    }
+
+    @DeleteMapping("/{voteId}")
+    @Operation(summary = "투표 삭제", description = "투표 삭제")
+    public ResponseEntity<Message> deleteBoard(@PathVariable Long groupId,
+                                               @PathVariable Long voteId,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.deleteVote(groupId, voteId, userDetails.getUser());
+    }
+
+    @GetMapping(value = "/{voteId}/force-expired")
+    @Operation(summary = "투표 강제종료", description = "투표 강제종료")
+    public ResponseEntity<Message> createBoard(@PathVariable Long groupId,
+                                               @PathVariable Long voteId,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.forceExpired(groupId, voteId, userDetails.getUser());
+    }
+
+    @GetMapping(value = "/{voteId}/pick/{voteOption}")
+    @Operation(summary = "투표 선택", description = "투표 선택")
+    public ResponseEntity<Message> votePick(@PathVariable Long groupId,
+                                            @PathVariable Long voteId,
+                                            @PathVariable Long voteOption,
+                                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.votePick(groupId, voteId, voteOption, userDetails.getUser());
     }
 }

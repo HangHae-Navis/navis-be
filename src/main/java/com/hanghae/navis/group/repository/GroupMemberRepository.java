@@ -1,4 +1,4 @@
-package com.hanghae.navis.user.repository;
+package com.hanghae.navis.group.repository;
 
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;

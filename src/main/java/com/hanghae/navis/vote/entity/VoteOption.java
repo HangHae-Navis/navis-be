@@ -17,7 +17,7 @@ public class VoteOption {
     private Vote vote;
     private String option;
 
-    @OneToMany(mappedBy = "voteOption")
+    @OneToMany(mappedBy = "voteOption", cascade = {CascadeType.ALL})
     private List<VoteRecord> voteRecordList;
 
     public VoteOption(Vote vote, String option) {
