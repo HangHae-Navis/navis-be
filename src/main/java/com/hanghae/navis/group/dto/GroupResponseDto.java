@@ -17,6 +17,7 @@ public class GroupResponseDto {
     private Long groupId;
     private String groupName;
     private String groupInfo;
+    private String groupImage;
     private String adminName;
     private int memberNumber;
 
@@ -25,6 +26,7 @@ public class GroupResponseDto {
                 .groupId(group.getId())
                 .groupName(group.getGroupName())
                 .groupInfo(group.getGroupInfo())
+                .groupImage(group.getGroupImage())
                 .adminName(group.getUser().getNickname())
                 .memberNumber(group.getGroupMember().size())
                 .build();

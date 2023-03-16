@@ -30,6 +30,9 @@ public class Group extends TimeStamped {
     @Column(nullable = false, unique = true)
     private String groupCode;
 
+    @Column
+    private String groupImage;
+
     @ManyToOne
     private User user;
     @OneToMany(mappedBy = "group")
@@ -51,5 +54,9 @@ public class Group extends TimeStamped {
         this.groupName = groupRequestDto.getGroupName();
         this.groupInfo = groupRequestDto.getGroupInfo();
         this.user = user;
+    }
+
+    public void addGroupImage(String groupImage) {
+        this.groupImage = groupImage;
     }
 }
