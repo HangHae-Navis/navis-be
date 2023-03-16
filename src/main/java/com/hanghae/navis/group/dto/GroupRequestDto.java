@@ -11,5 +11,5 @@ public class GroupRequestDto {
 
     private String groupName;
     private String groupInfo;
-    private MultipartFile multipartFile;
+    private MultipartFile groupImage;
 }
