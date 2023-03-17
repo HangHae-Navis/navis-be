@@ -1,5 +1,6 @@
 package com.hanghae.navis.group.service;
 
+import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
@@ -37,6 +38,7 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final BasicBoardRepository basicBoardRepository;
+    private final BoardRepository boardRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional
@@ -164,6 +166,8 @@ public class GroupService {
 
         if (category.equals("all")) {
             basicBoardPage = basicBoardRepository.findAllByGroupOrderByCreatedAtDesc(group, pageable);
+        } else if(category.equals("board") || category.equals("vote") || category.equals("homework")) {
+            basicBoardPage = basicBoardRepository.findAllByGroupAndDtypeOrderByCreatedAtDesc(group, category, pageable);
         } else {
             throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
         }

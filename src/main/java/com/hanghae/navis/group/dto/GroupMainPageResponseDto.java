@@ -8,23 +8,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupMainPageResponseDto {
     private String groupName;
+    private String groupInfo;
+    private String groupCode;
     private boolean isAdmin;
-    private Page<BasicBoardResponseDto> basicBoards;
+    private Page<MainPageBasicBoardDto> basicBoards;
 
     public static GroupMainPageResponseDto of(Group group, boolean isAdmin, Page<BasicBoard> basicBoardPage) {
         return GroupMainPageResponseDto.builder()
                 .groupName(group.getGroupName())
+                .groupInfo(group.getGroupInfo())
+                .groupCode(group.getGroupCode())
                 .isAdmin(isAdmin)
-                .basicBoards(BasicBoardResponseDto.toDtoPage(basicBoardPage))
+                .basicBoards(MainPageBasicBoardDto.toDtoPage(basicBoardPage))
                 .build();
     }
 

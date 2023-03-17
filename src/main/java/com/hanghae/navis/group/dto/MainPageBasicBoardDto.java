@@ -1,7 +1,6 @@
 package com.hanghae.navis.group.dto;
 
 import com.hanghae.navis.common.entity.BasicBoard;
-import com.hanghae.navis.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,27 +13,29 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BasicBoardResponseDto {
+public class MainPageBasicBoardDto {
     private Long id;
     private String title;
     private String subtitle;
+    private String dtype;
     private String nickname;
 
     private String dtype;
     private LocalDateTime createdAt;
 
-    public static BasicBoardResponseDto of(BasicBoard basicBoard) {
-        return BasicBoardResponseDto.builder()
+    public static MainPageBasicBoardDto of(BasicBoard basicBoard) {
+        return MainPageBasicBoardDto.builder()
                 .id(basicBoard.getId())
                 .title(basicBoard.getTitle())
                 .subtitle(basicBoard.getSubtitle())
+                .dtype(basicBoard.getDtype())
                 .nickname(basicBoard.getUser().getNickname())
                 .dtype(basicBoard.getDtype())
                 .createdAt(basicBoard.getCreatedAt())
                 .build();
     }
 
-    public static Page<BasicBoardResponseDto> toDtoPage(Page<BasicBoard> basicBoardPage) {
-        return basicBoardPage.map(BasicBoardResponseDto::of);
+    public static Page<MainPageBasicBoardDto> toDtoPage(Page<BasicBoard> basicBoardPage) {
+        return basicBoardPage.map(MainPageBasicBoardDto::of);
     }
 }

@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BasicBoardRepository extends JpaRepository<BasicBoard, Long> {
     Page<BasicBoard> findAllByGroupOrderByCreatedAtDesc(Group group, Pageable pageable);
+    Page<BasicBoard> findAllByGroupAndDtypeOrderByCreatedAtDesc(Group group, String dtype, Pageable pageable);
 }
