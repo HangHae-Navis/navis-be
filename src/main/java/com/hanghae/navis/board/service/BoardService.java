@@ -140,7 +140,7 @@ public class BoardService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        BoardResponseDto boardResponseDto = new BoardResponseDto(board, null, null);
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null);
 
         if (!user.getUsername().equals(board.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
@@ -177,7 +177,7 @@ public class BoardService {
                         fileRepository.save(boardFile);
                         fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
                     }
-                    boardResponseDto = new BoardResponseDto(board, fileResponseDto, null);
+                    boardResponseDto = BoardResponseDto.of(board, fileResponseDto, null);
                 }
 
             }
