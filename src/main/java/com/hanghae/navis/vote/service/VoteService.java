@@ -79,12 +79,10 @@ public class VoteService {
         );
 
         List<OptionResponseDto> optionResponseDto = new ArrayList<>();
+
         for (VoteOption voteOption : vote.getVoteOptionList()) {
             optionResponseDto.add(OptionResponseDto.of(voteOption));
         }
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 

@@ -19,6 +19,8 @@ public class BasicBoardResponseDto {
     private String title;
     private String subtitle;
     private String nickname;
+
+    private String dtype;
     private LocalDateTime createdAt;
 
     public static BasicBoardResponseDto of(BasicBoard basicBoard) {
@@ -27,6 +29,7 @@ public class BasicBoardResponseDto {
                 .title(basicBoard.getTitle())
                 .subtitle(basicBoard.getSubtitle())
                 .nickname(basicBoard.getUser().getNickname())
+                .dtype(basicBoard.getDtype())
                 .createdAt(basicBoard.getCreatedAt())
                 .build();
     }
