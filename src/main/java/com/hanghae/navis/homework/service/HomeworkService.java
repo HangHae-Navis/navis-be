@@ -62,7 +62,7 @@ public class HomeworkService {
         List<Homework> homeworkList = homeworkRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId);
 
         for(Homework homework : homeworkList) {
-            responseList.add(new HomeworkListResponseDto(homework));
+            responseList.add(HomeworkListResponseDto.of(homework));
         }
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, responseList);
     }
