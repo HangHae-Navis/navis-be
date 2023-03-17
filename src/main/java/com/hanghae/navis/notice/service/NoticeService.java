@@ -237,7 +237,7 @@ public class NoticeService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if (groupMember.getGroupRole().equals(UserRoleEnum.USER)) {
+        if (groupMember.getGroupRole().getAuthority().equals(UserRoleEnum.Authority.USER)) {
             throw new CustomException(UNAUTHORIZED_ADMIN);
         }
 
