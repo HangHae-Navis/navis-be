@@ -24,7 +24,7 @@ import java.util.List;
 public class NoticeController {
     private final NoticeService noticeService;
 
-    @GetMapping("/")
+    @GetMapping("")
     @Operation(summary = "공지사항 목록", description = "공지사항 목록")
     public ResponseEntity<Message> noticeList(@PathVariable Long groupId,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -38,7 +38,7 @@ public class NoticeController {
         return noticeService.getNotice(groupId, noticeId, userDetails.getUser());
     }
 
-    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "공지사항 등록", description = "공지사항 등록, 파일 다중 업로드")
     public ResponseEntity<Message> createNotice(@PathVariable Long groupId,
                                                @RequestPart NoticeRequestDto requestDto,
