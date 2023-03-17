@@ -113,7 +113,7 @@ public class HomeworkService {
             String tag = hashtagRequestDto.getHashtag();
             Hashtag hashtag = new Hashtag(tag, homework);
             hashtagRepository.save(hashtag);
-            hashtagResponseDto.add(new HashtagResponseDto(tag));
+            hashtagResponseDto.add(new HashtagResponseDto(hashtag));
         }
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();

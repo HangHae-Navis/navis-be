@@ -2,7 +2,6 @@ package com.hanghae.navis.board.controller;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
-import com.hanghae.navis.board.dto.HashtagRequestDto;
 import com.hanghae.navis.board.service.BoardService;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
@@ -64,5 +63,13 @@ public class BoardController {
                                                @PathVariable Long boardId,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.deleteBoard(groupId, boardId, userDetails.getUser());
+    }
+
+    @DeleteMapping("/hashtag/{hashtagId}")
+    @Operation(summary = "해시태그 삭제", description = "해시태그 삭제")
+    public ResponseEntity<Message> deleteHashtag(@PathVariable Long groupId,
+                                                 @PathVariable Long hashtagId,
+                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.deleteHashtag(groupId, hashtagId, userDetails.getUser());
     }
 }

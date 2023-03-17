@@ -86,7 +86,7 @@ public class BoardService {
 
         List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
         for(Hashtag hashtag : board.getHashtagList()) {
-            hashtagResponseDto.add(new HashtagResponseDto(hashtag.getHashtagName()));
+            hashtagResponseDto.add(new HashtagResponseDto(hashtag));
         }
 
         BoardResponseDto boardResponseDto = new BoardResponseDto(board, fileResponseDto, hashtagResponseDto);
@@ -113,7 +113,7 @@ public class BoardService {
                 String tag = hashtagRequestDto.getHashtag();
                 Hashtag hashtag = new Hashtag(tag, board);
                 hashtagRepository.save(hashtag);
-                hashtagResponseDto.add(new HashtagResponseDto(tag));
+                hashtagResponseDto.add(new HashtagResponseDto(hashtag));
             }
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
@@ -224,5 +224,23 @@ public class BoardService {
         }
         boardRepository.deleteById(boardId);
         return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> deleteHashtag(Long groupId, Long hashtagId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        Hashtag hashtag = hashtagRepository.findById(hashtagId).orElseThrow(
+                () -> new CustomException(HASHTAG_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        hashtagRepository.deleteById(hashtagId);
+        return Message.toResponseEntity(HASHTAG_DELETE_SUCCESS);
     }
 }

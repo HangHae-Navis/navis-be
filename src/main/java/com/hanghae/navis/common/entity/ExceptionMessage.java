@@ -44,6 +44,7 @@ public enum ExceptionMessage {
     LIKE_NOT_FOUND(NOT_FOUND, "좋아요를 취소할 수 없습니다."),
     GROUP_MEMBER_NOT_FOUND(NOT_FOUND,"그룹에 가입되어있지 않습니다."),
     VOTE_OPTION_NOT_FOUND(NOT_FOUND, "해당 옵션을 찾을수 없습니다."),
+    HASHTAG_NOT_FOUND(NOT_FOUND, "해시태그를 찾을 수 없습니다."),
 
 
 

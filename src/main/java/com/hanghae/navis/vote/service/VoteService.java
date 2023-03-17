@@ -111,7 +111,7 @@ public class VoteService {
                 String tag = hashtagRequestDto.getHashtag();
                 Hashtag hashtag = new Hashtag(tag, vote);
                 hashtagRepository.save(hashtag);
-                hashtagResponseDto.add(new HashtagResponseDto(tag));
+                hashtagResponseDto.add(new HashtagResponseDto(hashtag));
             }
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
