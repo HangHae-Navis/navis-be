@@ -61,6 +61,7 @@ public class VoteService {
     private final VoteOptionRepository voteOptionRepository;
     private final VoteRecordRepository voteRecordRepository;
     private final FileRepository fileRepository;
+    private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)

@@ -2,12 +2,11 @@ package com.hanghae.navis.vote.dto;
 
 import com.hanghae.navis.board.dto.BoardResponseDto;
 import com.hanghae.navis.board.dto.FileResponseDto;
+import com.hanghae.navis.board.dto.HashtagResponseDto;
 import com.hanghae.navis.common.dto.BasicBoardResponseDto;
 import com.hanghae.navis.vote.entity.Vote;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.joda.time.DateTime;
-import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;

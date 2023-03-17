@@ -1,6 +1,7 @@
 package com.hanghae.navis.common.dto;
 
 import com.hanghae.navis.board.dto.FileResponseDto;
+import com.hanghae.navis.board.dto.HashtagResponseDto;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.vote.dto.VoteListResponseDto;
 import com.hanghae.navis.vote.entity.Vote;
@@ -23,4 +24,5 @@ public abstract class BasicBoardResponseDto {
     private String content;
     private String subtitle;
     private LocalDateTime createAt;
+    private List<HashtagResponseDto> hashtagList;
 }

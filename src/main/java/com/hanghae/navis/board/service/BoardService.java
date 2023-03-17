@@ -80,10 +80,10 @@ public class BoardService {
         );
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
-        List<FileResponseDto> hashtagResponseDto = new ArrayList<>();
+        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
         board.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
         board.getHashtagList().forEach(value -> hashtagResponseDto.add(HashtagResponseDto.of(value)));
-        BoardResponseDto boardResponseDto =(BoardResponseDto) BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, boardResponseDto);
     }
 

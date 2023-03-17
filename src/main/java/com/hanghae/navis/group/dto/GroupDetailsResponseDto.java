@@ -19,7 +19,7 @@ public class GroupDetailsResponseDto {
     private String groupInfo;
     private String groupImage;
     private String groupCode;
-    private List<GroupMemberResponseDto> groupMembers = new ArrayList<>();
+    private List<GroupMemberResponseDto> groupMembers;
 
     public static GroupDetailsResponseDto of(Group group) {
 

@@ -46,6 +46,8 @@ public class HomeworkService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+
+    private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
@@ -86,7 +88,7 @@ public class HomeworkService {
 
         homework.getFileList().forEach(value -> responseList.add(FileResponseDto.of(value)));
 
-        HomeworkResponseDto homeworkResponseDto = new HomeworkResponseDto(homework, responseList, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+        HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
     }
@@ -124,7 +126,7 @@ public class HomeworkService {
                 fileRepository.save(homeworkFile);
                 fileResponseDto.add(FileResponseDto.of(homeworkFile));
             }
-            HomeworkResponseDto responseDto = new HomeworkResponseDto(homework, fileResponseDto, hashtagResponseDto,false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto,false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
@@ -151,7 +153,7 @@ public class HomeworkService {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
-        HomeworkResponseDto responseDto = new HomeworkResponseDto(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+        HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
 
         homework.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
@@ -184,7 +186,7 @@ public class HomeworkService {
                         fileRepository.save(homeworkFile);
                         fileResponseDto.add(FileResponseDto.of(homeworkFile));
                     }
-                    responseDto = new HomeworkResponseDto(homework, fileResponseDto, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+                    responseDto = HomeworkResponseDto.of(homework, fileResponseDto, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
                 }
             }
         } catch (IOException e) {
