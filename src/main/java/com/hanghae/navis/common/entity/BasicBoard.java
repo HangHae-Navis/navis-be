@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn()
+@DiscriminatorColumn(name = "dtype")
 public abstract class BasicBoard extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +34,8 @@ public abstract class BasicBoard extends TimeStamped {
 
     @ManyToOne
     protected Group group;
+    @Column(insertable = false, updatable = false)
+    private String dtype;
 
     @OneToMany(mappedBy = "basicBoard", cascade = {CascadeType.ALL})
     private List<File> fileList = new ArrayList<>();
