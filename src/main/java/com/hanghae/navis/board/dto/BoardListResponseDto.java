@@ -1,5 +1,6 @@
 package com.hanghae.navis.board.dto;
 
+import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.entity.BasicBoard;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,9 +32,9 @@ public class BoardListResponseDto {
 
     private LocalDateTime createAt;
 
-    private List<HashtagResponseDto> hashtagList;
+    private List<HashtagResponseDto> hashtagResponseDtoList;
 
-    public static BoardListResponseDto of(BasicBoard board, List<HashtagResponseDto> hashtagList) {
+    public static BoardListResponseDto of(BasicBoard board) {
         return BoardListResponseDto.builder()
                 .id(board.getId())
                 .subtitle(board.getUser().getNickname())
@@ -41,7 +43,11 @@ public class BoardListResponseDto {
                 .nickName(board.getContent())
                 .groupName(board.getSubtitle())
                 .createAt(board.getCreatedAt())
-                .hashtagList(hashtagList)
+                .hashtagResponseDtoList(HashtagResponseDto.toDtoList(board.getHashtagList()))
                 .build();
+    }
+
+    public static Page<BoardListResponseDto> toDtoPage(Page<Board> boardPage) {
+        return boardPage.map(BoardListResponseDto::of);
     }
 }

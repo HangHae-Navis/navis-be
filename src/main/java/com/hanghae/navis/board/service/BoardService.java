@@ -3,6 +3,7 @@ package com.hanghae.navis.board.service;
 import com.hanghae.navis.board.dto.*;
 import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.dto.*;
+import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.repository.FileRepository;
@@ -15,6 +16,9 @@ import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +47,7 @@ public class BoardService {
 
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> boardList(Long groupId, User user) {
+    public ResponseEntity<Message> boardList(Long groupId, int page, int size, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -52,16 +56,13 @@ public class BoardService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        List<BoardListResponseDto> responseList = new ArrayList<>();
+        Pageable pageable = PageRequest.of(page, size);
 
-        List<Board> boardList = boardRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId);
+        Page<Board> boardList = boardRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
 
-        List<HashtagResponseDto> tagResponseList = new ArrayList<>();
+        Page<BoardListResponseDto> boardListResponseDto = BoardListResponseDto.toDtoPage(boardList);
 
-        for (Board board : boardList) {
-            responseList.add(BoardListResponseDto.of(board, null));
-        }
-        return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, responseList);
+        return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, boardListResponseDto);
     }
 
     @Transactional(readOnly = true)
@@ -148,6 +149,22 @@ public class BoardService {
 
         board.update(requestDto);
 
+        List<Hashtag> remainTag = hashtagRepository.findAllByBasicBoardId(boardId);
+
+        for (Hashtag hashtag : remainTag) {
+            board.getFileList().remove(hashtag);
+            hashtagRepository.delete(hashtag);
+        }
+
+        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+
+        for(HashtagRequestDto hashtagRequestDto : requestDto.getHashtagList()) {
+            String tag = hashtagRequestDto.getHashtag();
+            Hashtag hashtag = new Hashtag(tag, board);
+            hashtagRepository.save(hashtag);
+            hashtagResponseDto.add(new HashtagResponseDto(tag));
+        }
+
         List<String> remainUrl = requestDto.getUpdateUrlList();
 
         List<File> files = fileRepository.findFileUrlByBasicBoardId(boardId);
@@ -177,7 +194,7 @@ public class BoardService {
                         fileRepository.save(boardFile);
                         fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
                     }
-                    boardResponseDto = BoardResponseDto.of(board, fileResponseDto, null);
+                    boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
                 }
 
             }
