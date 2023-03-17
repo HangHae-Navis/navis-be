@@ -19,6 +19,8 @@ public class MainPageBasicBoardDto {
     private String subtitle;
     private String dtype;
     private String nickname;
+
+    private String dtype;
     private LocalDateTime createdAt;
 
     public static MainPageBasicBoardDto of(BasicBoard basicBoard) {
@@ -28,6 +30,7 @@ public class MainPageBasicBoardDto {
                 .subtitle(basicBoard.getSubtitle())
                 .dtype(basicBoard.getDtype())
                 .nickname(basicBoard.getUser().getNickname())
+                .dtype(basicBoard.getDtype())
                 .createdAt(basicBoard.getCreatedAt())
                 .build();
     }

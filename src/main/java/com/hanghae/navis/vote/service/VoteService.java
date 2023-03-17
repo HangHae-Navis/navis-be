@@ -62,11 +62,11 @@ public class VoteService {
     @Transactional(readOnly = true)
     public ResponseEntity<Message> getVoteList(Long groupId, User user, int page, int size) {
         UserGroup userGroup = authCheck(groupId, user);
+
         Pageable pageable = PageRequest.of(page, size);
+        Page<Vote> votePage = voteRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
 
-        Page<Vote> voteList = voteRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
-
-        Page<VoteListResponseDto> voteListResponseDto = VoteListResponseDto.toDtoPage(voteList);
+        Page<VoteListResponseDto> voteListResponseDto = VoteListResponseDto.toDtoPage(votePage);
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, voteListResponseDto);
     }
 
@@ -79,12 +79,10 @@ public class VoteService {
         );
 
         List<OptionResponseDto> optionResponseDto = new ArrayList<>();
+
         for (VoteOption voteOption : vote.getVoteOptionList()) {
             optionResponseDto.add(OptionResponseDto.of(voteOption));
         }
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
