@@ -82,9 +82,8 @@ public class HomeworkService {
 
         List<FileResponseDto> responseList = new ArrayList<>();
 
-        for (File file : homework.getFileList()) {
-            responseList.add(new FileResponseDto(file.getFileTitle(), file.getFileTitle()));
-        }
+        homework.getFileList().forEach(value -> responseList.add(FileResponseDto.of(value)));
+
         HomeworkResponseDto homeworkResponseDto = new HomeworkResponseDto(homework, responseList, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
@@ -112,7 +111,7 @@ public class HomeworkService {
                 String fileUrl = s3Uploader.upload(file);
                 File homeworkFile = new File(fileTitle, fileUrl, homework);
                 fileRepository.save(homeworkFile);
-                fileResponseDto.add(new FileResponseDto(homeworkFile.getFileTitle(), homeworkFile.getFileUrl()));
+                fileResponseDto.add(FileResponseDto.of(homeworkFile));
             }
             HomeworkResponseDto responseDto = new HomeworkResponseDto(homework, fileResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
@@ -172,7 +171,7 @@ public class HomeworkService {
                         String fileUrl = s3Uploader.upload(file);
                         File homeworkFile = new File(fileTitle, fileUrl, homework);
                         fileRepository.save(homeworkFile);
-                        fileResponseDto.add(new FileResponseDto(homeworkFile.getFileTitle(), homeworkFile.getFileUrl()));
+                        fileResponseDto.add(FileResponseDto.of(homeworkFile));
                     }
                     responseDto = new HomeworkResponseDto(homework, fileResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
                 }

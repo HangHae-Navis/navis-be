@@ -5,10 +5,14 @@ import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.dto.UserGroup;
+import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.File;
+import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.FileRepository;
+import com.hanghae.navis.group.dto.GroupResponseDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
@@ -22,6 +26,9 @@ import com.hanghae.navis.vote.repository.VoteRecordRepository;
 import com.hanghae.navis.vote.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,17 +60,14 @@ public class VoteService {
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> getVoteList(Long groupId, User user) {
+    public ResponseEntity<Message> getVoteList(Long groupId, User user, int page, int size) {
         UserGroup userGroup = authCheck(groupId, user);
+        Pageable pageable = PageRequest.of(page, size);
 
-        List<VoteListResponseDto> responseList = new ArrayList<>();
+        Page<Vote> voteList = voteRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
 
-        List<Vote> voteList = voteRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId);
-
-        for (Vote vote : voteList) {
-            responseList.add(new VoteListResponseDto(vote));
-        }
-        return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, responseList);
+        Page<VoteListResponseDto> voteListResponseDto = VoteListResponseDto.toDtoPage(voteList);
+        return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, voteListResponseDto);
     }
 
     @Transactional(readOnly = true)
@@ -76,17 +80,17 @@ public class VoteService {
 
         List<OptionResponseDto> optionResponseDto = new ArrayList<>();
         for (VoteOption voteOption : vote.getVoteOptionList()) {
-            optionResponseDto.add(new OptionResponseDto(voteOption.getOption(), (long) voteOption.getVoteRecordList().size()));
+            optionResponseDto.add(OptionResponseDto.of(voteOption));
         }
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
-        for (File file : vote.getFileList()) {
-            fileResponseDto.add(new FileResponseDto(file.getFileTitle(), file.getFileUrl()));
-        }
-        VoteResponseDto voteResponseDto = new VoteResponseDto(vote, fileResponseDto, optionResponseDto, expirationCheck(
+
+        vote.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
+
+        VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, optionResponseDto, expirationCheck(
                 vote.getExpirationDate()), vote.getExpirationDate());
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
     }
@@ -100,12 +104,13 @@ public class VoteService {
             Vote vote = new Vote(requestDto, userGroup.getUser(), userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
             voteRepository.saveAndFlush(vote);
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
+
             for (MultipartFile file : multipartFiles) {
                 String fileTitle = file.getOriginalFilename();
                 String fileUrl = s3Uploader.upload(file);
                 File voteFile = new File(fileTitle, fileUrl, vote);
                 fileRepository.save(voteFile);
-                fileResponseDto.add(new FileResponseDto(voteFile.getFileTitle(), voteFile.getFileUrl()));
+                fileResponseDto.add(FileResponseDto.of(voteFile));
             }
 
             List<OptionResponseDto> optionResponseDto = new ArrayList<>();
@@ -113,10 +118,11 @@ public class VoteService {
                 String option = optionRequestDtoList.getOption();
                 VoteOption voteOption = new VoteOption(vote, option);
                 voteOptionRepository.save(voteOption);
-                optionResponseDto.add(new OptionResponseDto(option, 0L));
+                optionResponseDto.add(OptionResponseDto.of(voteOption));
             }
 
-            VoteResponseDto voteResponseDto = new VoteResponseDto(vote, fileResponseDto, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -221,11 +227,11 @@ public class VoteService {
         vote.forceExpiration();
 
         return Message.toResponseEntity(VOTE_FORCE_EXPIRED_SUCCESS,
-                                        new VoteResponseDto(vote,
-                                                            parseFileResponseDto(vote.getFileList()),
-                                                            parseOptionResponseDto(vote.getVoteOptionList()),
-                                                            vote.isForceExpiration(),
-                                                            vote.getExpirationDate()));
+                VoteResponseDto.of(vote,
+                        parseFileResponseDto(vote.getFileList()),
+                        parseOptionResponseDto(vote.getVoteOptionList()),
+                        vote.isForceExpiration(),
+                        vote.getExpirationDate()));
     }
 
     public ResponseEntity<Message> pickVote(Long groupId, Long voteId, Long voteOptionId, User user) {
@@ -246,21 +252,21 @@ public class VoteService {
             if (voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).isPresent()) {
                 voteRecordRepository.deleteById(voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).get().getId());
                 return Message.toResponseEntity(VOTE_CANCEL_SUCCESS,
-                                                new VoteResponseDto(vote,
-                                                        parseFileResponseDto(vote.getFileList()),
-                                                        parseOptionResponseDto(vote.getVoteOptionList()),
-                                                        vote.isForceExpiration(),
-                                                        vote.getExpirationDate()));
+                        VoteResponseDto.of(vote,
+                                parseFileResponseDto(vote.getFileList()),
+                                parseOptionResponseDto(vote.getVoteOptionList()),
+                                vote.isForceExpiration(),
+                                vote.getExpirationDate()));
 
             } else {
                 VoteRecord voteRecord = new VoteRecord(voteOption, groupMember);
                 voteRecordRepository.save(voteRecord);
                 return Message.toResponseEntity(VOTE_PICK_SUCCESS,
-                                                new VoteResponseDto(vote,
-                                                        parseFileResponseDto(vote.getFileList()),
-                                                        parseOptionResponseDto(vote.getVoteOptionList()),
-                                                        vote.isForceExpiration(),
-                                                        vote.getExpirationDate()));
+                        VoteResponseDto.of(vote,
+                                parseFileResponseDto(vote.getFileList()),
+                                parseOptionResponseDto(vote.getVoteOptionList()),
+                                vote.isForceExpiration(),
+                                vote.getExpirationDate()));
             }
         } else
             return Message.toExceptionResponseEntity(VOTE_EXPIRED);
@@ -285,17 +291,15 @@ public class VoteService {
 
     public List<FileResponseDto> parseFileResponseDto(List<File> fileList) {
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
-        for (File file : fileList) {
-            fileResponseDto.add(new FileResponseDto(file.getFileTitle(), file.getFileUrl()));
-        }
+        fileList.forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
         return fileResponseDto;
     }
 
     public List<OptionResponseDto> parseOptionResponseDto(List<VoteOption> voteOptionList) {
         List<OptionResponseDto> optionResponseDto = new ArrayList<>();
-        for (VoteOption voteOption : voteOptionList) {
-            optionResponseDto.add(new OptionResponseDto(voteOption.getOption(), (long) voteOption.getVoteRecordList().size()));
-        }
+
+        voteOptionList.forEach(value -> optionResponseDto.add(OptionResponseDto.of(value)));
+
         return optionResponseDto;
     }
 

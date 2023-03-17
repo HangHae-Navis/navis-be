@@ -1,14 +1,23 @@
 package com.hanghae.navis.vote.dto;
 
 import com.hanghae.navis.board.entity.Board;
+import com.hanghae.navis.group.dto.GroupResponseDto;
+import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.vote.entity.Vote;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 
+
+@Builder
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class VoteListResponseDto {
     private Long id;
 
@@ -20,17 +29,21 @@ public class VoteListResponseDto {
 
     private String nickName;
 
-    private String groupName;
-
     private LocalDateTime createAt;
 
-    public VoteListResponseDto(Vote vote) {
-        this.id = vote.getId();
-        this.subtitle = vote.getSubtitle();
-        this.title = vote.getTitle();
-        this.content = vote.getContent();
-        this.nickName = vote.getUser().getNickname();
-        this.groupName = vote.getGroup().getGroupName();
-        this.createAt = vote.getCreatedAt();
+    public static VoteListResponseDto of(Vote vote) {
+        return VoteListResponseDto.builder()
+                .id(vote.getId())
+                .subtitle(vote.getSubtitle())
+                .title(vote.getTitle())
+                .content(vote.getContent())
+                .nickName(vote.getUser().getNickname())
+                .createAt(vote.getCreatedAt())
+                .build();
     }
+
+    public static Page<VoteListResponseDto> toDtoPage(Page<Vote> votePage) {
+        return votePage.map(VoteListResponseDto::of);
+    }
+
 }

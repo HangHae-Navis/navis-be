@@ -75,10 +75,8 @@ public class BoardService {
         );
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
-        for (File file: board.getFileList()) {
-            fileResponseDto.add(new FileResponseDto(file.getFileTitle(), file.getFileUrl()));
-        }
-        BoardResponseDto boardResponseDto = new BoardResponseDto(board, fileResponseDto);
+        board.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
+        BoardResponseDto boardResponseDto =(BoardResponseDto) BoardResponseDto.of(board, fileResponseDto);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, boardResponseDto);
     }
 
@@ -103,10 +101,10 @@ public class BoardService {
                     String fileUrl = s3Uploader.upload(file);
                     File boardFile = new File(fileTitle, fileUrl, board);
                     fileRepository.save(boardFile);
-                    fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
+                    fileResponseDto.add(FileResponseDto.of(boardFile));
                 }
             }
-            BoardResponseDto boardResponseDto = new BoardResponseDto(board, fileResponseDto);
+            BoardResponseDto boardResponseDto = (BoardResponseDto) BoardResponseDto.of(board, fileResponseDto);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, boardResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -127,7 +125,6 @@ public class BoardService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        BoardResponseDto boardResponseDto = new BoardResponseDto(board, null);
 
         if (!user.getUsername().equals(board.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
@@ -154,24 +151,25 @@ public class BoardService {
             throw new RuntimeException(e);
         }
 
+        List<FileResponseDto> fileResponseDto = new ArrayList<>();
         try {
             if(multipartFiles != null) {
-                List<FileResponseDto> fileResponseDto = new ArrayList<>();
                 if(!multipartFiles.isEmpty() && !multipartFiles.get(0).isEmpty()) {
                     for (MultipartFile file : multipartFiles) {
                         String fileTitle = file.getOriginalFilename();
                         String fileUrl = s3Uploader.upload(file);
                         File boardFile = new File(fileTitle, fileUrl, board);
                         fileRepository.save(boardFile);
-                        fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
+                        fileResponseDto.add(FileResponseDto.of(boardFile));
                     }
-                    boardResponseDto = new BoardResponseDto(board, fileResponseDto);
                 }
 
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        BoardResponseDto boardResponseDto = (BoardResponseDto) BoardResponseDto.of(board, fileResponseDto);
         return Message.toResponseEntity(BOARD_PUT_SUCCESS, boardResponseDto);
     }
 
