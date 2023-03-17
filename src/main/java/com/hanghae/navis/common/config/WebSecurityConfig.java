@@ -1,5 +1,6 @@
 package com.hanghae.navis.common.config;
 
+import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.jwt.JwtAuthFilter;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -72,9 +73,12 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위한 설정
                 .and().cors().configurationSource(corsConfigurationSource())
-                .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling().authenticationEntryPoint((request, response, authException) -> response.sendRedirect("/api/user/forbidden"));
+                .and()
+                .exceptionHandling().authenticationEntryPoint((request, response, authException) -> response.sendRedirect("/api/user/forbidden"))
+                .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
+
 
 }
