@@ -17,11 +17,13 @@ import java.util.List;
 @AllArgsConstructor
 public class GroupMainPageResponseDto {
     private String groupName;
+    private boolean isAdmin;
     private Page<BasicBoardResponseDto> basicBoards;
 
-    public static GroupMainPageResponseDto of(Group group, Page<BasicBoard> basicBoardPage) {
+    public static GroupMainPageResponseDto of(Group group, boolean isAdmin, Page<BasicBoard> basicBoardPage) {
         return GroupMainPageResponseDto.builder()
                 .groupName(group.getGroupName())
+                .isAdmin(isAdmin)
                 .basicBoards(BasicBoardResponseDto.toDtoPage(basicBoardPage))
                 .build();
     }

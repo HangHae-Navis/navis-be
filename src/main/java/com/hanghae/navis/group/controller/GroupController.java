@@ -59,9 +59,9 @@ public class GroupController {
     }
 
 
-    @GetMapping("/{groupId}/details")
+    @GetMapping("/{groupId}/admin")
     @ResponseBody
-    @Operation(summary = "그룹 상세조회", description ="그룹 정보 상세조회, Admin만 가능")
+    @Operation(summary = "그룹 관리자 페이지", description ="그룹 정보 상세조회, Admin만 가능")
     public ResponseEntity<Message> getGroupDetails(@PathVariable Long groupId,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return groupService.getGroupDetails(groupId, userDetails.getUser());
