@@ -140,11 +140,11 @@ public class BoardService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
+        BoardResponseDto boardResponseDto = new BoardResponseDto(board, null, null);
 
         if (!user.getUsername().equals(board.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
-
 
         board.update(requestDto);
 
@@ -166,25 +166,24 @@ public class BoardService {
             throw new RuntimeException(e);
         }
 
-        List<FileResponseDto> fileResponseDto = new ArrayList<>();
         try {
             if(multipartFiles != null) {
+                List<FileResponseDto> fileResponseDto = new ArrayList<>();
                 if(!multipartFiles.isEmpty() && !multipartFiles.get(0).isEmpty()) {
                     for (MultipartFile file : multipartFiles) {
                         String fileTitle = file.getOriginalFilename();
                         String fileUrl = s3Uploader.upload(file);
                         File boardFile = new File(fileTitle, fileUrl, board);
                         fileRepository.save(boardFile);
-                        fileResponseDto.add(FileResponseDto.of(boardFile));
+                        fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
                     }
+                    boardResponseDto = new BoardResponseDto(board, fileResponseDto, null);
                 }
 
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, null);
         return Message.toResponseEntity(BOARD_PUT_SUCCESS, boardResponseDto);
     }
 
@@ -218,5 +217,23 @@ public class BoardService {
         }
         boardRepository.deleteById(boardId);
         return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> deleteHashtag(Long groupId, Long hashtagId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        Hashtag hashtag = hashtagRepository.findById(hashtagId).orElseThrow(
+                () -> new CustomException(HASHTAG_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        hashtagRepository.deleteById(hashtagId);
+        return Message.toResponseEntity(HASHTAG_DELETE_SUCCESS);
     }
 }
