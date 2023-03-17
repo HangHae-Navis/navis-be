@@ -2,15 +2,13 @@ package com.hanghae.navis.board.dto;
 
 import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.dto.BasicBoardResponseDto;
-import com.hanghae.navis.common.entity.BasicBoard;
-import com.hanghae.navis.common.entity.File;
-import lombok.AllArgsConstructor;
+import com.hanghae.navis.common.dto.FileResponseDto;
+import com.hanghae.navis.common.dto.HashtagResponseDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter

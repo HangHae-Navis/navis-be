@@ -1,8 +1,9 @@
 package com.hanghae.navis.board.dto;
 
-import com.hanghae.navis.board.entity.Board;
+import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.entity.BasicBoard;
-import com.hanghae.navis.common.entity.Hashtag;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,8 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BoardListResponseDto {
     private Long id;
 
@@ -28,14 +31,16 @@ public class BoardListResponseDto {
 
     private List<HashtagResponseDto> hashtagList;
 
-    public BoardListResponseDto(BasicBoard board, List<HashtagResponseDto> hashtagList) {
-        this.id = board.getId();
-        this.subtitle = board.getSubtitle();
-        this.title = board.getTitle();
-        this.content = board.getContent();
-        this.nickName = board.getUser().getNickname();
-        this.groupName = board.getGroup().getGroupName();
-        this.createAt = board.getCreatedAt();
-        this.hashtagList = hashtagList;
+    public static BoardListResponseDto of(BasicBoard board, List<HashtagResponseDto> hashtagList) {
+        return BoardListResponseDto.builder()
+                .id(board.getId())
+                .subtitle(board.getUser().getNickname())
+                .title(board.getTitle())
+                .content(board.getTitle())
+                .nickName(board.getContent())
+                .groupName(board.getSubtitle())
+                .createAt(board.getCreatedAt())
+                .hashtagList(hashtagList)
+                .build();
     }
 }

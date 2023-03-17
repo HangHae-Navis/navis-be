@@ -2,13 +2,12 @@ package com.hanghae.navis.board.service;
 
 import com.hanghae.navis.board.dto.*;
 import com.hanghae.navis.board.entity.Board;
+import com.hanghae.navis.common.dto.*;
 import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
-import com.hanghae.navis.common.dto.CustomException;
-import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.repository.GroupRepository;
@@ -60,7 +59,7 @@ public class BoardService {
         List<HashtagResponseDto> tagResponseList = new ArrayList<>();
 
         for (Board board : boardList) {
-            responseList.add(new BoardListResponseDto(board, null));
+            responseList.add(BoardListResponseDto.of(board, null));
         }
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, responseList);
     }

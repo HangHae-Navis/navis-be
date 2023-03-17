@@ -1,12 +1,11 @@
 package com.hanghae.navis.vote.dto;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
-import com.hanghae.navis.board.dto.HashtagRequestDto;
+import com.hanghae.navis.common.dto.HashtagRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

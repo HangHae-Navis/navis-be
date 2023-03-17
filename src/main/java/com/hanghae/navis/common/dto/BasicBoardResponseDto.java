@@ -1,10 +1,5 @@
 package com.hanghae.navis.common.dto;
 
-import com.hanghae.navis.board.dto.FileResponseDto;
-import com.hanghae.navis.board.dto.HashtagResponseDto;
-import com.hanghae.navis.common.entity.BasicBoard;
-import com.hanghae.navis.vote.dto.VoteListResponseDto;
-import com.hanghae.navis.vote.entity.Vote;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 

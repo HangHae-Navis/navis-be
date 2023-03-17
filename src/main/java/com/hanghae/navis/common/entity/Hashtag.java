@@ -1,6 +1,5 @@
 package com.hanghae.navis.common.entity;
 
-import com.hanghae.navis.board.dto.HashtagRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

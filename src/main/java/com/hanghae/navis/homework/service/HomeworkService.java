@@ -1,10 +1,7 @@
 package com.hanghae.navis.homework.service;
 
-import com.hanghae.navis.board.dto.*;
-import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
-import com.hanghae.navis.common.dto.CustomException;
-import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.common.dto.*;
 import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.entity.SuccessMessage;
