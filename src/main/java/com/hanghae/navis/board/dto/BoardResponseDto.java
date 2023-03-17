@@ -3,6 +3,7 @@ package com.hanghae.navis.board.dto;
 import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.File;
+import com.hanghae.navis.common.entity.Hashtag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,7 +29,9 @@ public class BoardResponseDto {
 
     private LocalDateTime createAt;
 
-    public BoardResponseDto(BasicBoard board, List<FileResponseDto> fileList) {
+    private List<HashtagResponseDto> hashtagList;
+
+    public BoardResponseDto(BasicBoard board, List<FileResponseDto> fileList, List<HashtagResponseDto> hashtagList) {
         this.id = board.getId();
         this.nickname = board.getUser().getNickname();
         this.content = board.getContent();
@@ -37,5 +40,6 @@ public class BoardResponseDto {
         this.subtitle = board.getSubtitle();
         this.groupName = board.getGroup().getGroupName();
         this.createAt = board.getCreatedAt();
+        this.hashtagList = hashtagList;
     }
 }

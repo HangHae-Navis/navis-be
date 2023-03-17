@@ -85,7 +85,7 @@ public class HomeworkService {
         for (File file : homework.getFileList()) {
             responseList.add(new FileResponseDto(file.getFileTitle(), file.getFileTitle()));
         }
-        HomeworkResponseDto homeworkResponseDto = new HomeworkResponseDto(homework, responseList, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+        HomeworkResponseDto homeworkResponseDto = new HomeworkResponseDto(homework, responseList, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
     }
@@ -114,7 +114,7 @@ public class HomeworkService {
                 fileRepository.save(homeworkFile);
                 fileResponseDto.add(new FileResponseDto(homeworkFile.getFileTitle(), homeworkFile.getFileUrl()));
             }
-            HomeworkResponseDto responseDto = new HomeworkResponseDto(homework, fileResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            HomeworkResponseDto responseDto = new HomeworkResponseDto(homework, fileResponseDto, null,false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
@@ -141,7 +141,7 @@ public class HomeworkService {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
-        HomeworkResponseDto responseDto = new HomeworkResponseDto(homework, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+        HomeworkResponseDto responseDto = new HomeworkResponseDto(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
 
         homework.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
@@ -174,7 +174,7 @@ public class HomeworkService {
                         fileRepository.save(homeworkFile);
                         fileResponseDto.add(new FileResponseDto(homeworkFile.getFileTitle(), homeworkFile.getFileUrl()));
                     }
-                    responseDto = new HomeworkResponseDto(homework, fileResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+                    responseDto = new HomeworkResponseDto(homework, fileResponseDto, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
                 }
             }
         } catch (IOException e) {
