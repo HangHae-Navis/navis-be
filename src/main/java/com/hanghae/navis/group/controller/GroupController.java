@@ -4,20 +4,16 @@ import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.group.dto.GroupRequestDto;
 import com.hanghae.navis.group.dto.ApplyRequestDto;
-import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.service.GroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "group")
 @Controller
@@ -51,9 +47,21 @@ public class GroupController {
         return groupService.getGroups(page-1, size, category, userDetails.getUser());
     }
 
-    @GetMapping("/{groupId}/details")
+    @GetMapping("/{groupId}")
     @ResponseBody
-    @Operation(summary = "그룹 상세조회", description ="그룹 정보 상세조회, Admin만 가능")
+    @Operation(summary = "그룹 메인화면 조회", description = "그룹 메인화면 조회, 회원만 가능")
+    public ResponseEntity<Message> getGroupMainPage(@PathVariable Long groupId,
+                                                    @RequestParam int page,
+                                                    @RequestParam int size,
+                                                    @RequestParam(required = false, defaultValue = "all") String category,
+                                                    @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return groupService.getGroupMainPage(groupId, page-1, size, category, userDetails.getUser());
+    }
+
+
+    @GetMapping("/{groupId}/admin")
+    @ResponseBody
+    @Operation(summary = "그룹 관리자 페이지", description ="그룹 정보 상세조회, Admin만 가능")
     public ResponseEntity<Message> getGroupDetails(@PathVariable Long groupId,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return groupService.getGroupDetails(groupId, userDetails.getUser());

@@ -32,6 +32,8 @@ public class User extends TimeStamped {
 
     @Column(nullable = false)
     private String password;
+    @Column
+    private String profileImage;
 
     private Long kakaoId;
 
@@ -73,6 +75,14 @@ public class User extends TimeStamped {
 
     public User kakaoIdUpdate(Long kakaoId) {
         this.kakaoId = kakaoId;
+        return this;
+    }
+    public User profileImageUpdate(String profileImage) {
+        this.profileImage = profileImage;
+        return this;
+    }
+    public User NicknameUpdate(String nickname) {
+        this.nickname = nickname;
         return this;
     }
 

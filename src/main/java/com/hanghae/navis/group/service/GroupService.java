@@ -3,12 +3,11 @@ package com.hanghae.navis.group.service;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.SuccessMessage;
-import com.hanghae.navis.group.dto.GroupDetailsResponseDto;
-import com.hanghae.navis.group.dto.GroupRequestDto;
-import com.hanghae.navis.group.dto.ApplyRequestDto;
-import com.hanghae.navis.group.dto.GroupResponseDto;
+import com.hanghae.navis.common.repository.BasicBoardRepository;
+import com.hanghae.navis.group.dto.*;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
@@ -37,6 +36,7 @@ public class GroupService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
+    private final BasicBoardRepository basicBoardRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional
@@ -106,13 +106,14 @@ public class GroupService {
         return groupCode.toString();
     }
 
+    @Transactional(readOnly = true)
     public ResponseEntity<Message> getGroups(int page, int size, String category, User user) {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<GroupMember> groupMemberPage;
 
         if (category.equals("joined")) {
-            groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.USER, pageable);
+            groupMemberPage = groupMemberRepository.findAllByUserAndGroupRoleIsNot(user, GroupMemberRoleEnum.ADMIN, pageable);
         } else if (category.equals("myGroups")) {
             groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.ADMIN, pageable);
         } else if (category.equals("all")) {
@@ -127,6 +128,7 @@ public class GroupService {
 
     }
 
+    @Transactional(readOnly = true)
     public ResponseEntity<Message> getGroupDetails(Long groupId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
@@ -141,6 +143,34 @@ public class GroupService {
         GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_DETAILS_GET_SUCCESS, responseDto);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> getGroupMainPage(Long groupId, int page, int size, String category, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        Optional<GroupMember> groupMember = groupMemberRepository.findByUserAndGroup(user, group);
+        if(groupMember.isEmpty()) {
+            throw new CustomException(ExceptionMessage.GROUP_NOT_JOINED);
+        }
+
+        boolean isAdmin = groupMember.get().getGroupRole().equals(GroupMemberRoleEnum.ADMIN);
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<BasicBoard> basicBoardPage;
+
+        if (category.equals("all")) {
+            basicBoardPage = basicBoardRepository.findAllByGroupOrderByCreatedAtDesc(group, pageable);
+        } else {
+            throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
+        }
+
+        GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, basicBoardPage);
+
+        return Message.toResponseEntity(SuccessMessage.GROUP_MAIN_PAGE_GET_SUCCESS, responseDto);
     }
 }
 

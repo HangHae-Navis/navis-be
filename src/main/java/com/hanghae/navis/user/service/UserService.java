@@ -1,14 +1,13 @@
 package com.hanghae.navis.user.service;
 
+import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.common.util.RedisUtil;
-import com.hanghae.navis.user.dto.LoginRequestDto;
-import com.hanghae.navis.user.dto.LoginResponseDto;
-import com.hanghae.navis.user.dto.SignupRequestDto;
-import com.hanghae.navis.user.dto.UserInfoResponseDto;
+import com.hanghae.navis.user.dto.*;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Optional;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
@@ -33,6 +33,8 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final RedisUtil redisUtil;
+
+    private final S3Uploader s3Uploader;
     @Transactional
     public ResponseEntity<Message> signup(SignupRequestDto signupRequestDto) {
         String username = signupRequestDto.getUsername();
@@ -78,14 +80,36 @@ public class UserService {
         return Message.toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
     }
 
-    public ResponseEntity<Message> userInfo(UserDetailsImpl user) {
+    public ResponseEntity<Message> userInfo(User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
 
-        Long id = user.getUser().getId();
-        String username = user.getUser().getUsername();
-        String nickname = user.getUser().getNickname();
+        Long id = user.getId();
+        String username = user.getUsername();
+        String nickname = user.getNickname();
+        String profileImage = user.getProfileImage();
 
-        UserInfoResponseDto userInfoResponseDto = new UserInfoResponseDto (id, username, nickname);
+        UserInfoResponseDto userInfoResponseDto = new UserInfoResponseDto (id, username, nickname, profileImage);
 //        return new Message().toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
         return Message.toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
+    }
+
+
+    @Transactional
+    public ResponseEntity<Message> profileUpdateUser(ProfileUpdateRequestDto requestDto, User user) throws IOException {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        if(requestDto.getProfileImage() != null){
+            String fileUrl = s3Uploader.upload(requestDto.getProfileImage());
+            user.profileImageUpdate(fileUrl);
+        }
+        if(!requestDto.getNickname().equals("")){
+            user.NicknameUpdate(requestDto.getNickname());
+        }
+
+        return userInfo(user);
     }
 }
