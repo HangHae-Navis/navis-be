@@ -1,6 +1,8 @@
 package com.hanghae.navis.vote.service;
 
 import com.hanghae.navis.board.dto.FileResponseDto;
+import com.hanghae.navis.board.dto.HashtagRequestDto;
+import com.hanghae.navis.board.dto.HashtagResponseDto;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
@@ -8,8 +10,10 @@ import com.hanghae.navis.common.dto.UserGroup;
 import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.entity.SuccessMessage;
+import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.group.dto.GroupResponseDto;
+import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
@@ -90,7 +94,7 @@ public class VoteService {
 
         vote.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
 
-        VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, optionResponseDto, expirationCheck(
+        VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, null, optionResponseDto, expirationCheck(
                 vote.getExpirationDate()), vote.getExpirationDate());
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
     }
@@ -103,6 +107,16 @@ public class VoteService {
 
             Vote vote = new Vote(requestDto, userGroup.getUser(), userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
             voteRepository.saveAndFlush(vote);
+
+            List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+
+            for(HashtagRequestDto hashtagRequestDto : requestDto.getHashtagList()) {
+                String tag = hashtagRequestDto.getHashtag();
+                Hashtag hashtag = new Hashtag(tag, vote);
+                hashtagRepository.save(hashtag);
+                hashtagResponseDto.add(new HashtagResponseDto(tag));
+            }
+
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
             for (MultipartFile file : multipartFiles) {
@@ -121,7 +135,7 @@ public class VoteService {
                 optionResponseDto.add(OptionResponseDto.of(voteOption));
             }
 
-            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto,  hashtagResponseDto,optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {
@@ -229,6 +243,7 @@ public class VoteService {
         return Message.toResponseEntity(VOTE_FORCE_EXPIRED_SUCCESS,
                 VoteResponseDto.of(vote,
                         parseFileResponseDto(vote.getFileList()),
+                        null,
                         parseOptionResponseDto(vote.getVoteOptionList()),
                         vote.isForceExpiration(),
                         vote.getExpirationDate()));
@@ -254,6 +269,7 @@ public class VoteService {
                 return Message.toResponseEntity(VOTE_CANCEL_SUCCESS,
                         VoteResponseDto.of(vote,
                                 parseFileResponseDto(vote.getFileList()),
+                                null,
                                 parseOptionResponseDto(vote.getVoteOptionList()),
                                 vote.isForceExpiration(),
                                 vote.getExpirationDate()));
@@ -264,6 +280,7 @@ public class VoteService {
                 return Message.toResponseEntity(VOTE_PICK_SUCCESS,
                         VoteResponseDto.of(vote,
                                 parseFileResponseDto(vote.getFileList()),
+                                null,
                                 parseOptionResponseDto(vote.getVoteOptionList()),
                                 vote.isForceExpiration(),
                                 vote.getExpirationDate()));

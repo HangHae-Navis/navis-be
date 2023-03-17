@@ -9,7 +9,6 @@ import lombok.experimental.SuperBuilder;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 
-import javax.annotation.security.DenyAll;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,15 +20,17 @@ import java.util.List;
 public class VoteResponseDto extends BasicBoardResponseDto {
 
     private List<OptionResponseDto> optionList;
+
     private LocalDateTime expirationTime;
     private boolean isExpiration;
 
 
-    public static VoteResponseDto of(Vote vote, List<FileResponseDto> fileList, List<OptionResponseDto> optionList, boolean expiration, LocalDateTime expirationTime) {
+    public static VoteResponseDto of(Vote vote, List<FileResponseDto> fileList, List<HashtagResponseDto> hashtagList, List<OptionResponseDto> optionList, boolean expiration, LocalDateTime expirationTime) {
         return VoteResponseDto.builder()
                 .id(vote.getId())
                 .nickname(vote.getUser().getNickname())
                 .fileList(fileList)
+                .hashtagList(hashtagList)
                 .title(vote.getTitle())
                 .content(vote.getContent())
                 .subtitle(vote.getSubtitle())

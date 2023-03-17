@@ -5,6 +5,7 @@ import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.SuccessMessage;
+import com.hanghae.navis.group.dto.GroupDetailsResponseDto;
 import com.hanghae.navis.group.dto.GroupRequestDto;
 import com.hanghae.navis.group.dto.ApplyRequestDto;
 import com.hanghae.navis.group.dto.GroupResponseDto;
@@ -13,6 +14,7 @@ import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
+import com.hanghae.navis.user.repository.UserRepository;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class GroupService {
 
+    private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final S3Uploader s3Uploader;
@@ -122,6 +125,22 @@ public class GroupService {
 
         return Message.toResponseEntity(SuccessMessage.GROUPS_GET_SUCCESS, groupResponseDtoPage);
 
+    }
+
+    public ResponseEntity<Message> getGroupDetails(Long groupId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMemberRoleEnum role = groupMemberRepository.findByUserAndGroup(user, group).get().getGroupRole();
+
+        if(!role.equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.UNAUTHORIZED_ADMIN);
+        }
+
+        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
+
+        return Message.toResponseEntity(SuccessMessage.GROUP_DETAILS_GET_SUCCESS, responseDto);
     }
 }
 

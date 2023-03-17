@@ -2,6 +2,7 @@ package com.hanghae.navis.board.controller;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
+import com.hanghae.navis.board.dto.HashtagRequestDto;
 import com.hanghae.navis.board.service.BoardService;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
