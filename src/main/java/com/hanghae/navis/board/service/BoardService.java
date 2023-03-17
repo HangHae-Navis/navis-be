@@ -153,7 +153,6 @@ public class BoardService {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
-
         board.update(requestDto);
 
         List<String> remainUrl = requestDto.getUpdateUrlList();

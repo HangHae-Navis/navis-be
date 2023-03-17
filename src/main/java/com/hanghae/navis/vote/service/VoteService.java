@@ -1,12 +1,16 @@
 package com.hanghae.navis.vote.service;
 
 import com.hanghae.navis.board.dto.FileResponseDto;
+import com.hanghae.navis.board.dto.HashtagRequestDto;
+import com.hanghae.navis.board.dto.HashtagResponseDto;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.dto.UserGroup;
 import com.hanghae.navis.common.entity.File;
+import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.repository.FileRepository;
+import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
@@ -50,6 +54,7 @@ public class VoteService {
     private final VoteOptionRepository voteOptionRepository;
     private final VoteRecordRepository voteRecordRepository;
     private final FileRepository fileRepository;
+    private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
@@ -99,6 +104,16 @@ public class VoteService {
 
             Vote vote = new Vote(requestDto, userGroup.getUser(), userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
             voteRepository.saveAndFlush(vote);
+
+            List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+
+            for(HashtagRequestDto hashtagRequestDto : requestDto.getHashtagList()) {
+                String tag = hashtagRequestDto.getHashtag();
+                Hashtag hashtag = new Hashtag(tag, vote);
+                hashtagRepository.save(hashtag);
+                hashtagResponseDto.add(new HashtagResponseDto(tag));
+            }
+
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
             for (MultipartFile file : multipartFiles) {
                 String fileTitle = file.getOriginalFilename();
@@ -116,7 +131,7 @@ public class VoteService {
                 optionResponseDto.add(new OptionResponseDto(option, 0L));
             }
 
-            VoteResponseDto voteResponseDto = new VoteResponseDto(vote, fileResponseDto, null,optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            VoteResponseDto voteResponseDto = new VoteResponseDto(vote, fileResponseDto, hashtagResponseDto,optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {
             throw new RuntimeException(e);

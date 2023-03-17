@@ -23,4 +23,8 @@ public class Hashtag {
         this.hashtagName = hashtagName;
         this.basicBoard = basicBoard;
     }
+
+    public void updateHashtag(String hashtagName) {
+        this.hashtagName = hashtagName;
+    }
 }
