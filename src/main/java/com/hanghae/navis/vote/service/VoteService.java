@@ -220,10 +220,15 @@ public class VoteService {
 
         vote.forceExpiration();
 
-        return Message.toResponseEntity(VOTE_FORCE_EXPIRED_SUCCESS, new VoteResponseDto(vote, parseFileResponseDto(vote.getFileList()), parseOptionResponseDto(vote.getVoteOptionList()), vote.isForceExpiration(), vote.getExpirationDate()));
+        return Message.toResponseEntity(VOTE_FORCE_EXPIRED_SUCCESS,
+                                        new VoteResponseDto(vote,
+                                                            parseFileResponseDto(vote.getFileList()),
+                                                            parseOptionResponseDto(vote.getVoteOptionList()),
+                                                            vote.isForceExpiration(),
+                                                            vote.getExpirationDate()));
     }
 
-    public ResponseEntity<Message> votePick(Long groupId, Long voteId, Long voteOptionId, User user) {
+    public ResponseEntity<Message> pickVote(Long groupId, Long voteId, Long voteOptionId, User user) {
         UserGroup userGroup = authCheck(groupId, user);
         Vote vote = voteRepository.findById(voteId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
@@ -240,14 +245,24 @@ public class VoteService {
         if (!(expirationCheck(vote.getExpirationDate()) || vote.isForceExpiration())) {
             if (voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).isPresent()) {
                 voteRecordRepository.deleteById(voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).get().getId());
-                return Message.toResponseEntity(VOTE_CANCEL_SUCCESS, new VoteResponseDto(vote, parseFileResponseDto(vote.getFileList()), parseOptionResponseDto(vote.getVoteOptionList()), vote.isForceExpiration(), vote.getExpirationDate()));
+                return Message.toResponseEntity(VOTE_CANCEL_SUCCESS,
+                                                new VoteResponseDto(vote,
+                                                        parseFileResponseDto(vote.getFileList()),
+                                                        parseOptionResponseDto(vote.getVoteOptionList()),
+                                                        vote.isForceExpiration(),
+                                                        vote.getExpirationDate()));
 
             } else {
                 VoteRecord voteRecord = new VoteRecord(voteOption, groupMember);
                 voteRecordRepository.save(voteRecord);
-                return Message.toResponseEntity(VOTE_PICK_SUCCESS, new VoteResponseDto(vote, parseFileResponseDto(vote.getFileList()), parseOptionResponseDto(vote.getVoteOptionList()), vote.isForceExpiration(), vote.getExpirationDate()));
+                return Message.toResponseEntity(VOTE_PICK_SUCCESS,
+                                                new VoteResponseDto(vote,
+                                                        parseFileResponseDto(vote.getFileList()),
+                                                        parseOptionResponseDto(vote.getVoteOptionList()),
+                                                        vote.isForceExpiration(),
+                                                        vote.getExpirationDate()));
             }
-        }else
+        } else
             return Message.toExceptionResponseEntity(VOTE_EXPIRED);
     }
 

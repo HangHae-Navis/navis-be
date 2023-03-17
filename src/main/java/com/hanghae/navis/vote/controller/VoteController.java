@@ -35,14 +35,14 @@ public class VoteController {
 
     @GetMapping("/{voteId}")
     @Operation(summary = "투표 상세 조회", description = "투표 상세 조회, 만료시간은 유닉스 시간으로.")
-    public ResponseEntity<Message> getBoard(@PathVariable Long groupId, @PathVariable Long voteId,
+    public ResponseEntity<Message> getVote(@PathVariable Long groupId, @PathVariable Long voteId,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return voteService.getVote(groupId, voteId, userDetails.getUser());
     }
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "투표등록", description = "투표 등록, 파일 다중 업로드, updateUrlList 빼고 해주세요")
-    public ResponseEntity<Message> createBoard(@PathVariable Long groupId,
+    public ResponseEntity<Message> createVote(@PathVariable Long groupId,
                                                @RequestPart VoteRequestDto requestDto,
                                                @ModelAttribute List<MultipartFile> multipartFiles,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -61,7 +61,7 @@ public class VoteController {
 
     @DeleteMapping("/{voteId}")
     @Operation(summary = "투표 삭제", description = "투표 삭제")
-    public ResponseEntity<Message> deleteBoard(@PathVariable Long groupId,
+    public ResponseEntity<Message> deleteVote(@PathVariable Long groupId,
                                                @PathVariable Long voteId,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return voteService.deleteVote(groupId, voteId, userDetails.getUser());
@@ -69,7 +69,7 @@ public class VoteController {
 
     @GetMapping(value = "/{voteId}/force-expired")
     @Operation(summary = "투표 강제종료", description = "투표 강제종료")
-    public ResponseEntity<Message> createBoard(@PathVariable Long groupId,
+    public ResponseEntity<Message> forceExpiredVote(@PathVariable Long groupId,
                                                @PathVariable Long voteId,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return voteService.forceExpired(groupId, voteId, userDetails.getUser());
@@ -77,10 +77,10 @@ public class VoteController {
 
     @GetMapping(value = "/{voteId}/pick/{voteOption}")
     @Operation(summary = "투표 선택", description = "투표 선택")
-    public ResponseEntity<Message> votePick(@PathVariable Long groupId,
+    public ResponseEntity<Message> pickVote(@PathVariable Long groupId,
                                             @PathVariable Long voteId,
                                             @PathVariable Long voteOption,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return voteService.votePick(groupId, voteId, voteOption, userDetails.getUser());
+        return voteService.pickVote(groupId, voteId, voteOption, userDetails.getUser());
     }
 }
