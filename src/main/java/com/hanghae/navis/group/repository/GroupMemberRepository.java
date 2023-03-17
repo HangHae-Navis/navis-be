@@ -16,5 +16,6 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
 
     Page<GroupMember> findAllByUser(User user, Pageable pageable);
     Page<GroupMember> findAllByUserAndGroupRole(User user, GroupMemberRoleEnum groupRole, Pageable pageable);
+    Page<GroupMember> findAllByUserAndGroupRoleIsNot(User user, GroupMemberRoleEnum groupRole, Pageable pageable);
 
 }

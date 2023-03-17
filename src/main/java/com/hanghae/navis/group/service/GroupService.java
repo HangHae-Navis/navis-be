@@ -112,7 +112,7 @@ public class GroupService {
         Page<GroupMember> groupMemberPage;
 
         if (category.equals("joined")) {
-            groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.USER, pageable);
+            groupMemberPage = groupMemberRepository.findAllByUserAndGroupRoleIsNot(user, GroupMemberRoleEnum.ADMIN, pageable);
         } else if (category.equals("myGroups")) {
             groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.ADMIN, pageable);
         } else if (category.equals("all")) {
