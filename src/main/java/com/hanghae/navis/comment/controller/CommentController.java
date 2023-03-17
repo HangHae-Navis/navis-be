@@ -23,14 +23,14 @@ import java.util.List;
 public class CommentController {
     private final CommentService commentService;
 
-    @GetMapping("/")
+    @GetMapping("")
     @Operation(summary = "댓글 리스트", description = "댓글 리스트")
     public ResponseEntity<Message> commentList(@PathVariable Long groupId, @PathVariable Long boardId,
                                          @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return commentService.commentList(groupId, boardId, userDetails.getUser());
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     @Operation(summary = "댓글 등록", description = "댓글 등록")
     public ResponseEntity<Message> createComment(@PathVariable Long groupId, @PathVariable Long boardId,
                                                  @RequestBody CommentRequestDto requestDto,
