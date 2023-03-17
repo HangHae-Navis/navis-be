@@ -30,10 +30,12 @@ public class HomeworkController {
     private final HomeworkService homeworkService;
 
     @Operation(summary = "과제 게시글 리스트", description = "과제 게시글 리스트")
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<Message> homeworkList(@PathVariable Long groupId,
+                                                @RequestParam int page,
+                                                @RequestParam int size,
                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return homeworkService.homeworkList(groupId, userDetails.getUser());
+        return homeworkService.homeworkList(groupId, page, size, userDetails.getUser());
     }
 
     @Operation(summary = "과제 게시글 상세 조회", description = "과제 게시글 상세 조회")
@@ -44,7 +46,7 @@ public class HomeworkController {
     }
 
     @Operation(summary = "과제 게시글 생성", description = "과제 게시글 생성, 일반 유저는 불가능 / 만료일은 유닉스 시간으로 받아옴")
-    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Message> createHomework(@PathVariable Long groupId,
                                                   @RequestPart HomeworkRequestDto requestDto,
                                                   @ModelAttribute List<MultipartFile> multipartFiles,

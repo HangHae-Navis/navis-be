@@ -19,6 +19,9 @@ import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +51,7 @@ public class HomeworkService {
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> homeworkList(Long groupId, User user) {
+    public ResponseEntity<Message> homeworkList(Long groupId, int page, int size,User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -57,14 +60,13 @@ public class HomeworkService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        List<HomeworkListResponseDto> responseList = new ArrayList<>();
+        Pageable pageable = PageRequest.of(page, size);
 
-        List<Homework> homeworkList = homeworkRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId);
+        Page<Homework> homeworkList = homeworkRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
 
-        for(Homework homework : homeworkList) {
-            responseList.add(HomeworkListResponseDto.of(homework));
-        }
-        return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, responseList);
+        Page<HomeworkListResponseDto> homeworkListResponseDto = HomeworkListResponseDto.toDto(homeworkList);
+
+        return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, homeworkListResponseDto);
     }
 
     @Transactional(readOnly = true)
@@ -154,6 +156,22 @@ public class HomeworkService {
 
         homework.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
+        List<Hashtag> remainTag = hashtagRepository.findAllByBasicBoardId(boardId);
+
+        for (Hashtag hashtag : remainTag) {
+            homework.getFileList().remove(hashtag);
+            hashtagRepository.delete(hashtag);
+        }
+
+        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+
+        for(HashtagRequestDto hashtagRequestDto : requestDto.getHashtagList()) {
+            String tag = hashtagRequestDto.getHashtag();
+            Hashtag hashtag = new Hashtag(tag, homework);
+            hashtagRepository.save(hashtag);
+            hashtagResponseDto.add(new HashtagResponseDto(tag));
+        }
+
         List<String> remainUrl = requestDto.getUpdateUrlList();
 
         List<File> files = fileRepository.findFileUrlByBasicBoardId(boardId);
@@ -183,7 +201,7 @@ public class HomeworkService {
                         fileRepository.save(homeworkFile);
                         fileResponseDto.add(FileResponseDto.of(homeworkFile));
                     }
-                    responseDto = HomeworkResponseDto.of(homework, fileResponseDto, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+                    responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
                 }
             }
         } catch (IOException e) {

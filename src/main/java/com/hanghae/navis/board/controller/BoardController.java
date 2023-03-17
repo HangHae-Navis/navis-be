@@ -27,8 +27,10 @@ public class BoardController {
     @GetMapping("")
     @Operation(summary = "게시글 목록", description = "게시글 목록")
     public ResponseEntity<Message> boardList(@PathVariable Long groupId,
+                                             @RequestParam int page,
+                                             @RequestParam int size,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return boardService.boardList(groupId, userDetails.getUser());
+        return boardService.boardList(groupId, page, size, userDetails.getUser());
     }
 
     @GetMapping("/{boardId}")

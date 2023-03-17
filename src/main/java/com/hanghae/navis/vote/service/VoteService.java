@@ -85,10 +85,11 @@ public class VoteService {
         }
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
+        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
 
         vote.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
-
-        VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, null, optionResponseDto, expirationCheck(
+        vote.getHashtagList().forEach(value -> hashtagResponseDto.add(HashtagResponseDto.of(value)));
+        VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagResponseDto, optionResponseDto, expirationCheck(
                 vote.getExpirationDate()), vote.getExpirationDate());
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
     }
