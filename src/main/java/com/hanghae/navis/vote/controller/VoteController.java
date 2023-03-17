@@ -85,4 +85,12 @@ public class VoteController {
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return voteService.pickVote(groupId, voteId, voteOption, userDetails.getUser());
     }
+
+    @DeleteMapping("/hashtag/{hashtagId}")
+    @Operation(summary = "해시태그 삭제", description = "해시태그 삭제")
+    public ResponseEntity<Message> deleteHashtag(@PathVariable Long groupId,
+                                                 @PathVariable Long hashtagId,
+                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.deleteHashtag(groupId, hashtagId, userDetails.getUser());
+    }
 }

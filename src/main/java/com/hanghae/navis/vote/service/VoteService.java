@@ -283,6 +283,24 @@ public class VoteService {
             return Message.toExceptionResponseEntity(VOTE_EXPIRED);
     }
 
+    @Transactional
+    public ResponseEntity<Message> deleteHashtag(Long groupId, Long hashtagId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        Hashtag hashtag = hashtagRepository.findById(hashtagId).orElseThrow(
+                () -> new CustomException(HASHTAG_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        hashtagRepository.deleteById(hashtagId);
+        return Message.toResponseEntity(HASHTAG_DELETE_SUCCESS);
+    }
+
     public UserGroup authCheck(Long groupId, User user) {
 
         Group group = groupRepository.findById(groupId).orElseThrow(
