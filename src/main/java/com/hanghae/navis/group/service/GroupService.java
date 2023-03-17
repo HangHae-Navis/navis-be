@@ -156,6 +156,8 @@ public class GroupService {
             throw new CustomException(ExceptionMessage.GROUP_NOT_JOINED);
         }
 
+        boolean isAdmin = groupMember.get().getGroupRole().equals(GroupMemberRoleEnum.ADMIN);
+
         Pageable pageable = PageRequest.of(page, size);
 
         Page<BasicBoard> basicBoardPage;
@@ -166,7 +168,7 @@ public class GroupService {
             throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
         }
 
-        GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, basicBoardPage);
+        GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, basicBoardPage);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_MAIN_PAGE_GET_SUCCESS, responseDto);
     }
