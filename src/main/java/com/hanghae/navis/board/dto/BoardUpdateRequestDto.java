@@ -1,5 +1,6 @@
 package com.hanghae.navis.board.dto;
 
+import com.hanghae.navis.common.dto.HashtagRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,4 +14,5 @@ public class BoardUpdateRequestDto {
     private String title;
     private String content;
     private List<String> updateUrlList = new ArrayList<>();
+    private List<HashtagRequestDto> hashtagList;
 }

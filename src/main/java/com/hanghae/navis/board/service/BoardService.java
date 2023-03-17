@@ -2,12 +2,13 @@ package com.hanghae.navis.board.service;
 
 import com.hanghae.navis.board.dto.*;
 import com.hanghae.navis.board.entity.Board;
+import com.hanghae.navis.common.dto.*;
 import com.hanghae.navis.common.entity.File;
+import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
-import com.hanghae.navis.common.dto.CustomException;
-import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
@@ -36,6 +37,7 @@ public class BoardService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+    private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
 
 
@@ -54,8 +56,10 @@ public class BoardService {
 
         List<Board> boardList = boardRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId);
 
+        List<HashtagResponseDto> tagResponseList = new ArrayList<>();
+
         for (Board board : boardList) {
-            responseList.add(new BoardListResponseDto(board));
+            responseList.add(BoardListResponseDto.of(board, null));
         }
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, responseList);
     }
@@ -75,10 +79,10 @@ public class BoardService {
         );
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
-        for (File file: board.getFileList()) {
-            fileResponseDto.add(new FileResponseDto(file.getFileTitle(), file.getFileUrl()));
-        }
-        BoardResponseDto boardResponseDto = new BoardResponseDto(board, fileResponseDto);
+        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+        board.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
+        board.getHashtagList().forEach(value -> hashtagResponseDto.add(HashtagResponseDto.of(value)));
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, boardResponseDto);
     }
 
@@ -96,6 +100,15 @@ public class BoardService {
             Board board = new Board(requestDto, user, group);
             boardRepository.save(board);
 
+            List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+
+            for(HashtagRequestDto hashtagRequestDto : requestDto.getHashtagList()) {
+                String tag = hashtagRequestDto.getHashtag();
+                Hashtag hashtag = new Hashtag(tag, board);
+                hashtagRepository.save(hashtag);
+                hashtagResponseDto.add(new HashtagResponseDto(tag));
+            }
+
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
             if(multipartFiles != null) {
                 for (MultipartFile file : multipartFiles) {
@@ -103,10 +116,10 @@ public class BoardService {
                     String fileUrl = s3Uploader.upload(file);
                     File boardFile = new File(fileTitle, fileUrl, board);
                     fileRepository.save(boardFile);
-                    fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
+                    fileResponseDto.add(FileResponseDto.of(boardFile));
                 }
             }
-            BoardResponseDto boardResponseDto = new BoardResponseDto(board, fileResponseDto);
+            BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, boardResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -127,12 +140,11 @@ public class BoardService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        BoardResponseDto boardResponseDto = new BoardResponseDto(board, null);
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null);
 
         if (!user.getUsername().equals(board.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
-
 
         board.update(requestDto);
 
@@ -165,7 +177,7 @@ public class BoardService {
                         fileRepository.save(boardFile);
                         fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
                     }
-                    boardResponseDto = new BoardResponseDto(board, fileResponseDto);
+                    boardResponseDto = BoardResponseDto.of(board, fileResponseDto, null);
                 }
 
             }
@@ -205,5 +217,23 @@ public class BoardService {
         }
         boardRepository.deleteById(boardId);
         return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> deleteHashtag(Long groupId, Long hashtagId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        Hashtag hashtag = hashtagRepository.findById(hashtagId).orElseThrow(
+                () -> new CustomException(HASHTAG_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        hashtagRepository.deleteById(hashtagId);
+        return Message.toResponseEntity(HASHTAG_DELETE_SUCCESS);
     }
 }

@@ -1,24 +1,22 @@
 package com.hanghae.navis.vote.dto;
 
-import com.hanghae.navis.board.dto.BoardResponseDto;
-import com.hanghae.navis.board.dto.FileResponseDto;
-import com.hanghae.navis.vote.entity.Vote;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.List;
+import com.hanghae.navis.vote.entity.VoteOption;
+import lombok.*;
 
 @Setter
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class OptionResponseDto {
 
     private String option;
     private Long count;
 
-    public OptionResponseDto(String option, Long count) {
-        this.option = option;
-        this.count = count;
+    public static OptionResponseDto of(VoteOption voteOption) {
+        return OptionResponseDto.builder()
+                .option(voteOption.getOption())
+                .count(voteOption.getVoteRecordList() == null ? 0L : (long) voteOption.getVoteRecordList().size())
+                .build();
     }
 }

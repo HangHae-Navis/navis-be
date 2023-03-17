@@ -1,13 +1,12 @@
 package com.hanghae.navis.homework.service;
 
-import com.hanghae.navis.board.dto.*;
-import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
-import com.hanghae.navis.common.dto.CustomException;
-import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.common.dto.*;
 import com.hanghae.navis.common.entity.File;
+import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.FileRepository;
+import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.homework.dto.HomeworkListResponseDto;
@@ -44,6 +43,8 @@ public class HomeworkService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+
+    private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
@@ -61,7 +62,7 @@ public class HomeworkService {
         List<Homework> homeworkList = homeworkRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId);
 
         for(Homework homework : homeworkList) {
-            responseList.add(new HomeworkListResponseDto(homework));
+            responseList.add(HomeworkListResponseDto.of(homework));
         }
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, responseList);
     }
@@ -82,10 +83,9 @@ public class HomeworkService {
 
         List<FileResponseDto> responseList = new ArrayList<>();
 
-        for (File file : homework.getFileList()) {
-            responseList.add(new FileResponseDto(file.getFileTitle(), file.getFileTitle()));
-        }
-        HomeworkResponseDto homeworkResponseDto = new HomeworkResponseDto(homework, responseList, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+        homework.getFileList().forEach(value -> responseList.add(FileResponseDto.of(value)));
+
+        HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
     }
@@ -104,6 +104,15 @@ public class HomeworkService {
 
         homeworkRepository.save(homework);
 
+        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+
+        for(HashtagRequestDto hashtagRequestDto : requestDto.getHashtagList()) {
+            String tag = hashtagRequestDto.getHashtag();
+            Hashtag hashtag = new Hashtag(tag, homework);
+            hashtagRepository.save(hashtag);
+            hashtagResponseDto.add(HashtagResponseDto.of(hashtag));
+        }
+
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
         try {
@@ -112,9 +121,9 @@ public class HomeworkService {
                 String fileUrl = s3Uploader.upload(file);
                 File homeworkFile = new File(fileTitle, fileUrl, homework);
                 fileRepository.save(homeworkFile);
-                fileResponseDto.add(new FileResponseDto(homeworkFile.getFileTitle(), homeworkFile.getFileUrl()));
+                fileResponseDto.add(FileResponseDto.of(homeworkFile));
             }
-            HomeworkResponseDto responseDto = new HomeworkResponseDto(homework, fileResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto,false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
@@ -141,7 +150,7 @@ public class HomeworkService {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
-        HomeworkResponseDto responseDto = new HomeworkResponseDto(homework, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+        HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
 
         homework.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
@@ -172,9 +181,9 @@ public class HomeworkService {
                         String fileUrl = s3Uploader.upload(file);
                         File homeworkFile = new File(fileTitle, fileUrl, homework);
                         fileRepository.save(homeworkFile);
-                        fileResponseDto.add(new FileResponseDto(homeworkFile.getFileTitle(), homeworkFile.getFileUrl()));
+                        fileResponseDto.add(FileResponseDto.of(homeworkFile));
                     }
-                    responseDto = new HomeworkResponseDto(homework, fileResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+                    responseDto = HomeworkResponseDto.of(homework, fileResponseDto, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
                 }
             }
         } catch (IOException e) {

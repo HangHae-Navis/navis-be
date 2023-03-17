@@ -2,13 +2,18 @@ package com.hanghae.navis.homework.dto;
 
 import com.hanghae.navis.board.dto.BoardListResponseDto;
 import com.hanghae.navis.homework.entity.Homework;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.bytebuddy.implementation.bind.annotation.BindingPriority;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class HomeworkListResponseDto extends BoardListResponseDto {
     private Long id;
 
@@ -26,14 +31,15 @@ public class HomeworkListResponseDto extends BoardListResponseDto {
 
     private LocalDateTime expirationDate;
 
-    public HomeworkListResponseDto(Homework homework) {
-        this.id = homework.getId();
-        this.title = homework.getTitle();
-        this.subtitle = homework.getSubtitle();
-        this.content = homework.getContent();
-        this.nickName = homework.getUser().getNickname();
-        this.groupName = homework.getGroup().getGroupName();
-        this.createAt = homework.getCreatedAt();
-        this.expirationDate = homework.getExpirationDate();
+    public static HomeworkListResponseDto of(Homework homework) {
+        return HomeworkListResponseDto.builder()
+            .id(homework.getId())
+            .title(homework.getTitle())
+            .title(homework.getTitle())
+            .content(homework.getContent())
+            .subtitle(homework.getSubtitle())
+            .createAt(homework.getCreatedAt())
+            .expirationDate(homework.getExpirationDate())
+            .build();
     }
 }

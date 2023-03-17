@@ -64,4 +64,12 @@ public class BoardController {
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.deleteBoard(groupId, boardId, userDetails.getUser());
     }
+
+    @DeleteMapping("/hashtag/{hashtagId}")
+    @Operation(summary = "해시태그 삭제", description = "해시태그 삭제")
+    public ResponseEntity<Message> deleteHashtag(@PathVariable Long groupId,
+                                                 @PathVariable Long hashtagId,
+                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.deleteHashtag(groupId, hashtagId, userDetails.getUser());
+    }
 }
