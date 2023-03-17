@@ -63,10 +63,14 @@ public class VoteService {
     public ResponseEntity<Message> getVoteList(Long groupId, User user, int page, int size) {
         UserGroup userGroup = authCheck(groupId, user);
         Pageable pageable = PageRequest.of(page, size);
+        Page<Vote> votePage = voteRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
+        List<Vote> voteList = votePage.getContent();
 
-        Page<Vote> voteList = voteRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
+        List<List<Hashtag>> hashtagList = new ArrayList<>();
 
-        Page<VoteListResponseDto> voteListResponseDto = VoteListResponseDto.toDtoPage(voteList);
+        voteList.forEach(vote -> hashtagList.add(vote.getHashtagList()));
+
+        Page<VoteListResponseDto> voteListResponseDto = VoteListResponseDto.toDtoPage(votePage);
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, voteListResponseDto);
     }
 
