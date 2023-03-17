@@ -19,8 +19,6 @@ public class MainPageBasicBoardDto {
     private String subtitle;
     private String dtype;
     private String nickname;
-
-    private String dtype;
     private LocalDateTime createdAt;
 
     public static MainPageBasicBoardDto of(BasicBoard basicBoard) {
