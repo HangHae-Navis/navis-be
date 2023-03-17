@@ -25,21 +25,21 @@ public class NoticeController {
     private final NoticeService noticeService;
 
     @GetMapping("/")
-    @Operation(summary = "게시글 목록", description = "게시글 목록")
+    @Operation(summary = "공지사항 목록", description = "공지사항 목록")
     public ResponseEntity<Message> noticeList(@PathVariable Long groupId,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return noticeService.noticeList(groupId, userDetails.getUser());
     }
 
     @GetMapping("/{noticeId}")
-    @Operation(summary = "게시글 상세 조회", description = "게시글 상세 조회")
+    @Operation(summary = "공지사항 상세 조회", description = "공지사항 상세 조회")
     public ResponseEntity<Message> getNotice(@PathVariable Long groupId, @PathVariable Long noticeId,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return noticeService.getNotice(groupId, noticeId, userDetails.getUser());
     }
 
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "게시글 등록", description = "게시글 등록, 파일 다중 업로드")
+    @Operation(summary = "공지사항 등록", description = "공지사항 등록, 파일 다중 업로드")
     public ResponseEntity<Message> createNotice(@PathVariable Long groupId,
                                                @RequestPart NoticeRequestDto requestDto,
                                                @ModelAttribute List<MultipartFile> multipartFiles,
@@ -48,7 +48,7 @@ public class NoticeController {
     }
 
     @PutMapping("/{noticeId}")
-    @Operation(summary = "게시글 수정", description = "게시글 수정")
+    @Operation(summary = "공지사항 수정", description = "공지사항 수정")
     public ResponseEntity<Message> updateNotice(@PathVariable Long groupId,
                                                @PathVariable Long noticeId,
                                                @RequestPart NoticeUpdateRequestDto requestDto,
@@ -58,7 +58,7 @@ public class NoticeController {
     }
 
     @DeleteMapping("/{noticeId}")
-    @Operation(summary = "게시글 삭제", description = "게시글 삭제")
+    @Operation(summary = "공지사항 삭제", description = "공지사항 삭제")
     public ResponseEntity<Message> deleteNotice(@PathVariable Long groupId,
                                                @PathVariable Long noticeId,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
