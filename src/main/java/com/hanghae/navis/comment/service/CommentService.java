@@ -1,6 +1,7 @@
 package com.hanghae.navis.comment.service;
 
 import com.hanghae.navis.board.entity.Board;
+import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.comment.dto.CommentRequestDto;
@@ -8,7 +9,10 @@ import com.hanghae.navis.comment.dto.CommentResponseDto;
 import com.hanghae.navis.comment.repository.CommentRepository;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
@@ -31,6 +35,9 @@ public class CommentService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final GroupMemberRepository groupMemberRepository;
+
+    private final BasicBoardRepository basicBoardRepository;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> commentList(Long groupId, Long boardId, User user) {
@@ -38,7 +45,7 @@ public class CommentService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        Board board = boardRepository.findById(boardId).orElseThrow(
+        BasicBoard basicBoard = basicBoardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
@@ -61,7 +68,7 @@ public class CommentService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        Board board = boardRepository.findById(boardId).orElseThrow(
+        BasicBoard basicBoard = basicBoardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
@@ -69,7 +76,7 @@ public class CommentService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        Comment comment = new Comment(requestDto, user, board);
+        Comment comment = new Comment(requestDto, user, basicBoard);
 
         commentRepository.save(comment);
 
@@ -82,7 +89,7 @@ public class CommentService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        Board board = boardRepository.findById(boardId).orElseThrow(
+        BasicBoard basicBoard = basicBoardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
@@ -90,7 +97,9 @@ public class CommentService {
                 () -> new CustomException(COMMENT_NOT_FOUND)
         );
 
-        if(!user.getRole().equals(UserRoleEnum.ADMIN)) {
+        GroupMemberRoleEnum role = groupMemberRepository.findByUserAndGroup(user, group).get().getGroupRole();
+
+        if(!user.getRole().equals(UserRoleEnum.ADMIN) || !role.equals(GroupMemberRoleEnum.ADMIN) || !role.equals(GroupMemberRoleEnum.SUPPORT)) {
             throw new CustomException(UNAUTHORIZED_ADMIN);
         }
 
@@ -105,7 +114,7 @@ public class CommentService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        Board board = boardRepository.findById(boardId).orElseThrow(
+        BasicBoard basicBoard = basicBoardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
