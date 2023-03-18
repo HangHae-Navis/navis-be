@@ -43,7 +43,7 @@ public class BoardController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "게시글 등록", description = "게시글 등록, 파일 다중 업로드")
     public ResponseEntity<Message> createBoard(@PathVariable Long groupId,
-                                               @ModelAttribute BoardRequestDto requestDto,
+                                               @ModelAttribute(value = "requestDto") BoardRequestDto requestDto,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.createBoard(groupId, requestDto, userDetails.getUser());
     }

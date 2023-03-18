@@ -5,7 +5,6 @@ import com.hanghae.navis.common.dto.HashtagRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,8 +14,8 @@ import java.util.List;
 public class HomeworkRequestDto extends BoardRequestDto {
     private Long expirationDate;
 
-    public HomeworkRequestDto(String title, String subtitle, String content, String important, String hashtagList, Long expirationDate, List<MultipartFile> multipartFiles) {
-        super(title, subtitle, content, important, hashtagList, multipartFiles);
+    public HomeworkRequestDto(String title, String subtitle, String content, Long important, String hashtagList, Long expirationDate) {
+        super(title, subtitle, content, important, hashtagList);
         this.expirationDate = expirationDate;
     }
 }
