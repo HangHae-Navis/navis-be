@@ -25,6 +25,7 @@ public class HomeworkListResponseDto extends BoardListResponseDto {
     private String content;
 
     private String nickName;
+    private Long important;
 
     private String groupName;
 
@@ -36,15 +37,16 @@ public class HomeworkListResponseDto extends BoardListResponseDto {
 
     public static HomeworkListResponseDto of(Homework homework) {
         return HomeworkListResponseDto.builder()
-            .id(homework.getId())
-            .title(homework.getTitle())
-            .title(homework.getTitle())
-            .content(homework.getContent())
-            .subtitle(homework.getSubtitle())
-            .createAt(homework.getCreatedAt())
-            .expirationDate(homework.getExpirationDate())
-            .hashtagResponseDtoList(HashtagResponseDto.toDtoList(homework.getHashtagList()))
-            .build();
+                .id(homework.getId())
+                .title(homework.getTitle())
+                .title(homework.getTitle())
+                .content(homework.getContent())
+                .important(homework.getImportant())
+                .subtitle(homework.getSubtitle())
+                .createAt(homework.getCreatedAt())
+                .expirationDate(homework.getExpirationDate())
+                .hashtagResponseDtoList(HashtagResponseDto.toDtoList(homework.getHashtagList()))
+                .build();
     }
 
     public static Page<HomeworkListResponseDto> toDto(Page<Homework> homeworkPage) {

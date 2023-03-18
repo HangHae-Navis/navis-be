@@ -30,7 +30,7 @@ public abstract class BasicBoard extends TimeStamped {
     protected String content;
 
     @Column(nullable = false)
-    protected String important;
+    protected Long important;
 
     @ManyToOne
     protected User user;

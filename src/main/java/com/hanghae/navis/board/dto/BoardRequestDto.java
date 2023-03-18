@@ -13,10 +13,10 @@ public class BoardRequestDto {
     private String title;
     private String subtitle;
     private String content;
-    private String important;
+    private Long important;
     private List<HashtagRequestDto> hashtagList;
 
-    public BoardRequestDto(String title, String content, String subtitle, String important, List<HashtagRequestDto> hashtagList) {
+    public BoardRequestDto(String title, String content, String subtitle, Long important, List<HashtagRequestDto> hashtagList) {
         this.title = title;
         this.content = content;
         this.subtitle = subtitle;
