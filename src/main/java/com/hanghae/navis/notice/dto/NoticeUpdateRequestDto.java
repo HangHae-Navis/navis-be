@@ -14,6 +14,7 @@ public class NoticeUpdateRequestDto extends BoardUpdateRequestDto {
     private String subtitle;
     private String title;
     private String content;
+    private String important;
     private List<String> updateUrlList = new ArrayList<>();
     private List<HashtagRequestDto> hashtagList;
 }

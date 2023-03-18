@@ -14,8 +14,8 @@ import java.util.List;
 public class HomeworkRequestDto extends BoardRequestDto {
     private Long expirationDate;
 
-    public HomeworkRequestDto(String title, String subtitle, String content, List<HashtagRequestDto> hashtagList, Long expirationDate) {
-        super(title, subtitle, content, hashtagList);
+    public HomeworkRequestDto(String title, String subtitle, String content, String important, List<HashtagRequestDto> hashtagList, Long expirationDate) {
+        super(title, subtitle, content, important, hashtagList);
         this.expirationDate = expirationDate;
     }
 }
