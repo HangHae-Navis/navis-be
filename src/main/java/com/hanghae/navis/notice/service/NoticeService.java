@@ -85,10 +85,14 @@ public class NoticeService {
         );
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
-        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+
+        List<String> hashtagList = new ArrayList<>();
+
         notice.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
-        notice.getHashtagList().forEach(value -> hashtagResponseDto.add(HashtagResponseDto.of(value)));
-        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagResponseDto);
+
+        notice.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
+
+        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagList);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, noticeResponseDto);
     }
 
@@ -102,12 +106,12 @@ public class NoticeService {
 
             noticeRepository.save(notice);
 
-            List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+            List<String> hashTagList = new ArrayList<>();
 
             for(String tag : requestDto.getHashtagList().split(" ")) {
                 Hashtag hashtag = new Hashtag(tag, notice);
                 hashtagRepository.save(hashtag);
-                hashtagResponseDto.add(new HashtagResponseDto(tag));
+                hashTagList.add(tag);
             }
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
@@ -120,7 +124,7 @@ public class NoticeService {
                     fileResponseDto.add(FileResponseDto.of(noticeFile));
                 }
             }
-            NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagResponseDto);
+            NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, noticeResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);

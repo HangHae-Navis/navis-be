@@ -15,5 +15,5 @@ public class BoardUpdateRequestDto {
     private String content;
     private Long important;
     private List<String> updateUrlList = new ArrayList<>();
-    private List<HashtagRequestDto> hashtagList;
+    private List<String> hashtagList;
 }

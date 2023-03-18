@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 public class NoticeResponseDto extends BasicBoardResponseDto {
-    public static NoticeResponseDto of(Notice notice, List<FileResponseDto> fileList, List<HashtagResponseDto> hashtagList) {
+    public static NoticeResponseDto of(Notice notice, List<FileResponseDto> fileList, List<String> hashtagList) {
         return NoticeResponseDto.builder()
                 .id(notice.getId())
                 .nickname(notice.getUser().getNickname())

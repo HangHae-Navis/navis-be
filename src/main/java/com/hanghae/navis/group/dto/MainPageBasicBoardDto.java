@@ -2,6 +2,7 @@ package com.hanghae.navis.group.dto;
 
 import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.entity.BasicBoard;
+import com.hanghae.navis.common.entity.Hashtag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 @Getter
@@ -22,7 +24,7 @@ public class MainPageBasicBoardDto {
     private String dtype;
     private String nickname;
     private Long important;
-    private List<HashtagResponseDto> hashtagResponseDtos;
+    private List<String> hashtagList;
     private LocalDateTime createdAt;
 
     public static MainPageBasicBoardDto of(BasicBoard basicBoard) {
@@ -33,7 +35,9 @@ public class MainPageBasicBoardDto {
                 .dtype(basicBoard.getDtype())
                 .nickname(basicBoard.getUser().getNickname())
                 .important(basicBoard.getImportant())
-                .hashtagResponseDtos(HashtagResponseDto.toDtoList(basicBoard.getHashtagList()))
+                .hashtagList(basicBoard.getHashtagList().stream()
+                        .map(Hashtag::getHashtagName)
+                        .collect(Collectors.toList()))
                 .createdAt(basicBoard.getCreatedAt())
                 .build();
     }

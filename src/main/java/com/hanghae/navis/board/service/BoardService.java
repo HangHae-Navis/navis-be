@@ -80,9 +80,9 @@ public class BoardService {
         );
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
-        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+        List<String> hashtagResponseDto = new ArrayList<>();
         board.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
-        board.getHashtagList().forEach(value -> hashtagResponseDto.add(HashtagResponseDto.of(value)));
+        board.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
         BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, boardResponseDto);
     }
@@ -101,12 +101,12 @@ public class BoardService {
             Board board = new Board(requestDto, user, group);
             boardRepository.save(board);
 
-            List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+            List<String> hashtagResponseDto = new ArrayList<>();
 
             for(String tag : requestDto.getHashtagList().split(" ")) {
                 Hashtag hashtag = new Hashtag(tag, board);
                 hashtagRepository.save(hashtag);
-                hashtagResponseDto.add(new HashtagResponseDto(tag));
+                hashtagResponseDto.add(tag);
             }
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
@@ -155,13 +155,12 @@ public class BoardService {
             hashtagRepository.delete(hashtag);
         }
 
-        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+        List<String> hashtagResponseDto = new ArrayList<>();
 
-        for(HashtagRequestDto hashtagRequestDto : requestDto.getHashtagList()) {
-            String tag = hashtagRequestDto.getHashtag();
+        for(String tag : requestDto.getHashtagList()) {
             Hashtag hashtag = new Hashtag(tag, board);
             hashtagRepository.save(hashtag);
-            hashtagResponseDto.add(new HashtagResponseDto(tag));
+            hashtagResponseDto.add(tag);
         }
 
         List<String> remainUrl = requestDto.getUpdateUrlList();
