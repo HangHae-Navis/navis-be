@@ -24,6 +24,7 @@ public enum ExceptionMessage {
     EMAIL_CODE_INVALID(BAD_REQUEST,"코드가 유효하지 않습니다."),
     EMAIL_SEND_FAIL(BAD_REQUEST,"이메일 전송에 실패하였습니다."),
     INVALID_CATEGORY(BAD_REQUEST, "올바른 카테고리를 입력해주세요."),
+    INVALID_SORTING(BAD_REQUEST, "올바른 정렬기준을 입력하세요."),
     ADMIN_CANNOT_QUIT(BAD_REQUEST, "관리자는 그룹 탈퇴가 불가능합니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */

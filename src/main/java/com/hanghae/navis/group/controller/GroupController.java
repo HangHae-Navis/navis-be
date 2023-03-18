@@ -54,8 +54,9 @@ public class GroupController {
                                                     @RequestParam int page,
                                                     @RequestParam int size,
                                                     @RequestParam(required = false, defaultValue = "all") String category,
+                                                    @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
                                                     @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return groupService.getGroupMainPage(groupId, page-1, size, category, userDetails.getUser());
+        return groupService.getGroupMainPage(groupId, page-1, size, category, sortBy, userDetails.getUser());
     }
 
 

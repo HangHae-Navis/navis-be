@@ -154,7 +154,7 @@ public class GroupService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> getGroupMainPage(Long groupId, int page, int size, String category, User user) {
+    public ResponseEntity<Message> getGroupMainPage(Long groupId, int page, int size, String category, String sortBy, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
         );
@@ -169,12 +169,26 @@ public class GroupService {
 
         Page<BasicBoard> basicBoardPage;
 
-        if (category.equals("all")) {
-            basicBoardPage = basicBoardRepository.findAllByGroupOrderByCreatedAtDesc(group, pageable);
-        } else if(category.equals("board") || category.equals("vote") || category.equals("homework")) {
-            basicBoardPage = basicBoardRepository.findAllByGroupAndDtypeOrderByCreatedAtDesc(group, category, pageable);
+        boolean categoryUsed = category.equals("board") || category.equals("vote")
+                || category.equals("homework") || category.equals("notice");
+        if(sortBy.equals("createdAt")) {
+            if (category.equals("all")) {
+                basicBoardPage = basicBoardRepository.findAllByGroupOrderByCreatedAtDesc(group, pageable);
+            } else if (categoryUsed) {
+                basicBoardPage = basicBoardRepository.findAllByGroupAndDtypeOrderByCreatedAtDesc(group, category, pageable);
+            } else {
+                throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
+            }
+        } else if(sortBy.equals("important")) {
+            if (category.equals("all")) {
+                basicBoardPage = basicBoardRepository.findAllByGroupOrderByImportantDesc(group, pageable);
+            } else if (categoryUsed) {
+                basicBoardPage = basicBoardRepository.findAllByGroupAndDtypeOrderByImportantDesc(group, category, pageable);
+            } else {
+                throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
+            }
         } else {
-            throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
+            throw new CustomException(ExceptionMessage.INVALID_SORTING);
         }
 
         GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, basicBoardPage);
