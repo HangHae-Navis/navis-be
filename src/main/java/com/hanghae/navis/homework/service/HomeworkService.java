@@ -93,7 +93,7 @@ public class HomeworkService {
     }
 
     @Transactional
-    public ResponseEntity<Message> createHomework(Long groupId, HomeworkRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    public ResponseEntity<Message> createHomework(Long groupId, HomeworkRequestDto requestDto, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -117,7 +117,7 @@ public class HomeworkService {
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
         try {
-            for (MultipartFile file : multipartFiles) {
+            for (MultipartFile file : requestDto.getMultipartFiles()) {
                 String fileTitle = file.getOriginalFilename();
                 String fileUrl = s3Uploader.upload(file);
                 File homeworkFile = new File(fileTitle, fileUrl, homework);
