@@ -16,11 +16,11 @@ public class BoardRequestDto {
     private Long important;
     private String hashtagList;
 
-    public BoardRequestDto(String title, String content, String subtitle, Long important, String hashtagList) {
+    public BoardRequestDto(String title, String content, String subtitle, String important, String hashtagList) {
         this.title = title;
         this.content = content;
         this.subtitle = subtitle;
         this.hashtagList = hashtagList;
-        this.important = important;
+        this.important = Long.parseLong(important);
     }
 }
