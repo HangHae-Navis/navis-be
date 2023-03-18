@@ -15,12 +15,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupMemberResponseDto {
+    private Long id;
     private String nickname;
     private LocalDateTime joinedAt;
     private GroupMemberRoleEnum groupMemberRoleEnum;
 
     public static GroupMemberResponseDto of(GroupMember groupMember) {
         return GroupMemberResponseDto.builder()
+                .id(groupMember.getId())
                 .nickname(groupMember.getUser().getNickname())
                 .joinedAt(groupMember.getCreatedAt())
                 .groupMemberRoleEnum(groupMember.getGroupRole())

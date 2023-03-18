@@ -24,6 +24,7 @@ public enum ExceptionMessage {
     EMAIL_CODE_INVALID(BAD_REQUEST,"코드가 유효하지 않습니다."),
     EMAIL_SEND_FAIL(BAD_REQUEST,"이메일 전송에 실패하였습니다."),
     INVALID_CATEGORY(BAD_REQUEST, "올바른 카테고리를 입력해주세요."),
+    ADMIN_CANNOT_QUIT(BAD_REQUEST, "관리자는 그룹 탈퇴가 불가능합니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
@@ -33,6 +34,7 @@ public enum ExceptionMessage {
     /* 403 FORBIDDEN : 권한 없음 */
     USER_FORBIDDEN(FORBIDDEN, "권한이 없습니다."),
     GROUP_NOT_JOINED(FORBIDDEN, "가입하지 않은 그룹입니다."),
+    ADMIN_ONLY(FORBIDDEN, "관리자만 사용 가능합니다."),
 
 
     /* 404 NOT_FOUND : Resource 를 찾을 수 없음 */
