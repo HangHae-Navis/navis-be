@@ -29,6 +29,7 @@ public class BoardListResponseDto {
     private String nickName;
 
     private String groupName;
+    private Long important;
 
     private LocalDateTime createAt;
 
@@ -40,6 +41,7 @@ public class BoardListResponseDto {
                 .subtitle(board.getUser().getNickname())
                 .title(board.getTitle())
                 .content(board.getTitle())
+                .important(board.getImportant())
                 .nickName(board.getContent())
                 .groupName(board.getSubtitle())
                 .createAt(board.getCreatedAt())

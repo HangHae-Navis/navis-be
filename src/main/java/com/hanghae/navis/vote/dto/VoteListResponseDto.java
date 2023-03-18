@@ -28,8 +28,8 @@ public class VoteListResponseDto {
     private String subtitle;
 
     private String content;
-
     private String nickName;
+    private Long important;
     private List<HashtagResponseDto> hashtagResponseDtoList;
 
     private LocalDateTime createAt;
@@ -40,6 +40,7 @@ public class VoteListResponseDto {
                 .subtitle(vote.getSubtitle())
                 .title(vote.getTitle())
                 .content(vote.getContent())
+                .important(vote.getImportant())
                 .nickName(vote.getUser().getNickname())
                 .createAt(vote.getCreatedAt())
                 .hashtagResponseDtoList(HashtagResponseDto.toDtoList(vote.getHashtagList()))

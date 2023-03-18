@@ -19,7 +19,7 @@ public class VoteRequestDto extends BoardRequestDto {
 
 
     //생성
-    public VoteRequestDto(String title, String content, String subtitle, String important, List<HashtagRequestDto> hashtagList, long expirationDate, List<OptionRequestDto> optionRequestDto) {
+    public VoteRequestDto(String title, String content, String subtitle, Long important, List<HashtagRequestDto> hashtagList, long expirationDate, List<OptionRequestDto> optionRequestDto) {
         super(title, content, subtitle, important, hashtagList);
         this.expirationDate = expirationDate;
         this.optionRequestDto = optionRequestDto;
