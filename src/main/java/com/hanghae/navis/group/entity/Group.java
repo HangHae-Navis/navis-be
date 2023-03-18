@@ -35,7 +35,7 @@ public class Group extends TimeStamped {
 
     @ManyToOne
     private User user;
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<GroupMember> groupMember = new ArrayList<>();
 
     @OneToMany(mappedBy = "group")

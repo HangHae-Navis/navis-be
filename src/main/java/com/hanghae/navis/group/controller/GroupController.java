@@ -67,4 +67,19 @@ public class GroupController {
         return groupService.getGroupDetails(groupId, userDetails.getUser());
     }
 
+    @DeleteMapping("/{groupId}")
+    @Operation(summary = "그룹 탈퇴", description ="멤버 id를 입력할 경우 ADMIN의 강퇴 기능, 입력하지 않으면 일반 유저의 탈퇴 기능, 자신이 ADMIN일 경우 탈퇴 불가")
+    public ResponseEntity<Message> deleteGroupMember(@PathVariable Long groupId,
+                                                     @RequestParam(required = false) Long memberId,
+                                                     @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return groupService.deleteGroupMember(groupId, memberId, userDetails.getUser());
+    }
+
+    @DeleteMapping("/{groupId}/admin")
+    @Operation(summary = "그룹 삭제", description ="ADMIN만 가능")
+    public ResponseEntity<Message> deleteGroup(@PathVariable Long groupId,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return groupService.deleteGroup(groupId, userDetails.getUser());
+    }
+
 }

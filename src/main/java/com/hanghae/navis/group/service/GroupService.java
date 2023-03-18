@@ -18,6 +18,7 @@ import com.hanghae.navis.user.repository.UserRepository;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class GroupService {
 
@@ -114,14 +116,18 @@ public class GroupService {
 
         Page<GroupMember> groupMemberPage;
 
-        if (category.equals("joined")) {
-            groupMemberPage = groupMemberRepository.findAllByUserAndGroupRoleIsNot(user, GroupMemberRoleEnum.ADMIN, pageable);
-        } else if (category.equals("myGroups")) {
-            groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.ADMIN, pageable);
-        } else if (category.equals("all")) {
-            groupMemberPage = groupMemberRepository.findAllByUser(user, pageable);
-        } else {
-            throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
+        switch (category) {
+            case "joined":
+                groupMemberPage = groupMemberRepository.findAllByUserAndGroupRoleIsNot(user, GroupMemberRoleEnum.ADMIN, pageable);
+                break;
+            case "myGroups":
+                groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.ADMIN, pageable);
+                break;
+            case "all":
+                groupMemberPage = groupMemberRepository.findAllByUser(user, pageable);
+                break;
+            default:
+                throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
         }
 
         Page<GroupResponseDto> groupResponseDtoPage = GroupResponseDto.toDtoPage(groupMemberPage);
@@ -139,7 +145,7 @@ public class GroupService {
         GroupMemberRoleEnum role = groupMemberRepository.findByUserAndGroup(user, group).get().getGroupRole();
 
         if(!role.equals(GroupMemberRoleEnum.ADMIN)) {
-            throw new CustomException(ExceptionMessage.UNAUTHORIZED_ADMIN);
+            throw new CustomException(ExceptionMessage.ADMIN_ONLY);
         }
 
         GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
@@ -153,12 +159,11 @@ public class GroupService {
                 () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
         );
 
-        Optional<GroupMember> groupMember = groupMemberRepository.findByUserAndGroup(user, group);
-        if(groupMember.isEmpty()) {
-            throw new CustomException(ExceptionMessage.GROUP_NOT_JOINED);
-        }
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
 
-        boolean isAdmin = groupMember.get().getGroupRole().equals(GroupMemberRoleEnum.ADMIN);
+        boolean isAdmin = groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN);
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -175,6 +180,50 @@ public class GroupService {
         GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, basicBoardPage);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_MAIN_PAGE_GET_SUCCESS, responseDto);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> deleteGroupMember(Long groupId, Long memberId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+            () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
+
+        if(memberId != null) {
+            if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+                throw new CustomException(ExceptionMessage.ADMIN_ONLY);
+            }
+            groupMemberRepository.deleteById(memberId);
+            return Message.toResponseEntity(SuccessMessage.MEMBER_DELETE_SUCCESS);
+        }
+
+        if(groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.ADMIN_CANNOT_QUIT);
+        }
+
+        groupMemberRepository.delete(groupMember);
+        return Message.toResponseEntity(SuccessMessage.GROUP_QUIT_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> deleteGroup(Long groupId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.ADMIN_ONLY);
+        }
+
+        groupRepository.deleteById(groupId);
+        return Message.toResponseEntity(SuccessMessage.GROUP_DELETE_SUCCESS);
     }
 }
 
