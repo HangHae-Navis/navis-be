@@ -73,7 +73,7 @@ public class GroupService {
         groupRepository.save(group);
         groupMemberRepository.save(groupMember);
 
-        return Message.toResponseEntity(SuccessMessage.GROUP_CREATE_SUCCESS);
+        return Message.toResponseEntity(SuccessMessage.GROUP_CREATE_SUCCESS, group.getId());
     }
 
     @Transactional
@@ -95,7 +95,7 @@ public class GroupService {
         GroupMember groupMember = new GroupMember(user, group);
         groupMemberRepository.save(groupMember);
 
-        return Message.toResponseEntity(SuccessMessage.GROUP_APPLY_SUCCESS);
+        return Message.toResponseEntity(SuccessMessage.GROUP_APPLY_SUCCESS, group.getId());
     }
 
 
