@@ -88,7 +88,7 @@ public class BoardService {
     }
 
     @Transactional
-    public ResponseEntity<Message>  createBoard(Long groupId, BoardRequestDto requestDto, User user) {
+    public ResponseEntity<Message>  createBoard(Long groupId, BoardRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
         try {
             user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                     () -> new CustomException(MEMBER_NOT_FOUND)
@@ -110,8 +110,8 @@ public class BoardService {
             }
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
-            if(requestDto.getMultipartFiles() != null) {
-                for (MultipartFile file : requestDto.getMultipartFiles()) {
+            if(multipartFiles != null) {
+                for (MultipartFile file : multipartFiles) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
                     File boardFile = new File(fileTitle, fileUrl, board);

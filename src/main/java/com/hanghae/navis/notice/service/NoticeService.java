@@ -97,7 +97,7 @@ public class NoticeService {
     }
 
     @Transactional
-    public ResponseEntity<Message> createNotice(Long groupId, NoticeRequestDto requestDto, User user) {
+    public ResponseEntity<Message> createNotice(Long groupId, NoticeRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
         try {
 
             UserGroup userGroup = authCheck(groupId, user);
@@ -115,8 +115,8 @@ public class NoticeService {
             }
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
-            if (requestDto.getMultipartFiles() != null) {
-                for (MultipartFile file : requestDto.getMultipartFiles()) {
+            if (multipartFiles != null) {
+                for (MultipartFile file : multipartFiles) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
                     File noticeFile = new File(fileTitle, fileUrl, notice);

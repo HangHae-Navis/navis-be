@@ -48,7 +48,7 @@ public class HomeworkController {
     @Operation(summary = "과제 게시글 생성", description = "과제 게시글 생성, 일반 유저는 불가능 / 만료일은 유닉스 시간으로 받아옴")
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Message> createHomework(@PathVariable Long groupId,
-                                                  @ModelAttribute(value = "requestDto") HomeworkRequestDto requestDto,
+                                                  @ModelAttribute HomeworkRequestDto requestDto,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return homeworkService.createHomework(groupId, requestDto, userDetails.getUser());
     }
