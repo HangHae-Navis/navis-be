@@ -32,6 +32,7 @@ public class VoteResponseDto extends BasicBoardResponseDto {
                 .title(vote.getTitle())
                 .content(vote.getContent())
                 .subtitle(vote.getSubtitle())
+                .important(vote.getImportant())
                 .createAt(vote.getCreatedAt())
                 .optionList(optionList)
                 .expirationTime(expirationTime)

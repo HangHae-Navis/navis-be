@@ -28,6 +28,7 @@ public class HomeworkResponseDto extends BasicBoardResponseDto {
                 .title(homework.getTitle())
                 .content(homework.getContent())
                 .subtitle(homework.getSubtitle())
+                .important(homework.getImportant())
                 .createAt(homework.getCreatedAt())
                 .hashtagList(hashtagList)
                 .isExpiration(expiration)

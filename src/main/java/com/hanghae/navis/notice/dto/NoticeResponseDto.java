@@ -22,6 +22,7 @@ public class NoticeResponseDto extends BasicBoardResponseDto {
                 .title(notice.getTitle())
                 .content(notice.getContent())
                 .subtitle(notice.getSubtitle())
+                .important(notice.getImportant())
                 .createAt(notice.getCreatedAt())
                 .hashtagList(hashtagList)
                 .build();

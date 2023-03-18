@@ -29,6 +29,9 @@ public abstract class BasicBoard extends TimeStamped {
     @Column(nullable = false)
     protected String content;
 
+    @Column(nullable = false)
+    protected String important;
+
     @ManyToOne
     protected User user;
 
@@ -50,6 +53,7 @@ public abstract class BasicBoard extends TimeStamped {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.subtitle = requestDto.getSubtitle();
+        this.important = requestDto.getImportant();
         this.user = user;
         this.group = group;
     }
@@ -58,6 +62,7 @@ public abstract class BasicBoard extends TimeStamped {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.subtitle = requestDto.getSubtitle();
+        this.important = requestDto.getImportant();
     }
 
     public void addFile(File boardFile) {
