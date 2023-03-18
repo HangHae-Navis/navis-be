@@ -23,6 +23,7 @@ public class BoardResponseDto extends BasicBoardResponseDto {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .subtitle(board.getSubtitle())
+                .important(board.getImportant())
                 .createAt(board.getCreatedAt())
                 .hashtagList(hashtagList)
                 .build();
