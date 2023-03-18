@@ -30,7 +30,7 @@ public class BoardController {
                                              @RequestParam int page,
                                              @RequestParam int size,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return boardService.boardList(groupId, page, size, userDetails.getUser());
+        return boardService.boardList(groupId, page-1, size, userDetails.getUser());
     }
 
     @GetMapping("/{boardId}")

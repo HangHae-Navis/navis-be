@@ -32,7 +32,7 @@ public class VoteController {
                                                @RequestParam int page,
                                                @RequestParam int size,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return voteService.getVoteList(groupId, userDetails.getUser(), page, size);
+        return voteService.getVoteList(groupId, userDetails.getUser(), page-1, size);
     }
 
     @GetMapping("/{voteId}")

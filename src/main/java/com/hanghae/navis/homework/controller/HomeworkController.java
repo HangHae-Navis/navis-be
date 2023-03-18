@@ -35,7 +35,7 @@ public class HomeworkController {
                                                 @RequestParam int page,
                                                 @RequestParam int size,
                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return homeworkService.homeworkList(groupId, page, size, userDetails.getUser());
+        return homeworkService.homeworkList(groupId, page-1, size, userDetails.getUser());
     }
 
     @Operation(summary = "과제 게시글 상세 조회", description = "과제 게시글 상세 조회")
