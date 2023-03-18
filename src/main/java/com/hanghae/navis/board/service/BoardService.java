@@ -103,8 +103,7 @@ public class BoardService {
 
             List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
 
-            for(HashtagRequestDto hashtagRequestDto : requestDto.getHashtagList()) {
-                String tag = hashtagRequestDto.getHashtag();
+            for(String tag : requestDto.getHashtagList().split(" ")) {
                 Hashtag hashtag = new Hashtag(tag, board);
                 hashtagRepository.save(hashtag);
                 hashtagResponseDto.add(new HashtagResponseDto(tag));
