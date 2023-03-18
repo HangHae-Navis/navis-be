@@ -14,9 +14,9 @@ public class BoardRequestDto {
     private String subtitle;
     private String content;
     private Long important;
-    private List<HashtagRequestDto> hashtagList;
+    private String hashtagList;
 
-    public BoardRequestDto(String title, String content, String subtitle, Long important, List<HashtagRequestDto> hashtagList) {
+    public BoardRequestDto(String title, String content, String subtitle, Long important, String hashtagList) {
         this.title = title;
         this.content = content;
         this.subtitle = subtitle;
