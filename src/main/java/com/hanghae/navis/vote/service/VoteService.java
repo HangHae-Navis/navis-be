@@ -61,8 +61,10 @@ public class VoteService {
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> getVoteList(Long groupId, User user, int page, int size) {
+        //권한 체크
         UserGroup userGroup = authCheck(groupId, user);
 
+        //페이징 처리
         Pageable pageable = PageRequest.of(page, size);
         Page<Vote> votePage = voteRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
 
@@ -72,23 +74,25 @@ public class VoteService {
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> getVote(Long groupId, Long voteId, User user) {
+        //권한체크
         UserGroup userGroup = authCheck(groupId, user);
 
+        //투표 있는지 체크
         Vote vote = voteRepository.findById(voteId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
         List<OptionResponseDto> optionResponseDto = new ArrayList<>();
 
-        for (VoteOption voteOption : vote.getVoteOptionList()) {
-            optionResponseDto.add(OptionResponseDto.of(voteOption));
-        }
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
         List<String> hashtagList = new ArrayList<>();
 
+        //리턴값으로 보내줄 리스트들 가져옴
+        vote.getVoteOptionList().forEach(value -> optionResponseDto.add(OptionResponseDto.of(value)));
         vote.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
         vote.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
+        
         VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, expirationCheck(
                 vote.getExpirationDate()), vote.getExpirationDate());
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
@@ -98,13 +102,16 @@ public class VoteService {
     @Transactional
     public ResponseEntity<Message> createVote(Long groupId, VoteRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
         try {
+            //유저의 권한을 체크
             UserGroup userGroup = authCheck(groupId, user);
-
+            
+            //권한이 있으면 투표를 생성
             Vote vote = new Vote(requestDto, userGroup.getUser(), userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
             voteRepository.saveAndFlush(vote);
 
             List<String> hashtagList = new ArrayList<>();
-
+            
+            //받아온 해시태그를 띄어쓰기로 구분 후 처리
             for(String tag : requestDto.getHashtagList().split(" ")) {
                 Hashtag hashtag = new Hashtag(tag, vote);
                 hashtagRepository.save(hashtag);
@@ -113,6 +120,7 @@ public class VoteService {
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
+            //다중파일을 처리
             for (MultipartFile file : multipartFiles) {
                 String fileTitle = file.getOriginalFilename();
                 String fileUrl = s3Uploader.upload(file);
@@ -122,6 +130,8 @@ public class VoteService {
             }
 
             List<OptionResponseDto> optionResponseDto = new ArrayList<>();
+
+            //다중 투표선택지 처리
             for (OptionRequestDto optionRequestDtoList : requestDto.getOptionRequestDto()) {
                 String option = optionRequestDtoList.getOption();
                 VoteOption voteOption = new VoteOption(vote, option);
@@ -129,6 +139,7 @@ public class VoteService {
                 optionResponseDto.add(OptionResponseDto.of(voteOption));
             }
 
+            //리턴으로 보내줄 dto생성
             VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto,  hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
@@ -204,12 +215,15 @@ public class VoteService {
 
     @Transactional
     public ResponseEntity<Message> deleteVote(Long groupId, Long voteId, User user) {
+        //유저의 권한을 체크
         UserGroup userGroup = authCheck(groupId, user);
 
+        //투표가 제대로 있는지 확인
         Vote vote = voteRepository.findById(voteId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
+        //투표에 파일이 있다면 s3에서 삭제
         if (vote.getFileList().size() > 0) {
             try {
                 for (File file : vote.getFileList()) {
@@ -220,18 +234,21 @@ public class VoteService {
                 throw new RuntimeException(e);
             }
         }
+        
         voteRepository.deleteById(voteId);
         return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
     }
 
     public ResponseEntity<Message> forceExpired(Long groupId, Long voteId, User user) {
+        //유저의 권한을 체크
         UserGroup userGroup = authCheck(groupId, user);
 
+        //투표가 제대로 있는지 확인
         Vote vote = voteRepository.findById(voteId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-
+        //투표를 강제로 만료시킴
         vote.forceExpiration();
 
         return Message.toResponseEntity(VOTE_FORCE_EXPIRED_SUCCESS,
@@ -244,19 +261,25 @@ public class VoteService {
     }
 
     public ResponseEntity<Message> pickVote(Long groupId, Long voteId, Long voteOptionId, User user) {
+        //유저의 권한을 체크
         UserGroup userGroup = authCheck(groupId, user);
+
+        //투표 체크
         Vote vote = voteRepository.findById(voteId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
+        //투표 선택지 체크
         VoteOption voteOption = voteOptionRepository.findById(voteOptionId).orElseThrow(
                 () -> new CustomException(VOTE_OPTION_NOT_FOUND)
         );
 
+        //그룹멤버 체크
         GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
                 () -> new CustomException(GROUP_MEMBER_NOT_FOUND)
         );
 
+        //투표시간 / 강제만료 체크 후 만료가 아니면 투표 가능하게설정
         if (!(expirationCheck(vote.getExpirationDate()) || vote.isForceExpiration())) {
             if (voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).isPresent()) {
                 voteRecordRepository.deleteById(voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).get().getId());
@@ -285,18 +308,14 @@ public class VoteService {
 
     @Transactional
     public ResponseEntity<Message> deleteHashtag(Long groupId, Long hashtagId, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
+        //유저의 권한을 체크
+        UserGroup userGroup = authCheck(groupId, user);
 
+        //해시태그 체크
         Hashtag hashtag = hashtagRepository.findById(hashtagId).orElseThrow(
                 () -> new CustomException(HASHTAG_NOT_FOUND)
         );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
-
+        
         hashtagRepository.deleteById(hashtagId);
         return Message.toResponseEntity(HASHTAG_DELETE_SUCCESS);
     }
