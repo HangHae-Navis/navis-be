@@ -85,11 +85,11 @@ public class VoteService {
         }
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
-        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+        List<String> hashtagList = new ArrayList<>();
 
         vote.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
-        vote.getHashtagList().forEach(value -> hashtagResponseDto.add(HashtagResponseDto.of(value)));
-        VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagResponseDto, optionResponseDto, expirationCheck(
+        vote.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
+        VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, expirationCheck(
                 vote.getExpirationDate()), vote.getExpirationDate());
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
     }
@@ -103,12 +103,12 @@ public class VoteService {
             Vote vote = new Vote(requestDto, userGroup.getUser(), userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
             voteRepository.saveAndFlush(vote);
 
-            List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+            List<String> hashtagList = new ArrayList<>();
 
             for(String tag : requestDto.getHashtagList().split(" ")) {
                 Hashtag hashtag = new Hashtag(tag, vote);
                 hashtagRepository.save(hashtag);
-                hashtagResponseDto.add(new HashtagResponseDto(tag));
+                hashtagList.add(tag);
             }
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
@@ -129,7 +129,7 @@ public class VoteService {
                 optionResponseDto.add(OptionResponseDto.of(voteOption));
             }
 
-            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto,  hashtagResponseDto,optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto,  hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {

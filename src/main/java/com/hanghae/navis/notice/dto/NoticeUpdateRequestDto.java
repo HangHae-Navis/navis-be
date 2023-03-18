@@ -11,10 +11,4 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class NoticeUpdateRequestDto extends BoardUpdateRequestDto {
-    private String subtitle;
-    private String title;
-    private String content;
-    private Long important;
-    private List<String> updateUrlList = new ArrayList<>();
-    private List<HashtagRequestDto> hashtagList;
 }

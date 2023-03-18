@@ -18,14 +18,9 @@ import java.util.List;
 public class HashtagResponseDto {
     private String tagName;
 
-    public static HashtagResponseDto of(Hashtag hashtag) {
+    public static HashtagResponseDto of(String hashtag) {
         return HashtagResponseDto.builder()
-                .tagName(hashtag.getHashtagName())
+                .tagName(hashtag)
                 .build();
-    }
-    public static List<HashtagResponseDto> toDtoList(List<Hashtag> hashtagList) {
-        List<HashtagResponseDto> hashtagResponseDtoList = new ArrayList<>();
-        hashtagList.forEach(value -> hashtagResponseDtoList.add(HashtagResponseDto.of(value)));
-        return hashtagResponseDtoList;
     }
 }

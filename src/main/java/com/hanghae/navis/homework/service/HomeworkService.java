@@ -93,7 +93,7 @@ public class HomeworkService {
     }
 
     @Transactional
-    public ResponseEntity<Message> creatHomework(Long groupId, HomeworkRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    public ResponseEntity<Message> createHomework(Long groupId, HomeworkRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -106,12 +106,12 @@ public class HomeworkService {
 
         homeworkRepository.save(homework);
 
-        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+        List<String> hashtagList = new ArrayList<>();
 
         for(String tag : requestDto.getHashtagList().split(" ")) {
             Hashtag hashtag = new Hashtag(tag, homework);
             hashtagRepository.save(hashtag);
-            hashtagResponseDto.add(new HashtagResponseDto(tag));
+            hashtagList.add(tag);
         }
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
@@ -124,7 +124,7 @@ public class HomeworkService {
                 fileRepository.save(homeworkFile);
                 fileResponseDto.add(FileResponseDto.of(homeworkFile));
             }
-            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto,false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList,false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
@@ -162,13 +162,12 @@ public class HomeworkService {
             hashtagRepository.delete(hashtag);
         }
 
-        List<HashtagResponseDto> hashtagResponseDto = new ArrayList<>();
+        List<String> hashtagResponseDto = new ArrayList<>();
 
-        for(HashtagRequestDto hashtagRequestDto : requestDto.getHashtagList()) {
-            String tag = hashtagRequestDto.getHashtag();
+        for(String tag : requestDto.getHashtagList()) {
             Hashtag hashtag = new Hashtag(tag, homework);
             hashtagRepository.save(hashtag);
-            hashtagResponseDto.add(new HashtagResponseDto(tag));
+            hashtagResponseDto.add(tag);
         }
 
         List<String> remainUrl = requestDto.getUpdateUrlList();

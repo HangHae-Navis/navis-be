@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 public class BoardResponseDto extends BasicBoardResponseDto {
-    public static BoardResponseDto of(Board board, List<FileResponseDto> fileList, List<HashtagResponseDto> hashtagList) {
+    public static BoardResponseDto of(Board board, List<FileResponseDto> fileList, List<String> hashtagList) {
         return BoardResponseDto.builder()
                 .id(board.getId())
                 .nickname(board.getUser().getNickname())

@@ -23,7 +23,7 @@ public class VoteResponseDto extends BasicBoardResponseDto {
     private boolean isExpiration;
 
 
-    public static VoteResponseDto of(Vote vote, List<FileResponseDto> fileList, List<HashtagResponseDto> hashtagList, List<OptionResponseDto> optionList, boolean expiration, LocalDateTime expirationTime) {
+    public static VoteResponseDto of(Vote vote, List<FileResponseDto> fileList, List<String> hashtagList, List<OptionResponseDto> optionList, boolean expiration, LocalDateTime expirationTime) {
         return VoteResponseDto.builder()
                 .id(vote.getId())
                 .nickname(vote.getUser().getNickname())

@@ -51,7 +51,7 @@ public class HomeworkController {
                                                   @RequestPart HomeworkRequestDto requestDto,
                                                   @ModelAttribute List<MultipartFile> multipartFiles,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return homeworkService.creatHomework(groupId, requestDto, multipartFiles, userDetails.getUser());
+        return homeworkService.createHomework(groupId, requestDto, multipartFiles, userDetails.getUser());
     }
 
     @Operation(summary = "과제 게시글 수정", description = "과제 게시글 수정, 일반 유저는 불가능")

@@ -20,7 +20,7 @@ public class HomeworkResponseDto extends BasicBoardResponseDto {
     private LocalDateTime expirationTime;
     private boolean isExpiration;
 
-    public static HomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<HashtagResponseDto> hashtagList, boolean expiration, LocalDateTime expirationTime) {
+    public static HomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<String> hashtagList, boolean expiration, LocalDateTime expirationTime) {
         return HomeworkResponseDto.builder()
                 .id(homework.getId())
                 .nickname(homework.getUser().getNickname())

@@ -20,5 +20,5 @@ public abstract class BasicBoardResponseDto {
     private String subtitle;
     private Long important;
     private LocalDateTime createAt;
-    private List<HashtagResponseDto> hashtagList;
+    private List<String> hashtagList;
 }
