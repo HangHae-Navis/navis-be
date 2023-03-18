@@ -52,10 +52,9 @@ public class BoardController {
     @Operation(summary = "게시글 수정", description = "게시글 수정")
     public ResponseEntity<Message> updateBoard(@PathVariable Long groupId,
                                                @PathVariable Long boardId,
-                                               @RequestPart BoardUpdateRequestDto requestDto,
-                                               @ModelAttribute List<MultipartFile> multipartFiles,
+                                               @ModelAttribute BoardUpdateRequestDto requestDto,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return boardService.updateBoard(groupId, boardId, requestDto, multipartFiles, userDetails.getUser());
+        return boardService.updateBoard(groupId, boardId, requestDto, userDetails.getUser());
     }
 
     @DeleteMapping("/{boardId}")

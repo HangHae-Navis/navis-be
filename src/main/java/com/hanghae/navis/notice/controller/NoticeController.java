@@ -50,10 +50,9 @@ public class NoticeController {
     @Operation(summary = "공지사항 수정", description = "공지사항 수정")
     public ResponseEntity<Message> updateNotice(@PathVariable Long groupId,
                                                @PathVariable Long noticeId,
-                                               @RequestPart NoticeUpdateRequestDto requestDto,
-                                               @ModelAttribute List<MultipartFile> multipartFiles,
+                                               @ModelAttribute NoticeUpdateRequestDto requestDto,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return noticeService.updateNotice(groupId, noticeId, requestDto, multipartFiles, userDetails.getUser());
+        return noticeService.updateNotice(groupId, noticeId, requestDto, userDetails.getUser());
     }
 
     @DeleteMapping("/{noticeId}")

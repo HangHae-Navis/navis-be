@@ -108,7 +108,7 @@ public class NoticeService {
 
             List<String> hashTagList = new ArrayList<>();
 
-            for(String tag : requestDto.getHashtagList().split(" ")) {
+            for (String tag : requestDto.getHashtagList().split(" ")) {
                 Hashtag hashtag = new Hashtag(tag, notice);
                 hashtagRepository.save(hashtag);
                 hashTagList.add(tag);
@@ -132,7 +132,7 @@ public class NoticeService {
     }
 
     @Transactional
-    public ResponseEntity<Message> updateNotice(Long groupId, Long noticeId, NoticeUpdateRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    public ResponseEntity<Message> updateNotice(Long groupId, Long noticeId, NoticeUpdateRequestDto requestDto, User user) {
 
         UserGroup userGroup = authCheck(groupId, user);
 
@@ -167,19 +167,16 @@ public class NoticeService {
         }
 
         try {
-            if (multipartFiles != null) {
+            if (requestDto.getMultipartFiles() != null) {
                 List<FileResponseDto> fileResponseDto = new ArrayList<>();
-                if (!multipartFiles.isEmpty() && !multipartFiles.get(0).isEmpty()) {
-                    for (MultipartFile file : multipartFiles) {
-                        String fileTitle = file.getOriginalFilename();
-                        String fileUrl = s3Uploader.upload(file);
-                        File noticeFile = new File(fileTitle, fileUrl, notice);
-                        fileRepository.save(noticeFile);
-                        fileResponseDto.add(new FileResponseDto(noticeFile.getFileTitle(), noticeFile.getFileUrl()));
-                    }
-                    noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, null);
+                for (MultipartFile file : requestDto.getMultipartFiles()) {
+                    String fileTitle = file.getOriginalFilename();
+                    String fileUrl = s3Uploader.upload(file);
+                    File noticeFile = new File(fileTitle, fileUrl, notice);
+                    fileRepository.save(noticeFile);
+                    fileResponseDto.add(new FileResponseDto(noticeFile.getFileTitle(), noticeFile.getFileUrl()));
                 }
-
+                noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, null);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

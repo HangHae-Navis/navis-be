@@ -127,7 +127,7 @@ public class BoardService {
     }
 
     @Transactional
-    public ResponseEntity<Message> updateBoard(Long groupId, Long boardId, BoardUpdateRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    public ResponseEntity<Message> updateBoard(Long groupId, Long boardId, BoardUpdateRequestDto requestDto, User user) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
@@ -182,10 +182,10 @@ public class BoardService {
         }
 
         try {
-            if(multipartFiles != null) {
+            if(requestDto.getMultipartFiles() != null) {
                 List<FileResponseDto> fileResponseDto = new ArrayList<>();
-                if(!multipartFiles.isEmpty() && !multipartFiles.get(0).isEmpty()) {
-                    for (MultipartFile file : multipartFiles) {
+                if(requestDto.getMultipartFiles() == null) {
+                    for (MultipartFile file : requestDto.getMultipartFiles()) {
                         String fileTitle = file.getOriginalFilename();
                         String fileUrl = s3Uploader.upload(file);
                         File boardFile = new File(fileTitle, fileUrl, board);

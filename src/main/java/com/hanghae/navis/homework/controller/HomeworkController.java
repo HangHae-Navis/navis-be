@@ -56,10 +56,9 @@ public class HomeworkController {
     @Operation(summary = "과제 게시글 수정", description = "과제 게시글 수정, 일반 유저는 불가능")
     @PutMapping("/{boardId}")
     public ResponseEntity<Message> updateHomework(@PathVariable Long groupId, @PathVariable Long boardId,
-                                                  @RequestPart HomeworkUpdateRequestDto requestDto,
-                                                  @ModelAttribute List<MultipartFile> multipartFiles,
+                                                  @ModelAttribute HomeworkUpdateRequestDto requestDto,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return homeworkService.updateHomework(groupId, boardId, requestDto, multipartFiles, userDetails.getUser());
+        return homeworkService.updateHomework(groupId, boardId, requestDto, userDetails.getUser());
     }
 
     @Operation(summary = "과제 게시글 삭제", description = "과제 게시글 삭제, 일반 유저는 불가능")
