@@ -45,10 +45,9 @@ public class VoteController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "투표등록", description = "투표 등록, 파일 다중 업로드, updateUrlList 빼고 해주세요")
     public ResponseEntity<Message> createVote(@PathVariable Long groupId,
-                                              @RequestPart VoteRequestDto requestDto,
-                                              @ModelAttribute List<MultipartFile> multipartFiles,
+                                              @ModelAttribute VoteRequestDto requestDto,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return voteService.createVote(groupId, requestDto, multipartFiles, userDetails.getUser());
+        return voteService.createVote(groupId, requestDto, userDetails.getUser());
     }
 
 //    @PutMapping("/{voteId}")

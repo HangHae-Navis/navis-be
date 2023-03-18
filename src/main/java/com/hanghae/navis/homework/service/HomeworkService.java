@@ -51,7 +51,7 @@ public class HomeworkService {
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> homeworkList(Long groupId, int page, int size,User user) {
+    public ResponseEntity<Message> homeworkList(Long groupId, int page, int size, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -93,7 +93,7 @@ public class HomeworkService {
     }
 
     @Transactional
-    public ResponseEntity<Message> createHomework(Long groupId, HomeworkRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    public ResponseEntity<Message> createHomework(Long groupId, HomeworkRequestDto requestDto, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -108,7 +108,7 @@ public class HomeworkService {
 
         List<String> hashtagList = new ArrayList<>();
 
-        for(String tag : requestDto.getHashtagList().split(" ")) {
+        for (String tag : requestDto.getHashtagList().split(" ")) {
             Hashtag hashtag = new Hashtag(tag, homework);
             hashtagRepository.save(hashtag);
             hashtagList.add(tag);
@@ -117,14 +117,17 @@ public class HomeworkService {
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
         try {
-            for (MultipartFile file : multipartFiles) {
-                String fileTitle = file.getOriginalFilename();
-                String fileUrl = s3Uploader.upload(file);
-                File homeworkFile = new File(fileTitle, fileUrl, homework);
-                fileRepository.save(homeworkFile);
-                fileResponseDto.add(FileResponseDto.of(homeworkFile));
+
+            if (requestDto.getMultipartFiles() != null) {
+                for (MultipartFile file : requestDto.getMultipartFiles()) {
+                    String fileTitle = file.getOriginalFilename();
+                    String fileUrl = s3Uploader.upload(file);
+                    File homeworkFile = new File(fileTitle, fileUrl, homework);
+                    fileRepository.save(homeworkFile);
+                    fileResponseDto.add(FileResponseDto.of(homeworkFile));
+                }
             }
-            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList,false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
@@ -147,7 +150,7 @@ public class HomeworkService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if(!user.getUsername().equals(homework.getUser().getUsername())) {
+        if (!user.getUsername().equals(homework.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
@@ -164,7 +167,7 @@ public class HomeworkService {
 
         List<String> hashtagResponseDto = new ArrayList<>();
 
-        for(String tag : requestDto.getHashtagList()) {
+        for (String tag : requestDto.getHashtagList()) {
             Hashtag hashtag = new Hashtag(tag, homework);
             hashtagRepository.save(hashtag);
             hashtagResponseDto.add(tag);
@@ -175,8 +178,8 @@ public class HomeworkService {
         List<File> files = fileRepository.findFileUrlByBasicBoardId(boardId);
 
         try {
-            for(File boardFile : files) {
-                if(!remainUrl.contains(boardFile.getFileUrl())) {
+            for (File boardFile : files) {
+                if (!remainUrl.contains(boardFile.getFileUrl())) {
                     homework.getFileList().remove(boardFile);
                     String source = URLDecoder.decode(boardFile.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
                     s3Uploader.delete(source);
@@ -188,10 +191,10 @@ public class HomeworkService {
         }
 
         try {
-            if(multipartFiles != null) {
+            if (multipartFiles != null) {
                 List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
-                if(!multipartFiles.isEmpty() && !multipartFiles.get(0).isEmpty()) {
+                if (!multipartFiles.isEmpty() && !multipartFiles.get(0).isEmpty()) {
                     for (MultipartFile file : multipartFiles) {
                         String fileTitle = file.getOriginalFilename();
                         String fileUrl = s3Uploader.upload(file);
@@ -223,11 +226,11 @@ public class HomeworkService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if(!user.getId().equals(homework.getUser().getId())) {
+        if (!user.getId().equals(homework.getUser().getId())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
-        if(homework.getFileList().size() > 0) {
+        if (homework.getFileList().size() > 0) {
             try {
                 for (File file : homework.getFileList()) {
                     String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");

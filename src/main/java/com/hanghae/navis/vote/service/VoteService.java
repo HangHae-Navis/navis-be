@@ -100,7 +100,7 @@ public class VoteService {
 
 
     @Transactional
-    public ResponseEntity<Message> createVote(Long groupId, VoteRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+    public ResponseEntity<Message> createVote(Long groupId, VoteRequestDto requestDto, User user) {
         try {
             //유저의 권한을 체크
             UserGroup userGroup = authCheck(groupId, user);
@@ -121,12 +121,14 @@ public class VoteService {
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
             //다중파일을 처리
-            for (MultipartFile file : multipartFiles) {
-                String fileTitle = file.getOriginalFilename();
-                String fileUrl = s3Uploader.upload(file);
-                File voteFile = new File(fileTitle, fileUrl, vote);
-                fileRepository.save(voteFile);
-                fileResponseDto.add(FileResponseDto.of(voteFile));
+            if (requestDto.getMultipartFiles() != null) {
+                for (MultipartFile file : requestDto.getMultipartFiles()) {
+                    String fileTitle = file.getOriginalFilename();
+                    String fileUrl = s3Uploader.upload(file);
+                    File voteFile = new File(fileTitle, fileUrl, vote);
+                    fileRepository.save(voteFile);
+                    fileResponseDto.add(FileResponseDto.of(voteFile));
+                }
             }
 
             List<OptionResponseDto> optionResponseDto = new ArrayList<>();

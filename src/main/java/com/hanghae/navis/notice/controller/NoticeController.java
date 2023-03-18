@@ -41,10 +41,9 @@ public class NoticeController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "공지사항 등록", description = "공지사항 등록, 파일 다중 업로드")
     public ResponseEntity<Message> createNotice(@PathVariable Long groupId,
-                                               @RequestPart NoticeRequestDto requestDto,
-                                               @ModelAttribute List<MultipartFile> multipartFiles,
+                                               @ModelAttribute NoticeRequestDto requestDto,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return noticeService.createNotice(groupId, requestDto, multipartFiles, userDetails.getUser());
+        return noticeService.createNotice(groupId, requestDto, userDetails.getUser());
     }
 
     @PutMapping("/{noticeId}")

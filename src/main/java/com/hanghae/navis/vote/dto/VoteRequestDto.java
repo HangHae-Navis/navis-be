@@ -5,6 +5,7 @@ import com.hanghae.navis.common.dto.HashtagRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,8 +20,8 @@ public class VoteRequestDto extends BoardRequestDto {
 
 
     //생성
-    public VoteRequestDto(String title, String content, String subtitle, String important, String hashtagList, long expirationDate, List<OptionRequestDto> optionRequestDto) {
-        super(title, content, subtitle, important, hashtagList);
+    public VoteRequestDto(String title, String content, String subtitle, String important, String hashtagList, long expirationDate, List<OptionRequestDto> optionRequestDto, List<MultipartFile> multipartFiles) {
+        super(title, content, subtitle, important, hashtagList, multipartFiles);
         this.expirationDate = expirationDate;
         this.optionRequestDto = optionRequestDto;
     }
