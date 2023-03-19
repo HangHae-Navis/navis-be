@@ -54,7 +54,7 @@ public class CommentService {
         );
 
         List<CommentResponseDto> responseList = new ArrayList<>();
-        List<Comment> commentList = commentRepository.findAllByIdOrderByCreatedAtDesc(boardId);
+        List<Comment> commentList = commentRepository.findAllByBasicBoardIdOrderByCreatedAt(boardId);
 
         for(Comment comment : commentList) {
             responseList.add(new CommentResponseDto(comment));
@@ -76,11 +76,14 @@ public class CommentService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        Comment comment = new Comment(requestDto, user, basicBoard);
+        if(requestDto.getContent() != null) {
+            Comment comment = new Comment(requestDto, user, basicBoard);
 
-        commentRepository.save(comment);
-
-        return Message.toResponseEntity(COMMENT_POST_SUCCESS, new CommentResponseDto(comment));
+            commentRepository.save(comment);
+            return Message.toResponseEntity(COMMENT_POST_SUCCESS, new CommentResponseDto(comment));
+        } else {
+            throw new CustomException(CONTENT_IS_NULL);
+        }
     }
 
     @Transactional

@@ -33,10 +33,11 @@ public class Homework extends BasicBoard {
         this.force_expiration = force_expiration;
     }
 
-    public void update(HomeworkUpdateRequestDto requestDto, LocalDateTime expirationDate) {
+    public void update(HomeworkUpdateRequestDto requestDto, LocalDateTime expirationDate, boolean force_expiration) {
         this.title = requestDto.getTitle();
         this.subtitle = requestDto.getSubtitle();
         this.content = requestDto.getContent();
         this.expirationDate = expirationDate;
+        this.force_expiration = force_expiration;
     }
 }

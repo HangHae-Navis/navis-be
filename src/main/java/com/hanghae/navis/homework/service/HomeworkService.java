@@ -104,8 +104,11 @@ public class HomeworkService {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
+        if(expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())) == true) {
+            new CustomException(WRONG_DATE);
+        }
 
-        Homework homework = new Homework(requestDto, user, group, unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
+        Homework homework = new Homework(requestDto, user, group, unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())));
 
         homeworkRepository.save(homework);
 
@@ -156,7 +159,7 @@ public class HomeworkService {
 
         HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
 
-        homework.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+        homework.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(homework.getExpirationDate()));
 
         List<Hashtag> remainTag = hashtagRepository.findAllByBasicBoardId(boardId);
 
