@@ -12,8 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "homework")
 @Getter
@@ -22,6 +23,9 @@ public class Homework extends BasicBoard {
     private LocalDateTime expirationDate;
 
     private boolean force_expiration;
+
+    @OneToMany(mappedBy = "homework", cascade = {CascadeType.ALL})
+    private List<HomeworkSubject> subjectList = new ArrayList<>();
 
     public Homework(HomeworkRequestDto requestDto, User user, Group group, LocalDateTime expirationDate, boolean force_expiration) {
         super(requestDto, user, group);

@@ -17,11 +17,22 @@ public class HomeworkSubject extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+//    @Column(nullable = false)
+    private boolean submit = false;
     @ManyToOne
     private User user;
     @ManyToOne
     private Group group;
+    @ManyToOne
+    private Homework homework;
 
-    @OneToMany(mappedBy = "homeworkSubject")
+    @OneToMany(mappedBy = "homeworkSubject", cascade = {CascadeType.ALL})
     List<HomeworkSubjectFile> homeworkSubjectFileList = new ArrayList<>();
+
+    public HomeworkSubject(boolean submit, User user, Group group, Homework homework) {
+        this.submit = submit;
+        this.user = user;
+        this.group = group;
+        this.homework = homework;
+    }
 }

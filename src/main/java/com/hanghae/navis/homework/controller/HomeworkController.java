@@ -5,6 +5,7 @@ import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
+import com.hanghae.navis.homework.dto.HomeworkFileRequestDto;
 import com.hanghae.navis.homework.dto.HomeworkRequestDto;
 import com.hanghae.navis.homework.dto.HomeworkUpdateRequestDto;
 import com.hanghae.navis.homework.service.HomeworkService;
@@ -53,7 +54,7 @@ public class HomeworkController {
         return homeworkService.createHomework(groupId, requestDto, userDetails.getUser());
     }
 
-    @Operation(summary = "과제 게시글 수정", description = "과제 게시글 수정, 일반 유저는 불가능")
+    @Operation(summary = "과제 게시글 수정", description = "과제 게시글 수정, 일반 유저는 불가능 / 만료일은 유닉스 시간으로 받아옴")
     @PutMapping("/{boardId}")
     public ResponseEntity<Message> updateHomework(@PathVariable Long groupId, @PathVariable Long boardId,
                                                   @RequestPart HomeworkUpdateRequestDto requestDto,
@@ -67,5 +68,20 @@ public class HomeworkController {
     public ResponseEntity<Message> deleteHomework(@PathVariable Long groupId, @PathVariable Long boardId,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return homeworkService.deleteHomework(groupId, boardId, userDetails.getUser());
+    }
+
+    @Operation(summary = "과제 제출", description = "과제 제출")
+    @PostMapping(value = "/{boardId}/homeworkSubmit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Message> submitHomework(@PathVariable Long groupId, @PathVariable Long boardId,
+                                                  @ModelAttribute HomeworkFileRequestDto requestDto,
+                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return homeworkService.submitHomework(groupId, boardId, requestDto, userDetails.getUser());
+    }
+
+    @Operation(summary = "과제 제출 취소", description = "과제 제출 취소(삭제 후 재업로드)")
+    @DeleteMapping("/{boardId}/homeworkSubmit/{homeworkSubjectId}")
+    public ResponseEntity<Message> submitCancel(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable Long homeworkSubjectId,
+                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return homeworkService.submitCancel(groupId, boardId, homeworkSubjectId,userDetails.getUser());
     }
 }

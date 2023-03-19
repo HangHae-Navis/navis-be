@@ -28,9 +28,8 @@ public class HomeworkListResponseDto {
     private String content;
 
     private String nickName;
-    private Long important;
 
-    private String groupName;
+    private Long important;
 
     private LocalDateTime createAt;
 
@@ -42,7 +41,7 @@ public class HomeworkListResponseDto {
         return HomeworkListResponseDto.builder()
                 .id(homework.getId())
                 .title(homework.getTitle())
-                .title(homework.getTitle())
+                .nickName(homework.getUser().getNickname())
                 .content(homework.getContent())
                 .important(homework.getImportant())
                 .subtitle(homework.getSubtitle())

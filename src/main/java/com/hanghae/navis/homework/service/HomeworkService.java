@@ -9,12 +9,13 @@ import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.repository.GroupRepository;
-import com.hanghae.navis.homework.dto.HomeworkListResponseDto;
-import com.hanghae.navis.homework.dto.HomeworkRequestDto;
-import com.hanghae.navis.homework.dto.HomeworkResponseDto;
-import com.hanghae.navis.homework.dto.HomeworkUpdateRequestDto;
+import com.hanghae.navis.homework.dto.*;
 import com.hanghae.navis.homework.entity.Homework;
+import com.hanghae.navis.homework.entity.HomeworkSubject;
+import com.hanghae.navis.homework.entity.HomeworkSubjectFile;
 import com.hanghae.navis.homework.repository.HomeworkRepository;
+import com.hanghae.navis.homework.repository.HomeworkSubjectFileRepository;
+import com.hanghae.navis.homework.repository.HomeworkSubjectRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,8 @@ import static com.hanghae.navis.common.entity.SuccessMessage.*;
 @Slf4j
 @RequiredArgsConstructor
 public class HomeworkService {
+    private final HomeworkSubjectFileRepository homeworkSubjectFileRepository;
+    private final HomeworkSubjectRepository homeworkSubjectRepository;
     private final HomeworkRepository homeworkRepository;
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
@@ -239,6 +242,80 @@ public class HomeworkService {
         }
         homeworkRepository.deleteById(boardId);
         return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> submitHomework(Long groupId, Long boardId, HomeworkFileRequestDto requestDto, User user) {
+        try {
+            Group group = groupRepository.findById(groupId).orElseThrow(
+                    () -> new CustomException(GROUP_NOT_FOUND)
+            );
+
+            Homework homework = homeworkRepository.findById(boardId).orElseThrow(
+                    () -> new CustomException(BOARD_NOT_FOUND)
+            );
+
+            user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                    () -> new CustomException(MEMBER_NOT_FOUND)
+            );
+
+            if(expirationCheck(homework.getExpirationDate()) == false) {
+                HomeworkSubject subject = new HomeworkSubject(true, user, group, homework);
+                homeworkSubjectRepository.save(subject);
+
+                List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
+
+                if(requestDto.getMultipartFiles() != null) {
+                    for (MultipartFile file : requestDto.getMultipartFiles()) {
+                        String fileUrl = s3Uploader.upload(file);
+                        HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl);
+                        homeworkSubjectFileRepository.save(subjectFile);
+                        fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
+                    }
+                }
+                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
+                return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
+            } else {
+                throw new CustomException(HOMEWORK_EXPIRED);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResponseEntity<Message> submitCancel(Long groupId, Long boardId, Long homeworkSubjectId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        HomeworkSubject homeworkSubject = homeworkSubjectRepository.findById(homeworkSubjectId).orElseThrow(
+                () -> new CustomException(HOMEWORK_FILE_NOT_FOUND)
+        );
+
+        if(expirationCheck(homework.getExpirationDate()) == true) {
+            throw new CustomException(HOMEWORK_EXPIRED);
+        }
+
+        if(homeworkSubject.getHomeworkSubjectFileList().size() > 0) {
+            try {
+                for(HomeworkSubjectFile file : homeworkSubject.getHomeworkSubjectFileList()) {
+                    String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
+                    s3Uploader.delete(source);
+                }
+            } catch (UnsupportedEncodingException e) {
+                throw new CustomException(HOMEWORK_FILE_NOT_FOUND);
+            }
+        }
+        homeworkSubjectRepository.deleteById(homeworkSubjectId);
+        return Message.toResponseEntity(HOMEWORK_SUBMIT_CANCEL);
     }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {
