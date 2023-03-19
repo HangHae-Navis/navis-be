@@ -117,12 +117,14 @@ public class HomeworkService {
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
         try {
-            for (MultipartFile file : requestDto.getMultipartFiles()) {
-                String fileTitle = file.getOriginalFilename();
-                String fileUrl = s3Uploader.upload(file);
-                File homeworkFile = new File(fileTitle, fileUrl, homework);
-                fileRepository.save(homeworkFile);
-                fileResponseDto.add(FileResponseDto.of(homeworkFile));
+            if(requestDto.getMultipartFiles() == null) {
+                for (MultipartFile file : requestDto.getMultipartFiles()) {
+                    String fileTitle = file.getOriginalFilename();
+                    String fileUrl = s3Uploader.upload(file);
+                    File homeworkFile = new File(fileTitle, fileUrl, homework);
+                    fileRepository.save(homeworkFile);
+                    fileResponseDto.add(FileResponseDto.of(homeworkFile));
+                }
             }
             HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
 
