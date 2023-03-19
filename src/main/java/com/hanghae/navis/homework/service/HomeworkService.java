@@ -117,7 +117,7 @@ public class HomeworkService {
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
         try {
-            if(requestDto.getMultipartFiles() == null) {
+            if(requestDto.getMultipartFiles() != null) {
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
