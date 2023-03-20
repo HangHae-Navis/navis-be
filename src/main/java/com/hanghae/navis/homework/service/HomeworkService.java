@@ -142,7 +142,7 @@ public class HomeworkService {
     }
 
     @Transactional
-    public ResponseEntity<Message> updateHomework(Long groupId, Long boardId, HomeworkUpdateRequestDto requestDto, User user) {
+    public ResponseEntity<Message> updateHomework(Long groupId, Long boardId, HomeworkRequestDto requestDto, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -172,19 +172,18 @@ public class HomeworkService {
 
         List<String> hashtagResponseDto = new ArrayList<>();
 
-        for (String tag : requestDto.getHashtagList()) {
+        for (String tag : requestDto.getHashtagList().split(" ")) {
             Hashtag hashtag = new Hashtag(tag, homework);
             hashtagRepository.save(hashtag);
             hashtagResponseDto.add(tag);
         }
 
-        List<String> remainUrl = requestDto.getUpdateUrlList();
-
+        List<MultipartFile> multipartFiles = requestDto.getMultipartFiles();
         List<File> files = fileRepository.findFileUrlByBasicBoardId(boardId);
 
         try {
             for (File boardFile : files) {
-                if (!remainUrl.contains(boardFile.getFileUrl())) {
+                if (!multipartFiles.contains(boardFile.getFileUrl())) {
                     homework.getFileList().remove(boardFile);
                     String source = URLDecoder.decode(boardFile.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
                     s3Uploader.delete(source);

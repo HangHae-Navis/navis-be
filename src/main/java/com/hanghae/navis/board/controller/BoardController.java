@@ -48,11 +48,11 @@ public class BoardController {
         return boardService.createBoard(groupId, requestDto, userDetails.getUser());
     }
 
-    @PutMapping("/{boardId}")
+    @PutMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "게시글 수정", description = "게시글 수정")
     public ResponseEntity<Message> updateBoard(@PathVariable Long groupId,
                                                @PathVariable Long boardId,
-                                               @ModelAttribute BoardUpdateRequestDto requestDto,
+                                               @ModelAttribute BoardRequestDto requestDto,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.updateBoard(groupId, boardId, requestDto, userDetails.getUser());
     }
