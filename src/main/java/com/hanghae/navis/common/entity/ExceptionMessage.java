@@ -16,7 +16,10 @@ public enum ExceptionMessage {
     UNSUPPORTED_TOKEN(BAD_REQUEST, "Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다"),
     ILLEAGAL_TOKEN(BAD_REQUEST, "JWT claims is empty, 잘못된 JWT 토큰 입니다."),
     VOTE_EXPIRED(NOT_FOUND, "투표가 종료되었습니다."),
-
+    HOMEWORK_EXPIRED(NOT_FOUND, "마감된 과제입니다."),
+    WRONG_DATE(BAD_REQUEST, "현재 날짜보다 이전 날짜를 과제 마감일로 설정할 수 업습니다."),
+    HOMEWORK_FILE_IS_NULL(BAD_REQUEST, "첨부한 과제가 없습니다."),
+    CONTENT_IS_NULL(BAD_REQUEST, "댓글을 입력해주세요"),
     CANNOT_FOLLOW_MYSELF(BAD_REQUEST, "자기 자신은 팔로우 할 수 없습니다"),
     NICKNAME_WITH_SPACES(BAD_REQUEST,"공백이 포함된 닉네임입니다."),
     BUDGET_INVALID_RANGE(BAD_REQUEST,"유효한 범위 내에 있는 예산이 아닙니다."),
@@ -49,6 +52,7 @@ public enum ExceptionMessage {
     GROUP_MEMBER_NOT_FOUND(NOT_FOUND,"그룹에 가입되어있지 않습니다."),
     VOTE_OPTION_NOT_FOUND(NOT_FOUND, "해당 옵션을 찾을수 없습니다."),
     HASHTAG_NOT_FOUND(NOT_FOUND, "해시태그를 찾을 수 없습니다."),
+    HOMEWORK_FILE_NOT_FOUND(NOT_FOUND, "제출한 과제 파일을 찾을 수 없습니다."),
 
 
 

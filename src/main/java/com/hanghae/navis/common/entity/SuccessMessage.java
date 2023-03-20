@@ -27,7 +27,7 @@ public enum SuccessMessage {
     BOARD_DETAIL_GET_SUCCESS(HttpStatus.OK,"상세 게시물 보기 완료"),
     COMMENT_POST_SUCCESS(HttpStatus.CREATED,"댓글 작성 완료"),
     COMMENT_UPDATE_SUCCESS(HttpStatus.CREATED,"댓글 작성 완료"),
-    COMMENT_LIST_GET_SUCCESS(HttpStatus.CREATED,"댓글 작성 완료"),
+    COMMENT_LIST_GET_SUCCESS(HttpStatus.CREATED,"댓글 리스트 조회 완료"),
     COMMENT_DELETE_SUCCESS(HttpStatus.CREATED, "댓글 삭제 완료"),
     LIKE_POST_SUCCESS(HttpStatus.CREATED, "좋아요 등록 완료"),
     LIKE_DELETE_SUCCESS(HttpStatus.CREATED, "좋아요 취소 완료"),
@@ -37,7 +37,9 @@ public enum SuccessMessage {
     VOTE_PICK_SUCCESS(HttpStatus.OK, "투표 등록 성공"),
     VOTE_CANCEL_SUCCESS(HttpStatus.OK, "투표 취소 성공"),
     VOTE_FORCE_EXPIRED_SUCCESS(HttpStatus.OK,"투표 강제 만료 성공"),
-    HASHTAG_DELETE_SUCCESS(HttpStatus.OK, "해시태그 삭제 성공");
+    HASHTAG_DELETE_SUCCESS(HttpStatus.OK, "해시태그 삭제 성공"),
+    HOMEWORK_SUBMIT_SUCCESS(HttpStatus.OK, "과제 제출 성공"),
+    HOMEWORK_SUBMIT_CANCEL(HttpStatus.OK, "과제 제출 취소");
     private final HttpStatus httpStatus;
     private final String detail;
 }

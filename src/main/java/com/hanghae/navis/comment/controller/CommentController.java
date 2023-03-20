@@ -49,7 +49,7 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     @Operation(summary = "댓글 삭제", description = "댓글 삭제")
     public ResponseEntity<Message> deleteComment(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable Long commentId,
-                                                 @Parameter @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return commentService.deleteComment(groupId, boardId, commentId, userDetails.getUser());
     }
 
