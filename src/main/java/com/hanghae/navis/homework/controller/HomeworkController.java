@@ -55,9 +55,9 @@ public class HomeworkController {
     }
 
     @Operation(summary = "과제 게시글 수정", description = "과제 게시글 수정, 일반 유저는 불가능 / 만료일은 유닉스 시간으로 받아옴")
-    @PutMapping("/{boardId}")
+    @PutMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Message> updateHomework(@PathVariable Long groupId, @PathVariable Long boardId,
-                                                  @ModelAttribute HomeworkUpdateRequestDto requestDto,
+                                                  @ModelAttribute HomeworkRequestDto requestDto,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return homeworkService.updateHomework(groupId, boardId, requestDto, userDetails.getUser());
     }

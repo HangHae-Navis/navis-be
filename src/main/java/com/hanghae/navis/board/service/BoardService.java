@@ -127,7 +127,7 @@ public class BoardService {
     }
 
     @Transactional
-    public ResponseEntity<Message> updateBoard(Long groupId, Long boardId, BoardUpdateRequestDto requestDto, User user) {
+    public ResponseEntity<Message> updateBoard(Long groupId, Long boardId, BoardRequestDto requestDto, User user) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
@@ -140,11 +140,11 @@ public class BoardService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null);
-
         if (!user.getUsername().equals(board.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
+
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null);
 
         board.update(requestDto);
 
@@ -157,19 +157,18 @@ public class BoardService {
 
         List<String> hashtagResponseDto = new ArrayList<>();
 
-        for(String tag : requestDto.getHashtagList()) {
+        for(String tag : requestDto.getHashtagList().split(" ")) {
             Hashtag hashtag = new Hashtag(tag, board);
             hashtagRepository.save(hashtag);
             hashtagResponseDto.add(tag);
         }
 
-        List<String> remainUrl = requestDto.getUpdateUrlList();
-
+        List<MultipartFile> multipartFiles = requestDto.getMultipartFiles();
         List<File> files = fileRepository.findFileUrlByBasicBoardId(boardId);
 
         try {
             for(File boardFile : files) {
-                if(!remainUrl.contains(boardFile.getFileUrl())) {
+                if(!multipartFiles.contains(boardFile.getFileUrl())) {
                     board.getFileList().remove(boardFile);
                     String source = URLDecoder.decode(boardFile.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
                     s3Uploader.delete(source);
@@ -182,19 +181,16 @@ public class BoardService {
         }
 
         try {
-            if(requestDto.getMultipartFiles() != null) {
+            if (requestDto.getMultipartFiles() != null) {
                 List<FileResponseDto> fileResponseDto = new ArrayList<>();
-                if(requestDto.getMultipartFiles() == null) {
-                    for (MultipartFile file : requestDto.getMultipartFiles()) {
-                        String fileTitle = file.getOriginalFilename();
-                        String fileUrl = s3Uploader.upload(file);
-                        File boardFile = new File(fileTitle, fileUrl, board);
-                        fileRepository.save(boardFile);
-                        fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
-                    }
-                    boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
+                for (MultipartFile file : requestDto.getMultipartFiles()) {
+                    String fileTitle = file.getOriginalFilename();
+                    String fileUrl = s3Uploader.upload(file);
+                    File boardFile = new File(fileTitle, fileUrl, board);
+                    fileRepository.save(boardFile);
+                    fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
                 }
-
+                boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
