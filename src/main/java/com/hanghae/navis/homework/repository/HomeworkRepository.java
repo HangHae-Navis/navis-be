@@ -6,9 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     List<Homework> findAllByGroupIdOrderByCreatedAtDesc(Long groupId);
     Page<Homework> findAllByGroupIdOrderByCreatedAtDesc(Long groupId, Pageable pageable);
+
+    List<Homework> findAllByExpirationDateBetweenOrderByExpirationDateAsc(LocalDateTime today, LocalDateTime tomorrow);
 }
