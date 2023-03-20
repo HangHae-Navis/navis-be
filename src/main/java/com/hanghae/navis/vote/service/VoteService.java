@@ -120,7 +120,7 @@ public class VoteService {
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
-            if(requestDto == null) {
+            if(requestDto.getMultipartFiles() != null) {
                 //다중파일을 처리
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileTitle = file.getOriginalFilename();
