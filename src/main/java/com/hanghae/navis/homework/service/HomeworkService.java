@@ -261,31 +261,40 @@ public class HomeworkService {
                     () -> new CustomException(MEMBER_NOT_FOUND)
             );
 
-            if(expirationCheck(homework.getExpirationDate()) == false) {
-                HomeworkSubject subject = new HomeworkSubject(true, user, group, homework);
-                homeworkSubjectRepository.save(subject);
+            HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 
+            if(homeworkSubject != null) {
+                throw new CustomException(DUPLICATE_HOMEWORK);
+            }
+
+            if (expirationCheck(homework.getExpirationDate()) == false) {
                 List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
 
-                if(requestDto.getMultipartFiles() != null) {
+                if (requestDto.getMultipartFiles() != null) {
                     for (MultipartFile file : requestDto.getMultipartFiles()) {
                         String fileUrl = s3Uploader.upload(file);
                         HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl);
                         homeworkSubjectFileRepository.save(subjectFile);
                         fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
                     }
+
+                    HomeworkSubject subject = new HomeworkSubject(true, user, group, homework);
+                    homeworkSubjectRepository.save(subject);
+
+                    SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
+                    return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
+                } else {
+                    throw new CustomException(HOMEWORK_FILE_IS_NULL);
                 }
-                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
-                return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
             } else {
-                throw new CustomException(HOMEWORK_EXPIRED);
+                throw new CustomException(DUPLICATE_HOMEWORK_OR_HOMEWORK_EXPIRED);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public ResponseEntity<Message> submitCancel(Long groupId, Long boardId, Long homeworkSubjectId, User user) {
+    public ResponseEntity<Message> submitCancel(Long groupId, Long boardId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -298,9 +307,11 @@ public class HomeworkService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        HomeworkSubject homeworkSubject = homeworkSubjectRepository.findById(homeworkSubjectId).orElseThrow(
-                () -> new CustomException(HOMEWORK_FILE_NOT_FOUND)
-        );
+        HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
+
+        if(homeworkSubject == null) {
+            throw new CustomException(HOMEWORK_FILE_NOT_FOUND);
+        }
 
         if(expirationCheck(homework.getExpirationDate()) == true) {
             throw new CustomException(HOMEWORK_EXPIRED);
@@ -313,10 +324,10 @@ public class HomeworkService {
                     s3Uploader.delete(source);
                 }
             } catch (UnsupportedEncodingException e) {
-                throw new CustomException(HOMEWORK_FILE_NOT_FOUND);
+                throw new CustomException(HOMEWORK_FILE_IS_NULL);
             }
         }
-        homeworkSubjectRepository.deleteById(homeworkSubjectId);
+        homeworkSubjectRepository.deleteById(homeworkSubject.getId());
         return Message.toResponseEntity(HOMEWORK_SUBMIT_CANCEL);
     }
 

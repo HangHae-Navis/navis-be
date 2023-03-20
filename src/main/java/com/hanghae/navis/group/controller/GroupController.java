@@ -49,7 +49,7 @@ public class GroupController {
 
     @GetMapping("/{groupId}")
     @ResponseBody
-    @Operation(summary = "그룹 메인화면 조회", description = "그룹 메인화면 조회, 회원만 가능, category: all(기본), board, homework, vote")
+    @Operation(summary = "그룹 메인화면 조회", description = "그룹 메인화면 조회, 회원만 가능, category: all(기본), board, homework, vote, sortBy: createdAt(기본), important")
     public ResponseEntity<Message> getGroupMainPage(@PathVariable Long groupId,
                                                     @RequestParam int page,
                                                     @RequestParam int size,

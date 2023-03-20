@@ -13,6 +13,8 @@ import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupRepository;
+import com.hanghae.navis.homework.entity.Homework;
+import com.hanghae.navis.homework.repository.HomeworkRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
@@ -28,6 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -40,7 +46,7 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final BasicBoardRepository basicBoardRepository;
-    private final BoardRepository boardRepository;
+    private final HomeworkRepository homeworkRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional
@@ -120,7 +126,7 @@ public class GroupService {
             case "joined":
                 groupMemberPage = groupMemberRepository.findAllByUserAndGroupRoleIsNot(user, GroupMemberRoleEnum.ADMIN, pageable);
                 break;
-            case "myGroups":
+            case "myOwn":
                 groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.ADMIN, pageable);
                 break;
             case "all":
@@ -163,7 +169,8 @@ public class GroupService {
                 () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
         );
 
-        boolean isAdmin = groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN);
+        List<Homework> homeworkList = homeworkRepository.findAllByExpirationDateBetweenOrderByExpirationDateAsc(LocalDate.now().atStartOfDay(), LocalDate.now().atStartOfDay().plusDays(1));
+
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -191,7 +198,10 @@ public class GroupService {
             throw new CustomException(ExceptionMessage.INVALID_SORTING);
         }
 
-        GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, basicBoardPage);
+        //Admin일 경우 관리자 페이지 버튼을 띄우기 위한 Admin 정보
+        boolean isAdmin = groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN);
+
+        GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, homeworkList, basicBoardPage);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_MAIN_PAGE_GET_SUCCESS, responseDto);
     }
