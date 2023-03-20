@@ -120,15 +120,16 @@ public class VoteService {
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
-            //다중파일을 처리
-            for (MultipartFile file : requestDto.getMultipartFiles()) {
-                String fileTitle = file.getOriginalFilename();
-                String fileUrl = s3Uploader.upload(file);
-                File voteFile = new File(fileTitle, fileUrl, vote);
-                fileRepository.save(voteFile);
-                fileResponseDto.add(FileResponseDto.of(voteFile));
+            if(requestDto == null) {
+                //다중파일을 처리
+                for (MultipartFile file : requestDto.getMultipartFiles()) {
+                    String fileTitle = file.getOriginalFilename();
+                    String fileUrl = s3Uploader.upload(file);
+                    File voteFile = new File(fileTitle, fileUrl, vote);
+                    fileRepository.save(voteFile);
+                    fileResponseDto.add(FileResponseDto.of(voteFile));
+                }
             }
-
             List<OptionResponseDto> optionResponseDto = new ArrayList<>();
 
             //다중 투표선택지 처리
