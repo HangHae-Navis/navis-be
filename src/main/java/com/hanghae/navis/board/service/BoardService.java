@@ -11,6 +11,9 @@ import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.entity.GroupMember;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -37,6 +40,7 @@ import static com.hanghae.navis.common.entity.SuccessMessage.*;
 @Slf4j
 @RequiredArgsConstructor
 public class BoardService {
+    private final GroupMemberRepository groupMemberRepository;
     private final BoardRepository boardRepository;
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
@@ -110,6 +114,7 @@ public class BoardService {
             }
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
+
             if(requestDto.getMultipartFiles() != null) {
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileTitle = file.getOriginalFilename();
@@ -140,7 +145,7 @@ public class BoardService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        if (!user.getUsername().equals(board.getUser().getUsername())) {
+        if(!user.getId().equals(board.getUser().getId())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
@@ -181,8 +186,9 @@ public class BoardService {
         }
 
         try {
+            List<FileResponseDto> fileResponseDto = new ArrayList<>();
             if (requestDto.getMultipartFiles() != null) {
-                List<FileResponseDto> fileResponseDto = new ArrayList<>();
+
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
@@ -190,8 +196,8 @@ public class BoardService {
                     fileRepository.save(boardFile);
                     fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
                 }
-                boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
             }
+            boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -212,8 +218,12 @@ public class BoardService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if (!user.getId().equals(board.getUser().getId())) {
-            throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT) && !user.getId().equals(board.getUser().getId())) {
+            throw new CustomException(USER_FORBIDDEN);
         }
 
         if(board.getFileList().size() > 0) {

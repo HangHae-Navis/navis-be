@@ -11,6 +11,7 @@ import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
@@ -100,9 +101,11 @@ public class CommentService {
                 () -> new CustomException(COMMENT_NOT_FOUND)
         );
 
-        GroupMemberRoleEnum role = groupMemberRepository.findByUserAndGroup(user, group).get().getGroupRole();
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
 
-        if(!user.getRole().equals(UserRoleEnum.ADMIN) || !role.equals(GroupMemberRoleEnum.ADMIN) || !role.equals(GroupMemberRoleEnum.SUPPORT)) {
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
             throw new CustomException(UNAUTHORIZED_ADMIN);
         }
 
@@ -129,8 +132,12 @@ public class CommentService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if(!user.getUsername().equals(comment.getUser().getUsername())) {
-            throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT) && !user.getId().equals(comment.getUser().getId())) {
+            throw new CustomException(USER_FORBIDDEN);
         }
 
         commentRepository.deleteById(commentId);

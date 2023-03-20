@@ -8,6 +8,9 @@ import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.entity.GroupMember;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.homework.dto.*;
 import com.hanghae.navis.homework.entity.Homework;
@@ -49,7 +52,7 @@ public class HomeworkService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
-
+    private final GroupMemberRepository groupMemberRepository;
     private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
 
@@ -104,8 +107,17 @@ public class HomeworkService {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+            throw new CustomException(ADMIN_ONLY);
+        }
+
         if(expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())) == true) {
-            new CustomException(WRONG_DATE);
+            throw new CustomException(WRONG_DATE);
         }
 
         Homework homework = new Homework(requestDto, user, group, unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())));
@@ -155,8 +167,12 @@ public class HomeworkService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if (!user.getUsername().equals(homework.getUser().getUsername())) {
-            throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+            throw new CustomException(ADMIN_ONLY);
         }
 
         HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
@@ -195,8 +211,8 @@ public class HomeworkService {
         }
 
         try {
+            List<FileResponseDto> fileResponseDto = new ArrayList<>();
             if (requestDto.getMultipartFiles() != null) {
-                List<FileResponseDto> fileResponseDto = new ArrayList<>();
                 for (MultipartFile file : requestDto.getMultipartFiles() ) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
@@ -204,12 +220,11 @@ public class HomeworkService {
                     fileRepository.save(homeworkFile);
                     fileResponseDto.add(FileResponseDto.of(homeworkFile));
                 }
-                responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
             }
+            responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         return Message.toResponseEntity(BOARD_PUT_SUCCESS, responseDto);
     }
 
@@ -227,8 +242,12 @@ public class HomeworkService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if (!user.getId().equals(homework.getUser().getId())) {
-            throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+            throw new CustomException(ADMIN_ONLY);
         }
 
         if (homework.getFileList().size() > 0) {
