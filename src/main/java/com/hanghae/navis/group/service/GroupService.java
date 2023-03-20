@@ -18,6 +18,7 @@ import com.hanghae.navis.homework.repository.HomeworkRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
+import com.hanghae.navis.vote.repository.VoteRepository;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -47,6 +49,7 @@ public class GroupService {
     private final GroupMemberRepository groupMemberRepository;
     private final BasicBoardRepository basicBoardRepository;
     private final HomeworkRepository homeworkRepository;
+    private final VoteRepository voteRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional
@@ -169,6 +172,7 @@ public class GroupService {
                 () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
         );
 
+        //오늘 마감인 과제 리스트
         List<Homework> homeworkList = homeworkRepository.findAllByExpirationDateBetweenOrderByExpirationDateAsc(LocalDate.now().atStartOfDay(), LocalDate.now().atStartOfDay().plusDays(1));
 
 
@@ -198,10 +202,19 @@ public class GroupService {
             throw new CustomException(ExceptionMessage.INVALID_SORTING);
         }
 
+
         //Admin일 경우 관리자 페이지 버튼을 띄우기 위한 Admin 정보
         boolean isAdmin = groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN);
 
         GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, homeworkList, basicBoardPage);
+        for(MainPageBasicBoardDto m : responseDto.getBasicBoards()) {
+            if(m.getDtype().equals("homework")) {
+                m.setExpirationDate(homeworkRepository.findById(m.getId()).get().getExpirationDate());
+            }
+            if(m.getDtype().equals("vote")) {
+                m.setExpirationDate(voteRepository.findById(m.getId()).get().getExpirationDate());
+            }
+        }
 
         return Message.toResponseEntity(SuccessMessage.GROUP_MAIN_PAGE_GET_SUCCESS, responseDto);
     }

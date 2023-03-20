@@ -19,14 +19,14 @@ public class MainPageDeadlineResponseDto {
     private Long id;
     private String title;
     private String nickname;
-    private LocalDateTime deadline;
+    private LocalDateTime expirationDate;
 
     public static MainPageDeadlineResponseDto of(Homework homework) {
         return MainPageDeadlineResponseDto.builder()
                 .id(homework.getId())
                 .title(homework.getTitle())
                 .nickname(homework.getUser().getNickname())
-                .deadline(homework.getExpirationDate())
+                .expirationDate(homework.getExpirationDate())
                 .build();
     }
 
