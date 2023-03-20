@@ -281,32 +281,29 @@ public class HomeworkService {
 
             HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 
-            if(homeworkSubject != null) {
+            if (homeworkSubject != null) {
                 throw new CustomException(DUPLICATE_HOMEWORK);
             }
 
-            if (expirationCheck(homework.getExpirationDate()) == false) {
-                List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
+            List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
 
-                if (requestDto.getMultipartFiles() != null) {
-                    for (MultipartFile file : requestDto.getMultipartFiles()) {
-                        String fileUrl = s3Uploader.upload(file);
-                        HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl);
-                        homeworkSubjectFileRepository.save(subjectFile);
-                        fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
-                    }
-
-                    HomeworkSubject subject = new HomeworkSubject(true, user, group, homework);
-                    homeworkSubjectRepository.save(subject);
-
-                    SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
-                    return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
-                } else {
-                    throw new CustomException(HOMEWORK_FILE_IS_NULL);
+            if (requestDto.getMultipartFiles() != null) {
+                for (MultipartFile file : requestDto.getMultipartFiles()) {
+                    String fileUrl = s3Uploader.upload(file);
+                    HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl);
+                    homeworkSubjectFileRepository.save(subjectFile);
+                    fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
                 }
+
+                HomeworkSubject subject = new HomeworkSubject(true, user, group, homework);
+                homeworkSubjectRepository.save(subject);
+
+                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
+                return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
             } else {
-                throw new CustomException(DUPLICATE_HOMEWORK_OR_HOMEWORK_EXPIRED);
+                throw new CustomException(HOMEWORK_FILE_IS_NULL);
             }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
