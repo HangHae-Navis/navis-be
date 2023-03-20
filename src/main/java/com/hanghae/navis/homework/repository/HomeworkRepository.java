@@ -14,4 +14,5 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     Page<Homework> findAllByGroupIdOrderByCreatedAtDesc(Long groupId, Pageable pageable);
 
     List<Homework> findAllByExpirationDateBetweenOrderByExpirationDateAsc(LocalDateTime today, LocalDateTime tomorrow);
+
 }
