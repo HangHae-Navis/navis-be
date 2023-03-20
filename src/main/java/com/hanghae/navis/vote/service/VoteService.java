@@ -132,8 +132,7 @@ public class VoteService {
             List<OptionResponseDto> optionResponseDto = new ArrayList<>();
 
             //다중 투표선택지 처리
-            for (OptionRequestDto optionRequestDtoList : requestDto.getOptionRequestDto()) {
-                String option = optionRequestDtoList.getOption();
+            for (String option : requestDto.getOptionList().split(" ")) {
                 VoteOption voteOption = new VoteOption(vote, option);
                 voteOptionRepository.save(voteOption);
                 optionResponseDto.add(OptionResponseDto.of(voteOption));

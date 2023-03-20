@@ -15,15 +15,15 @@ import java.util.List;
 public class VoteRequestDto extends BoardRequestDto {
 
     private long expirationDate;
-    private List<OptionRequestDto> optionRequestDto;
+    private String optionList;
 //    private List<String> updateUrlList = new ArrayList<>();
 
 
     //생성
-    public VoteRequestDto(String title, String content, String subtitle, String important, String hashtagList, long expirationDate, List<OptionRequestDto> optionRequestDto, List<MultipartFile> multipartFiles) {
+    public VoteRequestDto(String title, String content, String subtitle, String important, String hashtagList, long expirationDate, String optionList, List<MultipartFile> multipartFiles) {
         super(title, content, subtitle, important, hashtagList, multipartFiles);
         this.expirationDate = expirationDate;
-        this.optionRequestDto = optionRequestDto;
+        this.optionList = optionList;
     }
 
     //업데이트
