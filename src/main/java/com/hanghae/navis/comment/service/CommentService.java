@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
@@ -55,13 +56,19 @@ public class CommentService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        Pageable pageable = PageRequest.of(page, size);
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
 
-        Page<Comment> commentPage = commentRepository.findAllByBasicBoardIdOrderByCreatedAt(boardId, pageable);
+        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
-        Page<CommentResponseDto> commentResponseDto = CommentResponseDto.toDtoPage(commentPage);
+        List<Comment> commentList = commentRepository.findAllByBasicBoardIdOrderByCreatedAt(boardId);
 
-        return Message.toResponseEntity(COMMENT_LIST_GET_SUCCESS, commentResponseDto);
+        for(Comment comment : commentList) {
+            boolean isOwned = comment.getUser().getId().equals(user.getId());
+            commentResponseDtoList.add(new CommentResponseDto(comment, isOwned));
+        }
+        return Message.toResponseEntity(COMMENT_LIST_GET_SUCCESS, commentResponseDtoList);
     }
 
     @Transactional
@@ -76,6 +83,10 @@ public class CommentService {
 
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
         );
 
         if(requestDto.getContent() != null) {
