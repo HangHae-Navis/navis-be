@@ -1,9 +1,7 @@
 package com.hanghae.navis.comment.service;
 
-import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.Comment;
-import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.comment.dto.CommentRequestDto;
 import com.hanghae.navis.comment.dto.CommentResponseDto;
 import com.hanghae.navis.comment.repository.CommentRepository;
@@ -16,7 +14,6 @@ import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
-import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
@@ -60,15 +56,12 @@ public class CommentService {
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
-        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Comment> commentPage = commentRepository.findAllByBasicBoardIdOrderByCreatedAt(boardId, pageable);
 
-        List<Comment> commentList = commentRepository.findAllByBasicBoardIdOrderByCreatedAt(boardId);
+        Page<CommentResponseDto> commentResponseDto = CommentResponseDto.toDtoPage(commentPage, user);
 
-        for(Comment comment : commentList) {
-            boolean isOwned = comment.getUser().getId().equals(user.getId());
-            commentResponseDtoList.add(new CommentResponseDto(comment, isOwned));
-        }
-        return Message.toResponseEntity(COMMENT_LIST_GET_SUCCESS, commentResponseDtoList);
+        return Message.toResponseEntity(COMMENT_LIST_GET_SUCCESS, commentResponseDto);
     }
 
     @Transactional
@@ -94,7 +87,7 @@ public class CommentService {
 
             commentRepository.save(comment);
 
-            CommentResponseDto commentResponseDto = CommentResponseDto.of(comment);
+            CommentResponseDto commentResponseDto = CommentResponseDto.of(comment, user);
             return Message.toResponseEntity(COMMENT_POST_SUCCESS, commentResponseDto);
         } else {
             throw new CustomException(CONTENT_IS_NULL);
@@ -125,7 +118,7 @@ public class CommentService {
 
         if(requestDto.getContent() != null) {
             comment.updateComment(requestDto);
-            CommentResponseDto commentResponseDto = CommentResponseDto.of(comment);
+            CommentResponseDto commentResponseDto = CommentResponseDto.of(comment, user);
 
             return Message.toResponseEntity(COMMENT_UPDATE_SUCCESS, commentResponseDto);
         } else {
