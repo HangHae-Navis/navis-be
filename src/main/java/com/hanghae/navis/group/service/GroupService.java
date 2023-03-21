@@ -141,15 +141,24 @@ public class GroupService {
 
         Page<GroupResponseDto> groupResponseDtoPage = GroupResponseDto.toDtoPage(groupMemberPage);
 
-        //오늘마감이 있는 그룹일 경우 가장 급한것 하나 시간, 제목 노출
+        log.info("for문 진입");
+
+
+
+        //24시간 이내 마감이 있는 그룹일 경우 마감 개수 및 가장 급한것 하나 시간, 제목 노출
         //todo 나중에 쿼리문으로 리팩토링 시도 예정
         for(GroupResponseDto g : groupResponseDtoPage) {
             Group group = groupRepository.findById(g.getGroupId()).get();
-            Optional<Homework> deadline = homeworkRepository
-                    .findFirstByExpirationDateBetweenAndGroupOrderByExpirationDateAsc
-                            (LocalDate.now().atStartOfDay(), LocalDate.now().atStartOfDay().plusDays(1), group);
+            Long deadlineNumber = homeworkRepository.countByExpirationDateBetweenAndGroup
+                    (LocalDateTime.now(), LocalDateTime.now().plusDays(1), group);
 
-            deadline.ifPresent(g::addDeadline);
+            if(deadlineNumber > 0) {
+                Optional<Homework> deadline = homeworkRepository
+                        .findFirstByExpirationDateBetweenAndGroupOrderByExpirationDateAsc
+                                (LocalDateTime.now(), LocalDateTime.now().plusDays(1), group);
+                deadline.ifPresent(g::addDeadline);
+                g.addDeadlineNumber(deadlineNumber);
+            }
         }
 
         return Message.toResponseEntity(SuccessMessage.GROUPS_GET_SUCCESS, groupResponseDtoPage);
@@ -183,9 +192,9 @@ public class GroupService {
                 () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
         );
 
-        //오늘 마감인 과제 리스트
+        //24시간 이내 마감인 과제 리스트
         List<Homework> homeworkList = homeworkRepository.findAllByExpirationDateBetweenAndGroupOrderByExpirationDateAsc(
-                LocalDate.now().atStartOfDay(), LocalDate.now().atStartOfDay().plusDays(1), group);
+                LocalDateTime.now(), LocalDateTime.now().plusDays(1), group);
 
 
         Pageable pageable = PageRequest.of(page, size);
