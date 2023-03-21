@@ -44,7 +44,7 @@ public class User extends TimeStamped {
     @OneToMany(mappedBy = "user")
     List<Group> groupList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user" , fetch = FetchType.LAZY)
     List<GroupMember> groupMemberList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
