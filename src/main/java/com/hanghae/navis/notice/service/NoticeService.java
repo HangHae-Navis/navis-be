@@ -8,6 +8,7 @@ import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.notice.dto.NoticeListResponseDto;
@@ -84,6 +85,12 @@ public class NoticeService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
         List<String> hashtagList = new ArrayList<>();
@@ -92,7 +99,7 @@ public class NoticeService {
 
         notice.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
 
-        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagList);
+        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagList, role);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, noticeResponseDto);
     }
 
@@ -101,6 +108,12 @@ public class NoticeService {
         try {
 
             UserGroup userGroup = authCheck(groupId, user);
+
+            GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                    () -> new CustomException(GROUP_MEMBER_NOT_FOUND)
+            );
+
+            GroupMemberRoleEnum role = groupMember.getGroupRole();
 
             Notice notice = new Notice(requestDto, user, userGroup.getGroup());
 
@@ -124,7 +137,7 @@ public class NoticeService {
                     fileResponseDto.add(FileResponseDto.of(noticeFile));
                 }
             }
-            NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList);
+            NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList, role);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, noticeResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -140,7 +153,13 @@ public class NoticeService {
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, null, null);
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_MEMBER_NOT_FOUND)
+        );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
+        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, null, null, role);
 
         if (!user.getUsername().equals(notice.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
@@ -176,7 +195,7 @@ public class NoticeService {
                     fileRepository.save(noticeFile);
                     fileResponseDto.add(new FileResponseDto(noticeFile.getFileTitle(), noticeFile.getFileUrl()));
                 }
-                noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, null);
+                noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, null, role);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

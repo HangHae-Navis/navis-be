@@ -16,6 +16,7 @@ import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
+import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,32 +76,44 @@ public class BoardService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
         List<String> hashtagResponseDto = new ArrayList<>();
         board.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
         board.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
-        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, boardResponseDto);
     }
 
     @Transactional
     public ResponseEntity<Message>  createBoard(Long groupId, BoardRequestDto requestDto, User user) {
         try {
+            Group group = groupRepository.findById(groupId).orElseThrow(
+                    () -> new CustomException(GROUP_NOT_FOUND)
+            );
+
             user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                     () -> new CustomException(MEMBER_NOT_FOUND)
             );
 
-            Group group = groupRepository.findById(groupId).orElseThrow(
-                    () -> new CustomException(GROUP_NOT_FOUND)
+            GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                    () -> new CustomException(MEMBER_NOT_FOUND)
             );
+
+            GroupMemberRoleEnum role = groupMember.getGroupRole();
 
             Board board = new Board(requestDto, user, group);
             boardRepository.save(board);
@@ -124,7 +137,7 @@ public class BoardService {
                     fileResponseDto.add(FileResponseDto.of(boardFile));
                 }
             }
-            BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
+            BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, boardResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -133,6 +146,10 @@ public class BoardService {
 
     @Transactional
     public ResponseEntity<Message> updateBoard(Long groupId, Long boardId, BoardRequestDto requestDto, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
@@ -141,15 +158,17 @@ public class BoardService {
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
         );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         if(!user.getId().equals(board.getUser().getId())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
-        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null);
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null, role);
 
         board.update(requestDto);
 
@@ -197,7 +216,7 @@ public class BoardService {
                     fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
                 }
             }
-            boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto);
+            boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -210,16 +229,16 @@ public class BoardService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        Board board = boardRepository.findById(boardId).orElseThrow(
-                () -> new CustomException(BOARD_NOT_FOUND)
-        );
-
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
+        Board board = boardRepository.findById(boardId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
         GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
-                () -> new CustomException(GROUP_NOT_JOINED)
+                () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
         if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT) && !user.getId().equals(board.getUser().getId())) {
@@ -256,5 +275,25 @@ public class BoardService {
 
         hashtagRepository.deleteById(hashtagId);
         return Message.toResponseEntity(HASHTAG_DELETE_SUCCESS);
+    }
+
+    public UserGroup authCheck(Long groupId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        if (groupMember.getGroupRole().getAuthority().equals(UserRoleEnum.Authority.USER)) {
+            throw new CustomException(UNAUTHORIZED_ADMIN);
+        }
+
+        return new UserGroup(user, group);
     }
 }

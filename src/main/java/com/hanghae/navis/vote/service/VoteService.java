@@ -13,6 +13,7 @@ import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
@@ -82,6 +83,12 @@ public class VoteService {
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
         List<OptionResponseDto> optionResponseDto = new ArrayList<>();
 
 
@@ -94,7 +101,7 @@ public class VoteService {
         vote.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
         
         VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, expirationCheck(
-                vote.getExpirationDate()), vote.getExpirationDate());
+                vote.getExpirationDate()), vote.getExpirationDate(), role);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
     }
 
@@ -104,6 +111,12 @@ public class VoteService {
         try {
             //유저의 권한을 체크
             UserGroup userGroup = authCheck(groupId, user);
+
+            GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                    () -> new CustomException(GROUP_NOT_JOINED)
+            );
+
+            GroupMemberRoleEnum role = groupMember.getGroupRole();
             
             //권한이 있으면 투표를 생성
             Vote vote = new Vote(requestDto, userGroup.getUser(), userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
@@ -140,7 +153,7 @@ public class VoteService {
             }
 
             //리턴으로 보내줄 dto생성
-            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto,  hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto,  hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {
@@ -248,6 +261,13 @@ public class VoteService {
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
+
         //투표를 강제로 만료시킴
         vote.forceExpiration();
 
@@ -257,7 +277,7 @@ public class VoteService {
                         null,
                         parseOptionResponseDto(vote.getVoteOptionList()),
                         vote.isForceExpiration(),
-                        vote.getExpirationDate()));
+                        vote.getExpirationDate(), role));
     }
 
     public ResponseEntity<Message> pickVote(Long groupId, Long voteId, Long voteOptionId, User user) {
@@ -279,6 +299,8 @@ public class VoteService {
                 () -> new CustomException(GROUP_MEMBER_NOT_FOUND)
         );
 
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
         //투표시간 / 강제만료 체크 후 만료가 아니면 투표 가능하게설정
         if (!(expirationCheck(vote.getExpirationDate()) || vote.isForceExpiration())) {
             if (voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).isPresent()) {
@@ -289,7 +311,7 @@ public class VoteService {
                                 null,
                                 parseOptionResponseDto(vote.getVoteOptionList()),
                                 vote.isForceExpiration(),
-                                vote.getExpirationDate()));
+                                vote.getExpirationDate(), role));
 
             } else {
                 VoteRecord voteRecord = new VoteRecord(voteOption, groupMember);
@@ -300,7 +322,7 @@ public class VoteService {
                                 null,
                                 parseOptionResponseDto(vote.getVoteOptionList()),
                                 vote.isForceExpiration(),
-                                vote.getExpirationDate()));
+                                vote.getExpirationDate(), role));
             }
         } else
             return Message.toExceptionResponseEntity(VOTE_EXPIRED);

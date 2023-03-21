@@ -20,6 +20,7 @@ import com.hanghae.navis.homework.repository.HomeworkRepository;
 import com.hanghae.navis.homework.repository.HomeworkSubjectFileRepository;
 import com.hanghae.navis.homework.repository.HomeworkSubjectRepository;
 import com.hanghae.navis.user.entity.User;
+import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,19 +82,25 @@ public class HomeworkService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
         Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
         );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         List<FileResponseDto> responseList = new ArrayList<>();
 
         homework.getFileList().forEach(value -> responseList.add(FileResponseDto.of(value)));
 
-        HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+        HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
     }
@@ -111,6 +118,8 @@ public class HomeworkService {
         GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
             throw new CustomException(ADMIN_ONLY);
@@ -144,7 +153,7 @@ public class HomeworkService {
                     fileResponseDto.add(FileResponseDto.of(homeworkFile));
                 }
             }
-            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
@@ -159,23 +168,25 @@ public class HomeworkService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
-                () -> new CustomException(BOARD_NOT_FOUND)
-        );
-
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
         );
 
         GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
         if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
-        HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+        HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
 
         homework.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(homework.getExpirationDate()));
 
@@ -221,7 +232,7 @@ public class HomeworkService {
                     fileResponseDto.add(FileResponseDto.of(homeworkFile));
                 }
             }
-            responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate());
+            responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -234,17 +245,19 @@ public class HomeworkService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
-                () -> new CustomException(BOARD_NOT_FOUND)
-        );
-
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
         );
 
         GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
             throw new CustomException(ADMIN_ONLY);
@@ -271,13 +284,19 @@ public class HomeworkService {
                     () -> new CustomException(GROUP_NOT_FOUND)
             );
 
+            user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                    () -> new CustomException(MEMBER_NOT_FOUND)
+            );
+
             Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                     () -> new CustomException(BOARD_NOT_FOUND)
             );
 
-            user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                    () -> new CustomException(MEMBER_NOT_FOUND)
+            GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                    () -> new CustomException(GROUP_NOT_JOINED)
             );
+
+            GroupMemberRoleEnum role = groupMember.getGroupRole();
 
             HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 
@@ -314,13 +333,19 @@ public class HomeworkService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
         Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
         );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 

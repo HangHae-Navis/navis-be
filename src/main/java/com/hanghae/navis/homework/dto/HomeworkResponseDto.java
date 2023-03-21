@@ -3,6 +3,7 @@ package com.hanghae.navis.homework.dto;
 import com.hanghae.navis.common.dto.FileResponseDto;
 import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.dto.BasicBoardResponseDto;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.homework.entity.Homework;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +21,7 @@ public class HomeworkResponseDto extends BasicBoardResponseDto {
     private LocalDateTime expirationTime;
     private boolean isExpiration;
 
-    public static HomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<String> hashtagList, boolean expiration, LocalDateTime expirationTime) {
+    public static HomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<String> hashtagList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role) {
         return HomeworkResponseDto.builder()
                 .id(homework.getId())
                 .nickname(homework.getUser().getNickname())
@@ -33,6 +34,7 @@ public class HomeworkResponseDto extends BasicBoardResponseDto {
                 .hashtagList(hashtagList)
                 .isExpiration(expiration)
                 .expirationTime(expirationTime)
+                .role(role)
                 .build();
     }
 }

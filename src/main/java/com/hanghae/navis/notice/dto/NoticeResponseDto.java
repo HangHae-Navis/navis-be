@@ -3,6 +3,7 @@ package com.hanghae.navis.notice.dto;
 import com.hanghae.navis.common.dto.BasicBoardResponseDto;
 import com.hanghae.navis.common.dto.FileResponseDto;
 import com.hanghae.navis.common.dto.HashtagResponseDto;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.notice.entity.Notice;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 public class NoticeResponseDto extends BasicBoardResponseDto {
-    public static NoticeResponseDto of(Notice notice, List<FileResponseDto> fileList, List<String> hashtagList) {
+    public static NoticeResponseDto of(Notice notice, List<FileResponseDto> fileList, List<String> hashtagList, GroupMemberRoleEnum role) {
         return NoticeResponseDto.builder()
                 .id(notice.getId())
                 .nickname(notice.getUser().getNickname())
@@ -25,6 +26,7 @@ public class NoticeResponseDto extends BasicBoardResponseDto {
                 .important(notice.getImportant())
                 .createAt(notice.getCreatedAt())
                 .hashtagList(hashtagList)
+                .role(role)
                 .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.hanghae.navis.common.dto;
 
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -21,4 +22,5 @@ public abstract class BasicBoardResponseDto {
     private Long important;
     private LocalDateTime createAt;
     private List<String> hashtagList;
+    private GroupMemberRoleEnum role;
 }
