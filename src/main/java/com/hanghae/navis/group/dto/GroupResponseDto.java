@@ -1,12 +1,16 @@
 package com.hanghae.navis.group.dto;
 
+import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
+import com.hanghae.navis.homework.entity.Homework;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
+
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -20,6 +24,8 @@ public class GroupResponseDto {
     private String groupImage;
     private String adminName;
     private int memberNumber;
+    private LocalDateTime expirationDate;
+    private String homeworkTitle;
 
     public static GroupResponseDto of(Group group) {
         return GroupResponseDto.builder()
@@ -34,6 +40,11 @@ public class GroupResponseDto {
 
     public static Page<GroupResponseDto> toDtoPage(Page<GroupMember> groupMemberPage) {
         return groupMemberPage.map(m -> GroupResponseDto.of(m.getGroup()));
+    }
+
+    public void addDeadline(Homework homework) {
+        this.homeworkTitle = homework.getTitle();
+        this.expirationDate = homework.getExpirationDate();
     }
 
 }
