@@ -25,9 +25,12 @@ public class CommentController {
 
     @GetMapping("")
     @Operation(summary = "댓글 리스트", description = "댓글 리스트")
-    public ResponseEntity<Message> commentList(@PathVariable Long groupId, @PathVariable Long boardId,
-                                         @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return commentService.commentList(groupId, boardId, userDetails.getUser());
+    public ResponseEntity<Message> commentList(@PathVariable Long groupId,
+                                               @PathVariable Long boardId,
+                                               @RequestParam int page,
+                                               @RequestParam int size,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.commentList(groupId, boardId, page -1, size, userDetails.getUser());
     }
 
     @PostMapping("")

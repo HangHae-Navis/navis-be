@@ -19,6 +19,7 @@ public class HomeworkSubject extends TimeStamped {
     private Long id;
 //    @Column(nullable = false)
     private boolean submit = false;
+//    private boolean late = false;
     @ManyToOne
     private User user;
     @ManyToOne

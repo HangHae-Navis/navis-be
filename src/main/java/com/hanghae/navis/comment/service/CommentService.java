@@ -19,6 +19,9 @@ import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,13 +38,11 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
-    private final BoardRepository boardRepository;
     private final GroupMemberRepository groupMemberRepository;
-
     private final BasicBoardRepository basicBoardRepository;
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> commentList(Long groupId, Long boardId, User user) {
+    public ResponseEntity<Message> commentList(Long groupId, Long boardId, int page, int size, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -54,13 +55,13 @@ public class CommentService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        List<CommentResponseDto> responseList = new ArrayList<>();
-        List<Comment> commentList = commentRepository.findAllByBasicBoardIdOrderByCreatedAt(boardId);
+        Pageable pageable = PageRequest.of(page, size);
 
-        for(Comment comment : commentList) {
-            responseList.add(new CommentResponseDto(comment));
-        }
-        return Message.toResponseEntity(COMMENT_LIST_GET_SUCCESS, responseList);
+        Page<Comment> commentPage = commentRepository.findAllByBasicBoardIdOrderByCreatedAt(boardId, pageable);
+
+        Page<CommentResponseDto> commentResponseDto = CommentResponseDto.toDtoPage(commentPage);
+
+        return Message.toResponseEntity(COMMENT_LIST_GET_SUCCESS, commentResponseDto);
     }
 
     @Transactional
@@ -81,7 +82,9 @@ public class CommentService {
             Comment comment = new Comment(requestDto, user, basicBoard);
 
             commentRepository.save(comment);
-            return Message.toResponseEntity(COMMENT_POST_SUCCESS, new CommentResponseDto(comment));
+
+            CommentResponseDto commentResponseDto = CommentResponseDto.of(comment);
+            return Message.toResponseEntity(COMMENT_POST_SUCCESS, commentResponseDto);
         } else {
             throw new CustomException(CONTENT_IS_NULL);
         }
@@ -109,9 +112,14 @@ public class CommentService {
             throw new CustomException(UNAUTHORIZED_ADMIN);
         }
 
-        comment.updateComment(requestDto);
+        if(requestDto.getContent() != null) {
+            comment.updateComment(requestDto);
+            CommentResponseDto commentResponseDto = CommentResponseDto.of(comment);
 
-        return Message.toResponseEntity(COMMENT_UPDATE_SUCCESS, new CommentResponseDto(comment));
+            return Message.toResponseEntity(COMMENT_UPDATE_SUCCESS, commentResponseDto);
+        } else {
+            throw new CustomException(CONTENT_IS_NULL);
+        }
     }
 
     @Transactional
