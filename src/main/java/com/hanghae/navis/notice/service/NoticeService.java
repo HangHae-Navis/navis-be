@@ -85,6 +85,12 @@ public class NoticeService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
         List<String> hashtagList = new ArrayList<>();
