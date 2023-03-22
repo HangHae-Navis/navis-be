@@ -59,4 +59,9 @@ public class Group extends TimeStamped {
     public void addGroupImage(String groupImage) {
         this.groupImage = groupImage;
     }
+
+    public void updateGroup(GroupRequestDto groupRequestDto) {
+        this.groupName = groupRequestDto.getGroupName();
+        this.groupInfo = groupRequestDto.getGroupInfo();
+    }
 }

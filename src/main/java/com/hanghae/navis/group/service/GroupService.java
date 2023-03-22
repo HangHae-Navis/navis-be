@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -59,7 +60,7 @@ public class GroupService {
         MultipartFile multipartFile = requestDto.getGroupImage();
 
         if(!(multipartFile == null || multipartFile.isEmpty())) {
-            try{
+            try {
                 String groupImage = s3Uploader.upload(multipartFile);
                 group.addGroupImage(groupImage);
             } catch (IOException e) {
@@ -140,10 +141,6 @@ public class GroupService {
         }
 
         Page<GroupResponseDto> groupResponseDtoPage = GroupResponseDto.toDtoPage(groupMemberPage);
-
-        log.info("for문 진입");
-
-
 
         //24시간 이내 마감이 있는 그룹일 경우 마감 개수 및 가장 급한것 하나 시간, 제목 노출
         //todo 나중에 쿼리문으로 리팩토링 시도 예정
@@ -264,6 +261,46 @@ public class GroupService {
 
         groupMemberRepository.delete(groupMember);
         return Message.toResponseEntity(SuccessMessage.GROUP_QUIT_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> updateGroup(Long groupId, GroupRequestDto requestDto, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.ADMIN_ONLY);
+        }
+
+        group.updateGroup(requestDto);
+
+        MultipartFile multipartFile = requestDto.getGroupImage();
+
+        if(!(multipartFile == null || multipartFile.isEmpty())) {
+            try {
+
+                if(group.getGroupImage() != null) {
+                    String source = URLDecoder.decode(group.getGroupImage().replace("https://s3://project-navis/image/", ""), "UTF-8");
+                    s3Uploader.delete(source);
+                }
+
+                String groupImage = s3Uploader.upload(multipartFile);
+                group.addGroupImage(groupImage);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
+
+        return Message.toResponseEntity(SuccessMessage.GROUP_UPDATE_SUCCESS, responseDto);
+
+
     }
 
     @Transactional
