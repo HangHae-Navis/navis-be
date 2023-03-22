@@ -9,9 +9,11 @@ import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.group.dto.*;
+import com.hanghae.navis.group.entity.BannedGroupMember;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.repository.BannedGroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.repository.HomeworkRepository;
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,6 +50,7 @@ public class GroupService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
+    private final BannedGroupMemberRepository bannedGroupMemberRepository;
     private final BasicBoardRepository basicBoardRepository;
     private final HomeworkRepository homeworkRepository;
     private final VoteRepository voteRepository;
@@ -59,7 +63,7 @@ public class GroupService {
         MultipartFile multipartFile = requestDto.getGroupImage();
 
         if(!(multipartFile == null || multipartFile.isEmpty())) {
-            try{
+            try {
                 String groupImage = s3Uploader.upload(multipartFile);
                 group.addGroupImage(groupImage);
             } catch (IOException e) {
@@ -99,6 +103,12 @@ public class GroupService {
         Optional<GroupMember> ugl = groupMemberRepository.findByUserAndGroup(user, group);
         if (ugl.isPresent()) {
             throw new CustomException(ExceptionMessage.ALREADY_JOINED);
+        }
+
+        //차단당한 그룹일 경우 튕겨냄
+        Optional<BannedGroupMember> bgm = bannedGroupMemberRepository.findByUserAndGroup(user, group);
+        if(bgm.isPresent()) {
+            throw new CustomException(ExceptionMessage.BANNED_GROUP);
         }
 
         GroupMember groupMember = new GroupMember(user, group);
@@ -141,15 +151,20 @@ public class GroupService {
 
         Page<GroupResponseDto> groupResponseDtoPage = GroupResponseDto.toDtoPage(groupMemberPage);
 
-        //오늘마감이 있는 그룹일 경우 가장 급한것 하나 시간, 제목 노출
+        //24시간 이내 마감이 있는 그룹일 경우 마감 개수 및 가장 급한것 하나 시간, 제목 노출
         //todo 나중에 쿼리문으로 리팩토링 시도 예정
         for(GroupResponseDto g : groupResponseDtoPage) {
             Group group = groupRepository.findById(g.getGroupId()).get();
-            Optional<Homework> deadline = homeworkRepository
-                    .findFirstByExpirationDateBetweenAndGroupOrderByExpirationDateAsc
-                            (LocalDate.now().atStartOfDay(), LocalDate.now().atStartOfDay().plusDays(1), group);
+            Long deadlineNumber = homeworkRepository.countByExpirationDateBetweenAndGroup
+                    (LocalDateTime.now(), LocalDateTime.now().plusDays(1), group);
 
-            deadline.ifPresent(g::addDeadline);
+            if(deadlineNumber > 0) {
+                Optional<Homework> deadline = homeworkRepository
+                        .findFirstByExpirationDateBetweenAndGroupOrderByExpirationDateAsc
+                                (LocalDateTime.now(), LocalDateTime.now().plusDays(1), group);
+                deadline.ifPresent(g::addDeadline);
+                g.addDeadlineNumber(deadlineNumber);
+            }
         }
 
         return Message.toResponseEntity(SuccessMessage.GROUPS_GET_SUCCESS, groupResponseDtoPage);
@@ -183,9 +198,9 @@ public class GroupService {
                 () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
         );
 
-        //오늘 마감인 과제 리스트
+        //24시간 이내 마감인 과제 리스트
         List<Homework> homeworkList = homeworkRepository.findAllByExpirationDateBetweenAndGroupOrderByExpirationDateAsc(
-                LocalDate.now().atStartOfDay(), LocalDate.now().atStartOfDay().plusDays(1), group);
+                LocalDateTime.now(), LocalDateTime.now().plusDays(1), group);
 
 
         Pageable pageable = PageRequest.of(page, size);
@@ -241,20 +256,65 @@ public class GroupService {
             () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
         );
 
+        //memberId 입력: 관리자의 회원 강퇴 기능
         if(memberId != null) {
             if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
                 throw new CustomException(ExceptionMessage.ADMIN_ONLY);
             }
+
+            User bannedMember = groupMemberRepository.findById(memberId).get().getUser();
             groupMemberRepository.deleteById(memberId);
+
+            //차단목록에 추가
+            BannedGroupMember bannedGroupMember = new BannedGroupMember(bannedMember, group);
+            bannedGroupMemberRepository.save(bannedGroupMember);
+
             return Message.toResponseEntity(SuccessMessage.MEMBER_DELETE_SUCCESS);
         }
 
+        //memberId 미입력: 회원의 그룹 탈퇴 기능
         if(groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
             throw new CustomException(ExceptionMessage.ADMIN_CANNOT_QUIT);
         }
 
         groupMemberRepository.delete(groupMember);
         return Message.toResponseEntity(SuccessMessage.GROUP_QUIT_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> updateGroup(Long groupId, GroupRequestDto requestDto, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.ADMIN_ONLY);
+        }
+
+        group.updateGroup(requestDto);
+
+        MultipartFile multipartFile = requestDto.getGroupImage();
+        if(!(multipartFile == null || multipartFile.isEmpty())) {
+            try {
+                if(group.getGroupImage() != null) {
+                    String source = URLDecoder.decode(group.getGroupImage().replace("https://s3://project-navis/image/", ""), "UTF-8");
+                    s3Uploader.delete(source);
+                }
+
+                String groupImage = s3Uploader.upload(multipartFile);
+                group.addGroupImage(groupImage);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
+
+        return Message.toResponseEntity(SuccessMessage.GROUP_UPDATE_SUCCESS, responseDto);
     }
 
     @Transactional

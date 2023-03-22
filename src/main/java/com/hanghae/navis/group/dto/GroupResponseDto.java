@@ -26,6 +26,7 @@ public class GroupResponseDto {
     private int memberNumber;
     private LocalDateTime expirationDate;
     private String homeworkTitle;
+    private Long deadlineNumber;
 
     public static GroupResponseDto of(Group group) {
         return GroupResponseDto.builder()
@@ -45,6 +46,10 @@ public class GroupResponseDto {
     public void addDeadline(Homework homework) {
         this.homeworkTitle = homework.getTitle();
         this.expirationDate = homework.getExpirationDate();
+    }
+
+    public void addDeadlineNumber(Long deadlineNumber) {
+        this.deadlineNumber = deadlineNumber;
     }
 
 }

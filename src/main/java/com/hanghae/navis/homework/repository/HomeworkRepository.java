@@ -18,4 +18,6 @@ public interface HomeworkRepository extends JpaRepository<Homework, Long> {
     List<Homework> findAllByExpirationDateBetweenAndGroupOrderByExpirationDateAsc(LocalDateTime today, LocalDateTime tomorrow, Group group);
     Optional<Homework> findFirstByExpirationDateBetweenAndGroupOrderByExpirationDateAsc(LocalDateTime today, LocalDateTime tomorrow, Group group);
 
+    Long countByExpirationDateBetweenAndGroup(LocalDateTime now, LocalDateTime tomorrow, Group group);
+
 }

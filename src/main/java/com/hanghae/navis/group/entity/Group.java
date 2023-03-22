@@ -35,7 +35,7 @@ public class Group extends TimeStamped {
 
     @ManyToOne
     private User user;
-    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     List<GroupMember> groupMember = new ArrayList<>();
 
     @OneToMany(mappedBy = "group")
@@ -58,5 +58,10 @@ public class Group extends TimeStamped {
 
     public void addGroupImage(String groupImage) {
         this.groupImage = groupImage;
+    }
+
+    public void updateGroup(GroupRequestDto groupRequestDto) {
+        this.groupName = groupRequestDto.getGroupName();
+        this.groupInfo = groupRequestDto.getGroupInfo();
     }
 }
