@@ -9,9 +9,11 @@ import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.group.dto.*;
+import com.hanghae.navis.group.entity.BannedGroupMember;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.repository.BannedGroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.repository.HomeworkRepository;
@@ -48,6 +50,7 @@ public class GroupService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
+    private final BannedGroupMemberRepository bannedGroupMemberRepository;
     private final BasicBoardRepository basicBoardRepository;
     private final HomeworkRepository homeworkRepository;
     private final VoteRepository voteRepository;
@@ -100,6 +103,12 @@ public class GroupService {
         Optional<GroupMember> ugl = groupMemberRepository.findByUserAndGroup(user, group);
         if (ugl.isPresent()) {
             throw new CustomException(ExceptionMessage.ALREADY_JOINED);
+        }
+
+        //차단당한 그룹일 경우 튕겨냄
+        Optional<BannedGroupMember> bgm = bannedGroupMemberRepository.findByUserAndGroup(user, group);
+        if(bgm.isPresent()) {
+            throw new CustomException(ExceptionMessage.BANNED_GROUP);
         }
 
         GroupMember groupMember = new GroupMember(user, group);
@@ -247,14 +256,23 @@ public class GroupService {
             () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
         );
 
+        //memberId 입력: 관리자의 회원 강퇴 기능
         if(memberId != null) {
             if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
                 throw new CustomException(ExceptionMessage.ADMIN_ONLY);
             }
+
+            User bannedMember = groupMemberRepository.findById(memberId).get().getUser();
             groupMemberRepository.deleteById(memberId);
+
+            //차단목록에 추가
+            BannedGroupMember bannedGroupMember = new BannedGroupMember(bannedMember, group);
+            bannedGroupMemberRepository.save(bannedGroupMember);
+
             return Message.toResponseEntity(SuccessMessage.MEMBER_DELETE_SUCCESS);
         }
 
+        //memberId 미입력: 회원의 그룹 탈퇴 기능
         if(groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
             throw new CustomException(ExceptionMessage.ADMIN_CANNOT_QUIT);
         }
@@ -280,10 +298,8 @@ public class GroupService {
         group.updateGroup(requestDto);
 
         MultipartFile multipartFile = requestDto.getGroupImage();
-
         if(!(multipartFile == null || multipartFile.isEmpty())) {
             try {
-
                 if(group.getGroupImage() != null) {
                     String source = URLDecoder.decode(group.getGroupImage().replace("https://s3://project-navis/image/", ""), "UTF-8");
                     s3Uploader.delete(source);
@@ -299,8 +315,6 @@ public class GroupService {
         GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_UPDATE_SUCCESS, responseDto);
-
-
     }
 
     @Transactional
