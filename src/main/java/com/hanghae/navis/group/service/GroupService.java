@@ -317,6 +317,7 @@ public class GroupService {
         return Message.toResponseEntity(SuccessMessage.GROUP_UPDATE_SUCCESS, responseDto);
     }
 
+
     @Transactional
     public ResponseEntity<Message> deleteGroup(Long groupId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
