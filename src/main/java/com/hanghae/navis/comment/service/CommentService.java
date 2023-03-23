@@ -1,5 +1,6 @@
 package com.hanghae.navis.comment.service;
 
+import com.hanghae.navis.common.repository.querydsl.CommentRepositoryImpl;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.comment.dto.CommentRequestDto;
@@ -23,9 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
 
@@ -37,6 +35,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final BasicBoardRepository basicBoardRepository;
+    private final CommentRepositoryImpl commentRepositoryImpl;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> commentList(Long groupId, Long boardId, int page, int size, User user) {
