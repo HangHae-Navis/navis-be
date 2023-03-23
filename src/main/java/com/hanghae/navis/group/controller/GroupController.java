@@ -76,6 +76,17 @@ public class GroupController {
         return groupService.updateGroup(groupId, requestDto, userDetails.getUser());
     }
 
+//    @PutMapping("/{groupId}/admin/{memberId}")
+
+
+
+    @DeleteMapping("/{groupId}/admin/unban")
+    @Operation(summary = "차단 해제", description ="해당 회원을 차단목록에서 삭제, 재가입 가능하게 함. Admin만 가능")
+    public ResponseEntity<Message> unbanMember(@PathVariable Long groupId, @RequestParam Long bannedMemberId,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return groupService.unbanMember(groupId, bannedMemberId, userDetails.getUser());
+    }
+
     @DeleteMapping("/{groupId}")
     @Operation(summary = "그룹 탈퇴", description ="멤버 id를 입력할 경우 ADMIN의 강퇴 기능, 입력하지 않으면 일반 유저의 탈퇴 기능, 자신이 ADMIN일 경우 탈퇴 불가")
     public ResponseEntity<Message> deleteGroupMember(@PathVariable Long groupId,
