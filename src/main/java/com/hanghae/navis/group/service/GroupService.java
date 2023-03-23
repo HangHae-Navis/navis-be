@@ -282,6 +282,29 @@ public class GroupService {
     }
 
     @Transactional
+    public ResponseEntity<Message> unbanMember(Long groupId, Long bannedMemberId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.ADMIN_ONLY);
+        }
+
+        BannedGroupMember bannedMember = bannedGroupMemberRepository.findById(bannedMemberId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.MEMBER_NOT_FOUND)
+        );
+
+        bannedGroupMemberRepository.delete(bannedMember);
+
+        return Message.toResponseEntity(SuccessMessage.MEMBER_UNBAN_SUCCESS);
+    }
+
+    @Transactional
     public ResponseEntity<Message> updateGroup(Long groupId, GroupRequestDto requestDto, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)

@@ -19,6 +19,7 @@ public enum SuccessMessage {
     GROUP_DETAILS_GET_SUCCESS(HttpStatus.OK, "그룹 세부사항 조회 성공"),
     GROUP_UPDATE_SUCCESS(HttpStatus.OK, "그룹 세부사항 갱신 성공"),
     MEMBER_DELETE_SUCCESS(HttpStatus.OK,"해당 회원의 탈퇴 처리 성공"),
+    MEMBER_UNBAN_SUCCESS(HttpStatus.OK, "차단 해제 성공"),
     GROUP_QUIT_SUCCESS(HttpStatus.OK,"그룹 탈퇴 완료"),
     GROUP_DELETE_SUCCESS(HttpStatus.OK, "그룹 삭제 완료"),
     BOARD_POST_SUCCESS(HttpStatus.CREATED, "게시물 작성 완료"),
