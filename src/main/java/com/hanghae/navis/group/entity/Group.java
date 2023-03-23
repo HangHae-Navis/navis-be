@@ -38,6 +38,9 @@ public class Group extends TimeStamped {
     @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     List<GroupMember> groupMember = new ArrayList<>();
 
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    List<BannedGroupMember> bannedMember = new ArrayList<>();
+
     @OneToMany(mappedBy = "group")
     List<MeetRoom> meetRoomList = new ArrayList<>();
 
