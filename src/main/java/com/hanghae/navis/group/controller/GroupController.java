@@ -76,8 +76,19 @@ public class GroupController {
         return groupService.updateGroup(groupId, requestDto, userDetails.getUser());
     }
 
-//    @PutMapping("/{groupId}/admin/{memberId}")
+    @PutMapping("/{groupId}/admin/updaterole")
+    @Operation(summary = "멤버 권한 수정", description ="멤버 권한 수정, Admin만 가능, 해당 유저의 권한이 USER일 경우 SUPPORT로, SUPPORT일 경우 USER로")
+    public ResponseEntity<Message> updateRole(@PathVariable Long groupId, @RequestParam Long memberId,
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return groupService.updateRole(groupId, memberId, userDetails.getUser());
+    }
 
+    @PutMapping("/{groupId}/admin/transferadmin")
+    @Operation(summary = "관리자 변경", description = "관리자 권한을 다른 유저에게 넘기고 일반 유저가 됨. Admin만 가능, 넘기고 나면 admin페이지 접속 안되니 주의")
+    public ResponseEntity<Message> transferAdmin(@PathVariable Long groupId, @RequestParam Long memberId,
+                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return groupService.transferAdmin(groupId, memberId, userDetails.getUser());
+    }
 
 
     @DeleteMapping("/{groupId}/admin/unban")
