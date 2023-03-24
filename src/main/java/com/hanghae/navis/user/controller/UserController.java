@@ -62,7 +62,7 @@ public class UserController {
         return userService.login(loginRequestDto, response);
     }
 
-    @PatchMapping(value = "profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로필 업데이트", description ="프로필 업데이트")
     public ResponseEntity<Message> profileUpdateUser(@ModelAttribute ProfileUpdateRequestDto requestDto,
                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
@@ -82,7 +82,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @PostMapping
+    @GetMapping
     public ResponseEntity<Message> userInfo(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.userInfo(userDetails.getUser());
     }
