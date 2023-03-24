@@ -18,6 +18,8 @@ public enum SuccessMessage {
     GROUP_MAIN_PAGE_GET_SUCCESS(HttpStatus.OK, "그룹 메인페이지 조회 성공"),
     GROUP_DETAILS_GET_SUCCESS(HttpStatus.OK, "그룹 세부사항 조회 성공"),
     GROUP_UPDATE_SUCCESS(HttpStatus.OK, "그룹 세부사항 갱신 성공"),
+    MEMBER_ROLE_UPDATE_SUCCESS(HttpStatus.OK, "권한 변경 완료"),
+    ADMIN_TRANSFER_SUCCESS(HttpStatus.OK, "관리자 변경 완료"),
     MEMBER_DELETE_SUCCESS(HttpStatus.OK,"해당 회원의 탈퇴 처리 성공"),
     MEMBER_UNBAN_SUCCESS(HttpStatus.OK, "차단 해제 성공"),
     GROUP_QUIT_SUCCESS(HttpStatus.OK,"그룹 탈퇴 완료"),
