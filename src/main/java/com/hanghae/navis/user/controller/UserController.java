@@ -7,6 +7,7 @@ import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.email.service.EmailService;
 import com.hanghae.navis.group.dto.GroupRequestDto;
+import com.hanghae.navis.user.dto.FindPasswordRequestDto;
 import com.hanghae.navis.user.dto.LoginRequestDto;
 import com.hanghae.navis.user.dto.ProfileUpdateRequestDto;
 import com.hanghae.navis.user.dto.SignupRequestDto;
@@ -62,7 +63,7 @@ public class UserController {
         return userService.login(loginRequestDto, response);
     }
 
-    @PutMapping(value = "profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로필 업데이트", description ="프로필 업데이트")
     public ResponseEntity<Message> profileUpdateUser(@ModelAttribute ProfileUpdateRequestDto requestDto,
                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
@@ -85,5 +86,10 @@ public class UserController {
     @GetMapping
     public ResponseEntity<Message> userInfo(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.userInfo(userDetails.getUser());
+    }
+    @GetMapping("/forgetPassword")
+    @Operation(hidden = true)
+    public ResponseEntity<Message> forgetPassword(@RequestBody FindPasswordRequestDto findPasswordRequestDto) throws JsonProcessingException {
+        return userService.findPassword(findPasswordRequestDto);
     }
 }

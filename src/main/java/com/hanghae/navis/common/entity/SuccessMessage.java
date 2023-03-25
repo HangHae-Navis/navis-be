@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum SuccessMessage {
 
     SIGN_UP_SUCCESS(HttpStatus.CREATED, "회원가입이 완료 되었습니다."),
+    PASSWORD_CHANGE_SUCCESS(HttpStatus.CREATED, "비밀번호가 변경되었습니다."),
     LOGIN_SUCCESS(HttpStatus.OK,"로그인이 완료 되었습니다."),
     USER_INFO_SUCCESS(HttpStatus.OK, "유저정보 불러오기 성공"),
     BOARD_GET_SUCCESS(HttpStatus.OK,"게시물 랜덤 보기 완료"),
