@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -20,6 +21,8 @@ public class UserInfoResponseDto{
     private String username;
     private String nickname;
     private String profileImage;
+
+    private LocalDateTime createdAt;
     private List<UserGroupDetailDto> groupInfo;
 
     public static UserInfoResponseDto of(User user, List<UserGroupDetailDto> groupInfo) {
@@ -28,6 +31,7 @@ public class UserInfoResponseDto{
                 .username(user.getUsername())
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
+                .createdAt(user.getCreatedAt())
                 .groupInfo(groupInfo)
                 .build();
     }
