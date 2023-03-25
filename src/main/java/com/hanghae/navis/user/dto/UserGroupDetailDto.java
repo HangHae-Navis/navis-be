@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 public class UserGroupDetailDto{
+    private Long groupId;
     private String groupName;
     private String groupInfo;
     private String groupImage;
@@ -28,6 +29,7 @@ public class UserGroupDetailDto{
 
     public static UserGroupDetailDto of(Group group) {
         return UserGroupDetailDto.builder()
+                .groupId(group.getId())
                 .groupName(group.getGroupName())
                 .groupInfo(group.getGroupInfo())
                 .groupImage(group.getGroupImage())

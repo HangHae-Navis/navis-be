@@ -7,6 +7,7 @@ import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.common.util.RedisUtil;
+import com.hanghae.navis.email.service.EmailService;
 import com.hanghae.navis.group.dto.GroupDetailsResponseDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.user.dto.*;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
@@ -40,11 +42,20 @@ public class UserService {
 
     private final S3Uploader s3Uploader;
 
+    private final EmailService emailService;
+
     @Transactional
     public ResponseEntity<Message> signup(SignupRequestDto signupRequestDto) {
         String username = signupRequestDto.getUsername();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
         String nickname = signupRequestDto.getNickname();
+
+        if (redisUtil.get(signupRequestDto.getKey()) == null) {
+            return Message.toExceptionResponseEntity(EMAIL_CODE_INVALID);
+        }
+
+        //코드가 유효하다면 키 삭제
+        redisUtil.delete(signupRequestDto.getKey());
 
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(username);
@@ -120,5 +131,38 @@ public class UserService {
         }
         userRepository.save(user);
         return userInfo(user);
+    }
+
+
+    @Transactional
+    public ResponseEntity<Message> findPassword(FindPasswordRequestDto findPasswordRequestDto) {
+        String username = findPasswordRequestDto.getUsername();
+
+        if (redisUtil.get(findPasswordRequestDto.getKey()) == null) {
+            return Message.toExceptionResponseEntity(EMAIL_CODE_INVALID);
+        }
+
+        //코드가 유효하다면 키 삭제
+        redisUtil.delete(findPasswordRequestDto.getKey());
+
+        // 회원 중복 확인
+        User user = userRepository.findByUsername(findPasswordRequestDto.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        String password = generatePassword();
+        user.passwordUpdate(passwordEncoder.encode(password));
+
+        userRepository.save(user);
+
+        return Message.toResponseEntity(PASSWORD_CHANGE_SUCCESS, password);
+    }
+    private String generatePassword() {
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            Random random = new Random();
+            char c = (char) (random.nextInt(26) + 97);
+            password.append(c);
+        }
+        return password.toString();
     }
 }
