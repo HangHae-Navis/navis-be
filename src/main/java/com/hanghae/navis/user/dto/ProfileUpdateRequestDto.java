@@ -9,4 +9,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProfileUpdateRequestDto {
     private MultipartFile profileImage;
     private String nickname;
+    private String password;
 }

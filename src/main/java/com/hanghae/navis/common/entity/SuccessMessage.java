@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum SuccessMessage {
 
     SIGN_UP_SUCCESS(HttpStatus.CREATED, "회원가입이 완료 되었습니다."),
+    PASSWORD_CHANGE_SUCCESS(HttpStatus.CREATED, "비밀번호가 변경되었습니다."),
     LOGIN_SUCCESS(HttpStatus.OK,"로그인이 완료 되었습니다."),
     USER_INFO_SUCCESS(HttpStatus.OK, "유저정보 불러오기 성공"),
     BOARD_GET_SUCCESS(HttpStatus.OK,"게시물 랜덤 보기 완료"),
@@ -18,7 +19,10 @@ public enum SuccessMessage {
     GROUP_MAIN_PAGE_GET_SUCCESS(HttpStatus.OK, "그룹 메인페이지 조회 성공"),
     GROUP_DETAILS_GET_SUCCESS(HttpStatus.OK, "그룹 세부사항 조회 성공"),
     GROUP_UPDATE_SUCCESS(HttpStatus.OK, "그룹 세부사항 갱신 성공"),
+    MEMBER_ROLE_UPDATE_SUCCESS(HttpStatus.OK, "권한 변경 완료"),
+    ADMIN_TRANSFER_SUCCESS(HttpStatus.OK, "관리자 변경 완료"),
     MEMBER_DELETE_SUCCESS(HttpStatus.OK,"해당 회원의 탈퇴 처리 성공"),
+    MEMBER_UNBAN_SUCCESS(HttpStatus.OK, "차단 해제 성공"),
     GROUP_QUIT_SUCCESS(HttpStatus.OK,"그룹 탈퇴 완료"),
     GROUP_DELETE_SUCCESS(HttpStatus.OK, "그룹 삭제 완료"),
     BOARD_POST_SUCCESS(HttpStatus.CREATED, "게시물 작성 완료"),

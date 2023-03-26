@@ -20,6 +20,7 @@ public class GroupDetailsResponseDto {
     private String groupImage;
     private String groupCode;
     private List<GroupMemberResponseDto> groupMembers;
+    private List<BannedMemberResponseDto> bannedMembers;
 
     public static GroupDetailsResponseDto of(Group group) {
 
@@ -29,6 +30,7 @@ public class GroupDetailsResponseDto {
                 .groupImage(group.getGroupImage())
                 .groupCode(group.getGroupCode())
                 .groupMembers(group.getGroupMember().stream().map(GroupMemberResponseDto::of).collect(Collectors.toList()))
+                .bannedMembers(group.getBannedMember().stream().map(BannedMemberResponseDto::of).collect(Collectors.toList()))
                 .build();
     }
 }

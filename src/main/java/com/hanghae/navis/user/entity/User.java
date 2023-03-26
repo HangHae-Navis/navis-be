@@ -81,8 +81,12 @@ public class User extends TimeStamped {
         this.profileImage = profileImage;
         return this;
     }
-    public User NicknameUpdate(String nickname) {
+    public User nicknameUpdate(String nickname) {
         this.nickname = nickname;
+        return this;
+    }
+    public User passwordUpdate(String password) {
+        this.password = password;
         return this;
     }
 

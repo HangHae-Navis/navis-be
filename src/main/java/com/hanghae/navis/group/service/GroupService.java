@@ -262,11 +262,18 @@ public class GroupService {
                 throw new CustomException(ExceptionMessage.ADMIN_ONLY);
             }
 
-            User bannedMember = groupMemberRepository.findById(memberId).get().getUser();
+            GroupMember bannedMember = groupMemberRepository.findById(memberId).orElseThrow(
+                    () -> new CustomException(ExceptionMessage.MEMBER_NOT_FOUND)
+            );
+            if(!bannedMember.getGroup().getId().equals(groupId)) {
+                throw new CustomException(ExceptionMessage.WRONG_GROUP_MEMBER);
+            }
+            User bm = bannedMember.getUser();
+
             groupMemberRepository.deleteById(memberId);
 
             //차단목록에 추가
-            BannedGroupMember bannedGroupMember = new BannedGroupMember(bannedMember, group);
+            BannedGroupMember bannedGroupMember = new BannedGroupMember(bm, group);
             bannedGroupMemberRepository.save(bannedGroupMember);
 
             return Message.toResponseEntity(SuccessMessage.MEMBER_DELETE_SUCCESS);
@@ -279,6 +286,97 @@ public class GroupService {
 
         groupMemberRepository.delete(groupMember);
         return Message.toResponseEntity(SuccessMessage.GROUP_QUIT_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> unbanMember(Long groupId, Long bannedMemberId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.ADMIN_ONLY);
+        }
+
+        BannedGroupMember bannedMember = bannedGroupMemberRepository.findById(bannedMemberId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.MEMBER_NOT_FOUND)
+        );
+        if(!bannedMember.getGroup().getId().equals(groupId)) {
+            throw new CustomException(ExceptionMessage.WRONG_GROUP_MEMBER);
+        }
+
+        bannedGroupMemberRepository.delete(bannedMember);
+
+        return Message.toResponseEntity(SuccessMessage.MEMBER_UNBAN_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> updateRole(Long groupId, Long memberId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.ADMIN_ONLY);
+        }
+
+        GroupMember gm = groupMemberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.MEMBER_NOT_FOUND)
+        );
+        if(!gm.getGroup().getId().equals(groupId)) {
+            throw new CustomException(ExceptionMessage.WRONG_GROUP_MEMBER);
+        }
+
+        if(groupMember.getId().equals(memberId)) {
+            throw new CustomException(ExceptionMessage.ADMIN_CANNOT_BE_UPDATED);
+        }
+
+        if(gm.getGroupRole().equals(GroupMemberRoleEnum.USER)) {
+            gm.setGroupRole(GroupMemberRoleEnum.SUPPORT);
+        } else if(gm.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+            gm.setGroupRole(GroupMemberRoleEnum.USER);
+        }
+
+        return Message.toResponseEntity(SuccessMessage.MEMBER_ROLE_UPDATE_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> transferAdmin(Long groupId, Long memberId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.ADMIN_ONLY);
+        }
+        if(groupMember.getId().equals(memberId)) {
+            throw new CustomException(ExceptionMessage.ADMIN_CANNOT_BE_UPDATED);
+        }
+
+        GroupMember gm = groupMemberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.MEMBER_NOT_FOUND)
+        );
+        if(!gm.getGroup().getId().equals(groupId)) {
+            throw new CustomException(ExceptionMessage.WRONG_GROUP_MEMBER);
+        }
+
+
+        groupMember.setGroupRole(GroupMemberRoleEnum.USER);
+        gm.setGroupRole(GroupMemberRoleEnum.ADMIN);
+
+        return Message.toResponseEntity(SuccessMessage.ADMIN_TRANSFER_SUCCESS);
     }
 
     @Transactional
@@ -316,6 +414,7 @@ public class GroupService {
 
         return Message.toResponseEntity(SuccessMessage.GROUP_UPDATE_SUCCESS, responseDto);
     }
+
 
     @Transactional
     public ResponseEntity<Message> deleteGroup(Long groupId, User user) {
