@@ -105,18 +105,10 @@ public class MessengerService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        Messenger room = null;
-        Optional<Messenger> messenger = messengerRepository.findByMessenger(me, toUser);
-
         //메신저에 대화방이 있는지 체크
-        if (messenger.isPresent()) {
-            room = messenger.get();
-        }
-
-        //메신저에 등록된게 없다면 에러 보냄
-        if (room == null) {
-            throw new CustomException(CHAT_ROOM_NOT_FOUND);
-        }
+        Messenger room = messengerRepository.findByMessenger(me, toUser).orElseThrow(
+                () -> new CustomException(CHAT_ROOM_NOT_FOUND)
+        );
 
         //만약 입장이라면 채팅기록을 보내주고 입력이면 채팅을 보내줌
         if (requestDto.getType() == MessengerChatRequestDto.MessageType.ENTER) {
