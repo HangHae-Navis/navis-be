@@ -11,8 +11,6 @@ import com.hanghae.navis.messenger.dto.MessengerListResponseDto;
 import com.hanghae.navis.messenger.dto.MessengerResponseDto;
 import com.hanghae.navis.messenger.entity.Messenger;
 import com.hanghae.navis.messenger.entity.MessengerChat;
-import com.hanghae.navis.messenger.entity.QMessenger;
-import com.hanghae.navis.messenger.entity.QMessengerChat;
 import com.hanghae.navis.messenger.repository.MessengerChatRepository;
 import com.hanghae.navis.messenger.repository.MessengerRepository;
 import com.hanghae.navis.user.entity.User;
@@ -34,8 +32,6 @@ import java.util.*;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.MEMBER_NOT_FOUND;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
-import static com.hanghae.navis.messenger.entity.QMessenger.messenger;
-import static com.hanghae.navis.messenger.entity.QMessengerChat.messengerChat;
 
 @Service
 @Slf4j
