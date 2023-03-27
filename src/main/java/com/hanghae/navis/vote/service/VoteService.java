@@ -1,8 +1,6 @@
 package com.hanghae.navis.vote.service;
 
 import com.hanghae.navis.common.dto.FileResponseDto;
-import com.hanghae.navis.common.dto.HashtagRequestDto;
-import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
@@ -17,6 +15,7 @@ import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
+import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
 import com.hanghae.navis.vote.dto.*;
 import com.hanghae.navis.vote.entity.Vote;
@@ -70,6 +69,7 @@ public class VoteService {
         Page<Vote> votePage = voteRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
 
         Page<VoteListResponseDto> voteListResponseDto = VoteListResponseDto.toDtoPage(votePage);
+
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, voteListResponseDto);
     }
 
@@ -99,7 +99,24 @@ public class VoteService {
         vote.getVoteOptionList().forEach(value -> optionResponseDto.add(OptionResponseDto.of(value)));
         vote.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
         vote.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
-        
+
+
+
+        if(!role.equals("USER")){
+            List<OptionAdminResponseDto> optionAdminResponseDto = new ArrayList<>();
+            for(VoteOption voteOption : vote.getVoteOptionList()){
+                List<PickUserInfoDto> pickUserInfoDtoList = new ArrayList<>();
+                List<VoteRecord> voteRecordList = voteOption.getVoteRecordList();
+                for(VoteRecord voteRecord : voteRecordList){
+                    pickUserInfoDtoList.add(PickUserInfoDto.of(voteRecord.getGroupMember().getUser(), voteRecord.getVoteOption().getId()));
+                }
+                optionAdminResponseDto.add(OptionAdminResponseDto.of(voteOption, pickUserInfoDtoList));
+            }
+            VoteAdminResponseDto voteAdminResponseDto = VoteAdminResponseDto.of(vote, fileResponseDto, hashtagList, optionAdminResponseDto, expirationCheck(
+                    vote.getExpirationDate()), vote.getExpirationDate(), role);
+            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteAdminResponseDto);
+        }
+
         VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, expirationCheck(
                 vote.getExpirationDate()), vote.getExpirationDate(), role);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
