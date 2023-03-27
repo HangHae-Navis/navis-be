@@ -88,7 +88,7 @@ public class UserController {
         return userService.userInfo(userDetails.getUser());
     }
     @ResponseBody
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<Message> searchUser(@RequestParam String searchName, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.searchUser(searchName, userDetails.getUser());
     }
