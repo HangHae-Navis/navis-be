@@ -43,6 +43,7 @@ public class MessengerController {
         return messengerService.getChatList(userDetails.getUser());
     }
     // 채팅방 생성
+    @Operation(summary = "채팅방 생성", description = "채팅방 생성")
     @PostMapping("/room")
     @ResponseBody
     public ResponseEntity<Message> createRoom(@RequestParam String to,
@@ -62,7 +63,7 @@ public class MessengerController {
         return messengerService.getChatDetail(roomId);
     }
 
-    @Operation(summary = "채팅 유저등록", description = "채팅하기")
+    @Operation(summary = "채팅하기", description = "채팅하기")
     @MessageMapping("/message")
     public void enter(MessengerChatRequestDto message, @Header("Authorization") String token) {
         messengerService.sendMessage(message, message.getMessage(), token);
