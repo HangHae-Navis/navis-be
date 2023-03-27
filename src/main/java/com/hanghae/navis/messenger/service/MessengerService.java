@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import java.util.*;
 
+import static com.hanghae.navis.common.entity.ExceptionMessage.CHAT_ROOM_NOT_FOUND;
 import static com.hanghae.navis.common.entity.ExceptionMessage.MEMBER_NOT_FOUND;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
 
@@ -67,6 +68,33 @@ public class MessengerService {
     }
 
     //채팅방 생성
+    public ResponseEntity<Message> createRoom(String to, User user) {
+        User toUser = userRepository.findByUsername(to).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        Messenger room = null;
+        Optional<Messenger> messenger = messengerRepository.findByMessenger(me, toUser);
+
+        //메신저에 대화방이 있는지 체크
+        if (messenger.isPresent()) {
+            room = messenger.get();
+        }
+
+        //메신저에 등록된게 없다면 1:1대화방 만들어줌
+        if (room == null) {
+            room = new Messenger(me, toUser);
+            messengerRepository.save(room);
+        }
+
+        return Message.toResponseEntity(CHAT_ROOM_CREATE_SUCCESS, room.getId());
+    }
+
+
+    //메세지 보내기
     public ResponseEntity<Message> sendMessage(MessengerChatRequestDto requestDto, String message, String token) {
         Claims claims = jwtUtil.getUserInfoFromToken(token);
         String username = claims.getSubject();
@@ -85,10 +113,9 @@ public class MessengerService {
             room = messenger.get();
         }
 
-        //메신저에 등록된게 없다면 1:1대화방 만들어줌
+        //메신저에 등록된게 없다면 에러 보냄
         if (room == null) {
-            room = new Messenger(me, toUser);
-            messengerRepository.save(room);
+            throw new CustomException(CHAT_ROOM_NOT_FOUND);
         }
 
         //만약 입장이라면 채팅기록을 보내주고 입력이면 채팅을 보내줌
@@ -96,10 +123,6 @@ public class MessengerService {
             Pageable pageable = PageRequest.of(requestDto.getPage(), requestDto.getSize() + requestDto.getNewMessageCount());
             Page<MessengerChat> messengerChatPage = messengerChatRepository.findByMessengerId(room.getId(), pageable);
             Page<MessengerResponseDto> messengerResponseDto = MessengerResponseDto.toDtoPage(messengerChatPage, me);
-            if(messengerResponseDto.isEmpty())
-            {
-                return Message.toResponseEntity(CHAT_ENTER_SUCCESS, room.getId());
-            }
             sendingOperations.convertAndSend("/chats/room/" + room.getId(), messengerResponseDto);
             return Message.toResponseEntity(CHAT_ENTER_SUCCESS);
         } else if (requestDto.getType() == MessengerChatRequestDto.MessageType.TALK) {

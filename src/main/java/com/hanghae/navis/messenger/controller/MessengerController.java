@@ -42,12 +42,13 @@ public class MessengerController {
     public ResponseEntity<Message> chatList(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return messengerService.getChatList(userDetails.getUser());
     }
-//    // 채팅방 생성
-//    @PostMapping("/room")
-//    @ResponseBody
-//    public Messenger createRoom(@RequestParam String name) {
-//        return messengerService.createRoom(name);
-//    }
+    // 채팅방 생성
+    @PostMapping("/room")
+    @ResponseBody
+    public ResponseEntity<Message> createRoom(@RequestParam String to,
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return messengerService.createRoom(to, userDetails.getUser());
+    }
     // 채팅방 입장 화면
     @GetMapping("/room/enter/{roomId}")
     public String roomDetail(Model model, @PathVariable String roomId) {
