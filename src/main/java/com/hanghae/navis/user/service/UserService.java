@@ -112,6 +112,19 @@ public class UserService {
         return Message.toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
     }
 
+    public ResponseEntity<Message> searchUser(String searchName, User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        User searchUser = userRepository.findByUsername(searchName).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+
+        SearchUserInfoResponseDto searchUserInfoResponseDto = SearchUserInfoResponseDto.of(searchUser);
+        return Message.toResponseEntity(USER_INFO_SUCCESS, searchUserInfoResponseDto);
+    }
+
 
     @Transactional
     public ResponseEntity<Message> profileUpdateUser(ProfileUpdateRequestDto requestDto, User user) throws IOException {

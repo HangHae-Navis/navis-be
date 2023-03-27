@@ -362,15 +362,15 @@ public class VoteService {
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+        User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if (!groupMemberRepository.findByUserAndGroup(user, group).isPresent()) {
+        if (!groupMemberRepository.findByUserAndGroup(me, group).isPresent()) {
             throw new CustomException(GROUP_MEMBER_NOT_FOUND);
         }
 
-        return new UserGroup(user, group);
+        return new UserGroup(me, group);
     }
 
     public List<FileResponseDto> parseFileResponseDto(List<File> fileList) {

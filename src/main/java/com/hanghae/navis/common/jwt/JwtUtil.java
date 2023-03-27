@@ -1,8 +1,5 @@
 package com.hanghae.navis.common.jwt;
 
-
-import com.hanghae.navis.common.dto.CustomException;
-import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsServiceImpl;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import io.jsonwebtoken.*;
