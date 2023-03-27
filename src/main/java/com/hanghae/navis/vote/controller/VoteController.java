@@ -68,6 +68,14 @@ public class VoteController {
         return voteService.deleteVote(groupId, voteId, userDetails.getUser());
     }
 
+    @DeleteMapping("/{voteId}/unpick")
+    @Operation(summary = "투표 선택 취소", description = "투표 선택 취소")
+    public ResponseEntity<Message> unPickVote(@PathVariable Long groupId,
+                                              @PathVariable Long voteId,
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.unPickVote(groupId, voteId, userDetails.getUser());
+    }
+
     @GetMapping(value = "/{voteId}/force-expired")
     @Operation(summary = "투표 강제종료", description = "투표 강제종료")
     public ResponseEntity<Message> forceExpiredVote(@PathVariable Long groupId,

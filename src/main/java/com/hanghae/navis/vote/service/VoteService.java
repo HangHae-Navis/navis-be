@@ -132,10 +132,10 @@ public class VoteService {
             }
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
-
-            if(requestDto.getMultipartFiles() != null) {
+            List<MultipartFile> multipartFiles = requestDto.getMultipartFiles();
+            if(multipartFiles != null) {
                 //다중파일을 처리
-                for (MultipartFile file : requestDto.getMultipartFiles()) {
+                for (MultipartFile file : multipartFiles) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
                     File voteFile = new File(fileTitle, fileUrl, vote);
@@ -249,8 +249,32 @@ public class VoteService {
         }
         
         voteRepository.deleteById(voteId);
+
         return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
     }
+
+
+
+    @Transactional
+    public ResponseEntity<Message> unPickVote(Long groupId, Long voteId, User user) {
+        //유저의 권한을 체크
+        UserGroup userGroup = authCheck(groupId, user);
+
+        //투표가 제대로 있는지 확인
+        Vote vote = voteRepository.findById(voteId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        //그룹멤버 체크
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_MEMBER_NOT_FOUND)
+        );
+
+        voteRecordRepository.deleteByGroupMemberIdAndVoteId(groupMember.getId(), vote.getId());
+
+        return Message.toResponseEntity(VOTE_CANCEL_SUCCESS);
+    }
+
 
     public ResponseEntity<Message> forceExpired(Long groupId, Long voteId, User user) {
         //유저의 권한을 체크
@@ -303,18 +327,8 @@ public class VoteService {
 
         //투표시간 / 강제만료 체크 후 만료가 아니면 투표 가능하게설정
         if (!(expirationCheck(vote.getExpirationDate()) || vote.isForceExpiration())) {
-            if (voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).isPresent()) {
-                voteRecordRepository.deleteById(voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).get().getId());
-                return Message.toResponseEntity(VOTE_CANCEL_SUCCESS,
-                        VoteResponseDto.of(vote,
-                                parseFileResponseDto(vote.getFileList()),
-                                null,
-                                parseOptionResponseDto(vote.getVoteOptionList()),
-                                vote.isForceExpiration(),
-                                vote.getExpirationDate(), role));
-
-            } else {
-                VoteRecord voteRecord = new VoteRecord(voteOption, groupMember);
+            if (!voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).isPresent()) {
+                VoteRecord voteRecord = new VoteRecord(vote, voteOption, groupMember);
                 voteRecordRepository.save(voteRecord);
                 return Message.toResponseEntity(VOTE_PICK_SUCCESS,
                         VoteResponseDto.of(vote,
@@ -324,8 +338,8 @@ public class VoteService {
                                 vote.isForceExpiration(),
                                 vote.getExpirationDate(), role));
             }
-        } else
-            return Message.toExceptionResponseEntity(VOTE_EXPIRED);
+        }
+        return Message.toExceptionResponseEntity(VOTE_EXPIRED);
     }
 
     @Transactional
