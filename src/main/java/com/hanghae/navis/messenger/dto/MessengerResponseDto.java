@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessengerResponseDto {
+
+    private Long roomId;
     private Long id;
     private boolean isAuthor;
     private String message;
@@ -20,6 +22,7 @@ public class MessengerResponseDto {
     private LocalDateTime created_at;
     public static MessengerResponseDto of(MessengerChat messengerChat, User me) {
         return MessengerResponseDto.builder()
+                .roomId(messengerChat.getMessenger().getId())
                 .id(messengerChat.getId())
                 .isAuthor(messengerChat.getAuthor().getUsername().equals(me.getUsername()))
                 .message(messengerChat.getMessage())

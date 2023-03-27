@@ -96,6 +96,10 @@ public class MessengerService {
             Pageable pageable = PageRequest.of(requestDto.getPage(), requestDto.getSize() + requestDto.getNewMessageCount());
             Page<MessengerChat> messengerChatPage = messengerChatRepository.findByMessengerId(room.getId(), pageable);
             Page<MessengerResponseDto> messengerResponseDto = MessengerResponseDto.toDtoPage(messengerChatPage, me);
+            if(messengerResponseDto.isEmpty())
+            {
+                return Message.toResponseEntity(CHAT_ENTER_SUCCESS, room.getId());
+            }
             sendingOperations.convertAndSend("/chats/room/" + room.getId(), messengerResponseDto);
             return Message.toResponseEntity(CHAT_ENTER_SUCCESS);
         } else if (requestDto.getType() == MessengerChatRequestDto.MessageType.TALK) {
