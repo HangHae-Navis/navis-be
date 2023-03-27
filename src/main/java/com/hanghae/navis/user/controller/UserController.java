@@ -87,6 +87,11 @@ public class UserController {
     public ResponseEntity<Message> userInfo(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.userInfo(userDetails.getUser());
     }
+    @ResponseBody
+    @PostMapping("/search")
+    public ResponseEntity<Message> searchUser(@RequestParam String searchName, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.searchUser(searchName, userDetails.getUser());
+    }
     @GetMapping("/forgetPassword")
     @Operation(hidden = true)
     public ResponseEntity<Message> forgetPassword(@RequestBody FindPasswordRequestDto findPasswordRequestDto) throws JsonProcessingException {
