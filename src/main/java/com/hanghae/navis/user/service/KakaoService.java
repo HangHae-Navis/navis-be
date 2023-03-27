@@ -99,7 +99,6 @@ public class KakaoService {
                 kakaoUserInfoRequest,
                 String.class
         );
-
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
@@ -107,9 +106,10 @@ public class KakaoService {
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
 
-
-        String email = jsonNode.get("kakao_account")
-                .get("email").asText();
+        String email = "";
+        if(jsonNode.get("kakao_account").get("email") != null) {
+            email = jsonNode.get("kakao_account").get("email").asText();
+        }
 
         if (email.equals("")) {
             email = UUID.randomUUID().toString();
