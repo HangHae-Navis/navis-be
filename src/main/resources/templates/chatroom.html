@@ -69,7 +69,7 @@
                 axios.get('room/'+this.roomId).then(response => { this.room = response.data; });
             },
             sendMessage: function() {
-                ws.send("/app/message", {"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2Nzk5ODgzOTEsImlhdCI6MTY3OTM4MzU5MX0.UzEJUFkuN0FNTsq8onS4VZFuMOWUMM9Ehr5i7TwYXmo"}, JSON.stringify({type:'TALK', roomId:this.roomId, message:this.message}));
+                ws.send("/app/message", {"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2ODA1OTY4MTksImlhdCI6MTY3OTk5MjAxOX0.K25qeJ-B_4kMBNqjDBGjkwXijUsfYjugRX-_JezUiqQ"}, JSON.stringify({type:'TALK', roomId:this.roomId, message:this.message, to:"kimmarygold5359@naver.com"}));
                 this.message = '';
             },
             recvMessage: function(recv) {
@@ -80,12 +80,12 @@
 
     function connect() {
         // pub/sub event
-        ws.connect({"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2Nzk5ODgzOTEsImlhdCI6MTY3OTM4MzU5MX0.UzEJUFkuN0FNTsq8onS4VZFuMOWUMM9Ehr5i7TwYXmo"}, function(frame) {
+        ws.connect({"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2ODA1OTY4MTksImlhdCI6MTY3OTk5MjAxOX0.K25qeJ-B_4kMBNqjDBGjkwXijUsfYjugRX-_JezUiqQ"}, function(frame) {
             ws.subscribe("/chats/room/1" , function(message) {
                 var recv = JSON.parse(message.body);
                 vm.recvMessage(recv);
             });
-            ws.send("/app/message", {"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2Nzk5ODgzOTEsImlhdCI6MTY3OTM4MzU5MX0.UzEJUFkuN0FNTsq8onS4VZFuMOWUMM9Ehr5i7TwYXmo"}, JSON.stringify({type:'ENTER', roomId:vm.$data.roomId, newMessageCount:0, page:0, size:50}));
+            ws.send("/app/message", {"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2ODA1OTY4MTksImlhdCI6MTY3OTk5MjAxOX0.K25qeJ-B_4kMBNqjDBGjkwXijUsfYjugRX-_JezUiqQ"}, JSON.stringify({type:'ENTER', roomId:vm.$data.roomId, newMessageCount:0, page:0, size:50}));
         }, function(error) {
             if(reconnect++ <= 5) {
                 setTimeout(function() {
