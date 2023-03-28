@@ -5,10 +5,7 @@ import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.common.jwt.JwtUtil;
-import com.hanghae.navis.messenger.dto.ChatingRoom;
-import com.hanghae.navis.messenger.dto.MessengerChatRequestDto;
-import com.hanghae.navis.messenger.dto.MessengerListResponseDto;
-import com.hanghae.navis.messenger.dto.MessengerResponseDto;
+import com.hanghae.navis.messenger.dto.*;
 import com.hanghae.navis.messenger.entity.Messenger;
 import com.hanghae.navis.messenger.entity.MessengerChat;
 import com.hanghae.navis.messenger.repository.MessengerChatRepository;
@@ -23,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
@@ -63,8 +61,23 @@ public class MessengerService {
     }
 
     //채팅방 하나 불러오기
-    public ResponseEntity<Message> getChatDetail(String roomId) {
-        return Message.toResponseEntity(BOARD_POST_SUCCESS);
+    public ResponseEntity<Message> getChatDetail(ChatBeforeRequestDto requestDto, User user) {
+        User toUser = userRepository.findByUsername(requestDto.getTo()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        //메신저에 대화방이 있는지 체크
+        Messenger room = messengerRepository.findByMessenger(me, toUser).orElseThrow(
+                () -> new CustomException(CHAT_ROOM_NOT_FOUND)
+        );
+
+        Pageable pageable = PageRequest.of(requestDto.getPage(), requestDto.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<MessengerChat> messengerChatPage = messengerChatRepository.findByMessengerIdOrderByCreatedAtDesc(room.getId(), pageable);
+        Page<MessengerResponseDto> messengerResponseDto = MessengerResponseDto.toDtoPage(messengerChatPage, me);
+        return Message.toResponseEntity(CHAT_ENTER_SUCCESS, messengerResponseDto);
     }
 
     //채팅방 생성
@@ -111,14 +124,8 @@ public class MessengerService {
                 () -> new CustomException(CHAT_ROOM_NOT_FOUND)
         );
 
-        //만약 입장이라면 채팅기록을 보내주고 입력이면 채팅을 보내줌
-        if (requestDto.getType() == MessengerChatRequestDto.MessageType.ENTER) {
-            Pageable pageable = PageRequest.of(requestDto.getPage(), requestDto.getSize() + requestDto.getNewMessageCount());
-            Page<MessengerChat> messengerChatPage = messengerChatRepository.findByMessengerId(room.getId(), pageable);
-            Page<MessengerResponseDto> messengerResponseDto = MessengerResponseDto.toDtoPage(messengerChatPage, me);
-            sendingOperations.convertAndSend("/chats/room/" + room.getId(), messengerResponseDto);
-            return Message.toResponseEntity(CHAT_ENTER_SUCCESS);
-        } else if (requestDto.getType() == MessengerChatRequestDto.MessageType.TALK) {
+
+        if (requestDto.getType() == MessengerChatRequestDto.MessageType.TALK) {
             MessengerChat messengerChat = new MessengerChat(message, false, me, room);
             messengerChatRepository.save(messengerChat);
             sendingOperations.convertAndSend("/chats/room/" + room.getId(), MessengerResponseDto.of(messengerChat, me));
