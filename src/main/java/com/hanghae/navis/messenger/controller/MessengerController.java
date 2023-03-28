@@ -2,6 +2,7 @@ package com.hanghae.navis.messenger.controller;
 
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
+import com.hanghae.navis.messenger.dto.ChatBeforeRequestDto;
 import com.hanghae.navis.messenger.dto.MessengerChatRequestDto;
 import com.hanghae.navis.messenger.service.MessengerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,12 +30,6 @@ public class MessengerController {
         return new ModelAndView("chatroom");
     }
 
-    // 채팅 리스트 화면
-    @GetMapping("/room")
-    public String rooms(Model model) {
-        return "room";
-    }
-
     // 모든 채팅방 목록 반환
     @Operation(summary = "채팅 목록", description = "채팅 목록")
     @GetMapping("lists")
@@ -50,17 +45,13 @@ public class MessengerController {
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return messengerService.createRoom(to, userDetails.getUser());
     }
-    // 채팅방 입장 화면
-    @GetMapping("/room/enter/{roomId}")
-    public String roomDetail(Model model, @PathVariable String roomId) {
-        model.addAttribute("roomId", roomId);
-        return "/chat/roomdetail";
-    }
+
     // 특정 채팅방 조회
-    @GetMapping("/room/{roomId}")
+    @Operation(summary = "이전 채팅 가져오기", description = "이전 채팅 가져오기")
+    @PostMapping("/room/{roomId}")
     @ResponseBody
-    public ResponseEntity<Message> roomInfo(@PathVariable String roomId) {
-        return messengerService.getChatDetail(roomId);
+    public ResponseEntity<Message> roomInfo(@RequestBody ChatBeforeRequestDto requestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return messengerService.getChatDetail(requestDto, userDetails.getUser());
     }
 
     @Operation(summary = "채팅하기", description = "채팅하기")

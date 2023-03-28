@@ -69,7 +69,7 @@
                 axios.get('room/'+this.roomId).then(response => { this.room = response.data; });
             },
             sendMessage: function() {
-                ws.send("/app/message", {"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2ODA1OTY4MTksImlhdCI6MTY3OTk5MjAxOX0.K25qeJ-B_4kMBNqjDBGjkwXijUsfYjugRX-_JezUiqQ"}, JSON.stringify({type:'TALK', roomId:this.roomId, message:this.message, to:"kimmarygold5359@naver.com"}));
+                ws.send("/app/message", {"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2ODA1OTY4MTksImlhdCI6MTY3OTk5MjAxOX0.K25qeJ-B_4kMBNqjDBGjkwXijUsfYjugRX-_JezUiqQ"}, JSON.stringify({type:'TALK', roomId:this.roomId, message:this.message, to:"test"}));
                 this.message = '';
             },
             recvMessage: function(recv) {
@@ -85,7 +85,7 @@
                 var recv = JSON.parse(message.body);
                 vm.recvMessage(recv);
             });
-            ws.send("/app/message", {"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2ODA1OTY4MTksImlhdCI6MTY3OTk5MjAxOX0.K25qeJ-B_4kMBNqjDBGjkwXijUsfYjugRX-_JezUiqQ"}, JSON.stringify({type:'ENTER', roomId:vm.$data.roomId, newMessageCount:0, page:0, size:50}));
+            ws.send("/app/message", {"Authorization" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlVTRVIiLCJleHAiOjE2ODA1OTY4MTksImlhdCI6MTY3OTk5MjAxOX0.K25qeJ-B_4kMBNqjDBGjkwXijUsfYjugRX-_JezUiqQ"}, JSON.stringify({type:'ENTER', roomId:vm.$data.roomId, newMessageCount:0, page:0, size:50, to:"test"}));
         }, function(error) {
             if(reconnect++ <= 5) {
                 setTimeout(function() {
