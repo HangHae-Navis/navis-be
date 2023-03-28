@@ -4,6 +4,8 @@ import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
+import com.hanghae.navis.vote.dto.OptionRequestDto;
+import com.hanghae.navis.vote.dto.PickRequestDto;
 import com.hanghae.navis.vote.dto.VoteRequestDto;
 import com.hanghae.navis.vote.service.VoteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -88,8 +90,8 @@ public class VoteController {
     @Operation(summary = "투표 선택", description = "투표 선택")
     public ResponseEntity<Message> pickVote(@PathVariable Long groupId,
                                             @PathVariable Long voteId,
-                                            @RequestParam("voteOption") String voteOption,
+                                            @RequestBody PickRequestDto pickRequestDto,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return voteService.pickVote(groupId, voteId, Long.parseLong(voteOption), userDetails.getUser());
+        return voteService.pickVote(groupId, voteId, pickRequestDto.getVoteOption(), userDetails.getUser());
     }
 }
