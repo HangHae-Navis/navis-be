@@ -26,7 +26,7 @@ public class VoteAdminResponseDto extends BasicBoardResponseDto {
     private boolean isExpiration;
     private Long myPick;
 
-    public static VoteAdminResponseDto of(Vote vote, List<FileResponseDto> fileList, List<String> hashtagList, List<OptionAdminResponseDto> optionList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role, VoteRecord voteRecord) {
+    public static VoteAdminResponseDto of(Vote vote, List<FileResponseDto> fileList, List<String> hashtagList, List<OptionAdminResponseDto> optionList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role, Long myPick) {
         return VoteAdminResponseDto.builder()
                 .id(vote.getId())
                 .nickname(vote.getUser().getNickname())
@@ -41,7 +41,7 @@ public class VoteAdminResponseDto extends BasicBoardResponseDto {
                 .expirationTime(expirationTime)
                 .isExpiration(expiration)
                 .role(role)
-                .myPick(voteRecord.getVoteOption().getId())
+                .myPick(myPick)
                 .build();
     }
 }

@@ -102,10 +102,10 @@ public class VoteService {
         vote.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
 
         Optional<VoteRecord> myPickCheck = voteRecordRepository.findByGroupMemberIdAndVoteId(groupMember.getId(), vote.getId());
-        VoteRecord myPick = null;
+        Long myPick = -1L;
 
         if(myPickCheck.isPresent()) {
-             myPick = myPickCheck.get();
+             myPick = myPickCheck.get().getVoteOption().getId();
         }
 
         if (!role.name().equals("USER")) {
@@ -354,7 +354,7 @@ public class VoteService {
                                 null,
                                 parseOptionResponseDto(vote.getVoteOptionList()),
                                 vote.isForceExpiration(),
-                                vote.getExpirationDate(), role, voteRecord));
+                                vote.getExpirationDate(), role, -1L));
             }
         }
         return Message.toExceptionResponseEntity(VOTE_EXPIRED);
