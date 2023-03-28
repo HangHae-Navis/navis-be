@@ -88,8 +88,8 @@ public class VoteController {
     @Operation(summary = "투표 선택", description = "투표 선택")
     public ResponseEntity<Message> pickVote(@PathVariable Long groupId,
                                             @PathVariable Long voteId,
-                                            @RequestParam Long voteOption,
+                                            @RequestParam String voteOption,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return voteService.pickVote(groupId, voteId, voteOption, userDetails.getUser());
+        return voteService.pickVote(groupId, voteId, Long.parseLong(voteOption), userDetails.getUser());
     }
 }
