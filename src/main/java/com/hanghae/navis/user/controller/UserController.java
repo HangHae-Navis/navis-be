@@ -7,10 +7,7 @@ import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.email.service.EmailService;
 import com.hanghae.navis.group.dto.GroupRequestDto;
-import com.hanghae.navis.user.dto.FindPasswordRequestDto;
-import com.hanghae.navis.user.dto.LoginRequestDto;
-import com.hanghae.navis.user.dto.ProfileUpdateRequestDto;
-import com.hanghae.navis.user.dto.SignupRequestDto;
+import com.hanghae.navis.user.dto.*;
 import com.hanghae.navis.user.service.KakaoService;
 import com.hanghae.navis.user.service.UserService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -89,8 +86,8 @@ public class UserController {
     }
     @ResponseBody
     @PostMapping("/search")
-    public ResponseEntity<Message> searchUser(@RequestParam String searchName, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return userService.searchUser(searchName, userDetails.getUser());
+    public ResponseEntity<Message> searchUser(@RequestBody SearchUserInfoRequestDto requestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.searchUser(requestDto.getUsername(), userDetails.getUser());
     }
     @GetMapping("/forgetPassword")
     @Operation(hidden = true)
