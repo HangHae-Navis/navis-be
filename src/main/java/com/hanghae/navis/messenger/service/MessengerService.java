@@ -96,7 +96,8 @@ public class MessengerService {
 
     //메세지 보내기
     public ResponseEntity<Message> sendMessage(MessengerChatRequestDto requestDto, String message, String token) {
-        Claims claims = jwtUtil.getUserInfoFromToken(token.substring(7));
+        log.warn(token);
+        Claims claims = jwtUtil.getUserInfoFromToken(token);
         String username = claims.getSubject();
         User toUser = userRepository.findByUsername(requestDto.getTo()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
