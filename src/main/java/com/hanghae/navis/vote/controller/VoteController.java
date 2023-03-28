@@ -84,7 +84,7 @@ public class VoteController {
         return voteService.forceExpired(groupId, voteId, userDetails.getUser());
     }
 
-    @GetMapping(value = "/{voteId}/pick/{voteOption}")
+    @PostMapping(value = "/{voteId}/pick/{voteOption}")
     @Operation(summary = "투표 선택", description = "투표 선택")
     public ResponseEntity<Message> pickVote(@PathVariable Long groupId,
                                             @PathVariable Long voteId,
