@@ -84,20 +84,12 @@ public class VoteController {
         return voteService.forceExpired(groupId, voteId, userDetails.getUser());
     }
 
-    @PostMapping(value = "/{voteId}/pick/{voteOption}")
+    @PostMapping(value = "/{voteId}/pick")
     @Operation(summary = "투표 선택", description = "투표 선택")
     public ResponseEntity<Message> pickVote(@PathVariable Long groupId,
                                             @PathVariable Long voteId,
-                                            @PathVariable Long voteOption,
+                                            @RequestParam Long voteOption,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return voteService.pickVote(groupId, voteId, voteOption, userDetails.getUser());
-    }
-
-    @DeleteMapping("/hashtag/{hashtagId}")
-    @Operation(summary = "해시태그 삭제", description = "해시태그 삭제")
-    public ResponseEntity<Message> deleteHashtag(@PathVariable Long groupId,
-                                                 @PathVariable Long hashtagId,
-                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return voteService.deleteHashtag(groupId, hashtagId, userDetails.getUser());
     }
 }
