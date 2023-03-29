@@ -5,6 +5,8 @@ import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.dto.BasicBoardResponseDto;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.vote.entity.Vote;
+import com.hanghae.navis.vote.entity.VoteOption;
+import com.hanghae.navis.vote.entity.VoteRecord;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -17,13 +19,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VoteResponseDto extends BasicBoardResponseDto {
-
     private List<OptionResponseDto> optionList;
-
     private LocalDateTime expirationTime;
     private boolean isExpiration;
+    private Long myPick;
 
-    public static VoteResponseDto of(Vote vote, List<FileResponseDto> fileList, List<String> hashtagList, List<OptionResponseDto> optionList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role) {
+    public static VoteResponseDto of(Vote vote, List<FileResponseDto> fileList, List<String> hashtagList, List<OptionResponseDto> optionList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role, Long myPick) {
         return VoteResponseDto.builder()
                 .id(vote.getId())
                 .nickname(vote.getUser().getNickname())
@@ -38,6 +39,7 @@ public class VoteResponseDto extends BasicBoardResponseDto {
                 .expirationTime(expirationTime)
                 .isExpiration(expiration)
                 .role(role)
+                .myPick(myPick)
                 .build();
     }
 }

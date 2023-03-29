@@ -29,7 +29,9 @@ public enum ExceptionMessage {
     EMAIL_SEND_FAIL(BAD_REQUEST,"이메일 전송에 실패하였습니다."),
     INVALID_CATEGORY(BAD_REQUEST, "올바른 카테고리를 입력해주세요."),
     INVALID_SORTING(BAD_REQUEST, "올바른 정렬기준을 입력하세요."),
+    WRONG_GROUP_MEMBER(BAD_REQUEST, "해당 그룹의 회원이 아닙니다."),
     BANNED_GROUP(BAD_REQUEST, "차단당한 그룹에는 가입할 수 없습니다."),
+    ADMIN_CANNOT_BE_UPDATED(BAD_REQUEST, "관리자는 본인의 권한을 변경할 수 없습니다."),
     ADMIN_CANNOT_QUIT(BAD_REQUEST, "관리자는 그룹 탈퇴가 불가능합니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
@@ -55,6 +57,8 @@ public enum ExceptionMessage {
     VOTE_OPTION_NOT_FOUND(NOT_FOUND, "해당 옵션을 찾을수 없습니다."),
     HASHTAG_NOT_FOUND(NOT_FOUND, "해시태그를 찾을 수 없습니다."),
     HOMEWORK_FILE_NOT_FOUND(NOT_FOUND, "제출한 과제 파일을 찾을 수 없습니다."),
+
+    CHAT_ROOM_NOT_FOUND(NOT_FOUND, "채팅 정보를 찾을 수 없습니다"),
 
 
 

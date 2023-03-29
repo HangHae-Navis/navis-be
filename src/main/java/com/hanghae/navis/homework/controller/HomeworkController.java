@@ -1,27 +1,18 @@
 package com.hanghae.navis.homework.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hanghae.navis.board.dto.BoardRequestDto;
-import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.homework.dto.HomeworkFileRequestDto;
 import com.hanghae.navis.homework.dto.HomeworkRequestDto;
-import com.hanghae.navis.homework.dto.HomeworkUpdateRequestDto;
 import com.hanghae.navis.homework.service.HomeworkService;
-import com.hanghae.navis.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Tag(name = "homework")
 @RestController
@@ -39,7 +30,7 @@ public class HomeworkController {
         return homeworkService.homeworkList(groupId, page-1, size, userDetails.getUser());
     }
 
-    @Operation(summary = "과제 게시글 상세 조회", description = "과제 게시글 상세 조회")
+    @Operation(summary = "과제 게시글 상세 조회", description = "ADMIN, SUPPORT : 상세 게시글과 그룹의 유저 리스트 return / USER : 상세 게시글만 return")
     @GetMapping("/{boardId}")
     public ResponseEntity<Message> getHomework(@PathVariable Long groupId, @PathVariable Long boardId,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -83,4 +74,10 @@ public class HomeworkController {
                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return homeworkService.submitCancel(groupId, boardId, userDetails.getUser());
     }
+
+//    @Operation(summary = "제출된 과제 파일 다운로드", description = "제출된 과제 파일 다운로드")
+//    @PostMapping("/download")
+//    public ResponseEntity<Message> downloadFile(@PathVariable Long groupId, @PathVariable Long boardId) {
+//        return homeworkService.
+//    }
 }

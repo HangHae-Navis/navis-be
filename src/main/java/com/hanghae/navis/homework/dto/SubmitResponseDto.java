@@ -1,5 +1,6 @@
 package com.hanghae.navis.homework.dto;
 
+import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.entity.HomeworkSubject;
 import com.hanghae.navis.user.entity.User;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,6 @@ import java.util.List;
 public class SubmitResponseDto {
     private Long id;
     private String nickname;
-
     private boolean submit;
     private List<HomeworkFileResponseDto> fileList;
 

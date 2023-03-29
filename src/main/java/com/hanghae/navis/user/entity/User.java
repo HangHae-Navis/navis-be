@@ -73,16 +73,20 @@ public class User extends TimeStamped {
         this.role = role;
     }
 
-    public User kakaoIdUpdate(Long kakaoId) {
+    public User updateKakaoId(Long kakaoId) {
         this.kakaoId = kakaoId;
         return this;
     }
-    public User profileImageUpdate(String profileImage) {
+    public User updateProfileImage(String profileImage) {
         this.profileImage = profileImage;
         return this;
     }
-    public User NicknameUpdate(String nickname) {
+    public User updateNickname(String nickname) {
         this.nickname = nickname;
+        return this;
+    }
+    public User UpdatePassword(String password) {
+        this.password = password;
         return this;
     }
 

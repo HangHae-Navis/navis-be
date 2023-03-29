@@ -16,13 +16,18 @@ public class VoteRecord extends TimeStamped {
     private Long id;
 
     @ManyToOne
-    private VoteOption voteOption;
+    private Vote vote;
 
     @ManyToOne
+    private VoteOption voteOption;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupmember_id")
     private GroupMember groupMember;
 
-    public VoteRecord(VoteOption voteOption, GroupMember groupMember) {
+    public VoteRecord(Vote vote, VoteOption voteOption, GroupMember groupMember) {
+        this.vote = vote;
         this.voteOption = voteOption;
         this.groupMember = groupMember;
     }
