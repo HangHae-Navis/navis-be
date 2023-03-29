@@ -53,6 +53,14 @@ public class MessengerController {
     public ResponseEntity<Message> roomInfo(@RequestBody ChatBeforeRequestDto requestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return messengerService.getChatDetail(requestDto, userDetails.getUser());
     }
+    
+    // 채팅 읽음처리
+    @Operation(summary = "이전 채팅 가져오기", description = "이전 채팅 가져오기")
+    @PostMapping("/room/{roomId}/read")
+    @ResponseBody
+    public ResponseEntity<Message> readChat(@RequestBody ChatBeforeRequestDto requestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return messengerService.getChatDetail(requestDto, userDetails.getUser());
+    }
 
     @Operation(summary = "채팅하기", description = "채팅하기")
     @MessageMapping("/message")

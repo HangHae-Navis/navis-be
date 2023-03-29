@@ -13,6 +13,4 @@ public class LoginResponseDto<T> {
         this.nickname = nickname;
         this.token = token;
     }
-
-
 }

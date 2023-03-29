@@ -46,8 +46,9 @@ public enum SuccessMessage {
     HOMEWORK_SUBMIT_SUCCESS(HttpStatus.OK, "과제 제출 성공"),
     HOMEWORK_SUBMIT_CANCEL(HttpStatus.OK, "과제 제출 취소"),
     CHAT_ENTER_SUCCESS(HttpStatus.OK, "채팅 연결 완료"),
-    CHAT_ROOM_CREATE_SUCCESS(HttpStatus.CREATED, "채팅방 생성완료"),
+    CHAT_ROOM_CREATE_SUCCESS(HttpStatus.CREATED, "채팅방 생성 완료"),
 
+    CHAT_LIST_GET_SUCCESS(HttpStatus.OK, "채팅방 리스트 확인 완료"),
     CHAT_POST_SUCCESS(HttpStatus.OK, "채팅 보내기 완료");
 
     private final HttpStatus httpStatus;
