@@ -3,12 +3,9 @@ package com.hanghae.navis.user.service;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
-import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.jwt.JwtUtil;
-import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.common.util.RedisUtil;
 import com.hanghae.navis.email.service.EmailService;
-import com.hanghae.navis.group.dto.GroupDetailsResponseDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.user.dto.*;
 import com.hanghae.navis.user.entity.User;
@@ -112,22 +109,35 @@ public class UserService {
         return Message.toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
     }
 
+    public ResponseEntity<Message> searchUser(String searchName, User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        User searchUser = userRepository.findByUsername(searchName).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+
+        SearchUserInfoResponseDto searchUserInfoResponseDto = SearchUserInfoResponseDto.of(searchUser);
+        return Message.toResponseEntity(USER_INFO_SUCCESS, searchUserInfoResponseDto);
+    }
+
 
     @Transactional
-    public ResponseEntity<Message> profileUpdateUser(ProfileUpdateRequestDto requestDto, User user) throws IOException {
+    public ResponseEntity<Message> profileUpdate(ProfileUpdateRequestDto requestDto, User user) throws IOException {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
         if (requestDto.getProfileImage() != null) {
             String fileUrl = s3Uploader.upload(requestDto.getProfileImage());
-            user.profileImageUpdate(fileUrl);
+            user.updateProfileImage(fileUrl);
         }
         if (!requestDto.getNickname().equals("")) {
-            user.nicknameUpdate(requestDto.getNickname());
+            user.updateNickname(requestDto.getNickname());
         }
         if (!requestDto.getPassword().equals("")) {
-            user.passwordUpdate(passwordEncoder.encode(requestDto.getPassword()));
+            user.UpdatePassword(passwordEncoder.encode(requestDto.getPassword()));
         }
         userRepository.save(user);
         return userInfo(user);
@@ -150,7 +160,7 @@ public class UserService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         String password = generatePassword();
-        user.passwordUpdate(passwordEncoder.encode(password));
+        user.UpdatePassword(passwordEncoder.encode(password));
 
         userRepository.save(user);
 

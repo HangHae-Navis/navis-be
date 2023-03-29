@@ -58,6 +58,8 @@ public enum ExceptionMessage {
     HASHTAG_NOT_FOUND(NOT_FOUND, "해시태그를 찾을 수 없습니다."),
     HOMEWORK_FILE_NOT_FOUND(NOT_FOUND, "제출한 과제 파일을 찾을 수 없습니다."),
 
+    CHAT_ROOM_NOT_FOUND(NOT_FOUND, "채팅 정보를 찾을 수 없습니다"),
+
 
 
 

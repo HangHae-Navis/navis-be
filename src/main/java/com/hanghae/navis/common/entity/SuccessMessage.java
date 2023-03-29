@@ -45,6 +45,13 @@ public enum SuccessMessage {
     HASHTAG_DELETE_SUCCESS(HttpStatus.OK, "해시태그 삭제 성공"),
     HOMEWORK_SUBMIT_SUCCESS(HttpStatus.OK, "과제 제출 성공"),
     HOMEWORK_SUBMIT_CANCEL(HttpStatus.OK, "과제 제출 취소"),
+    CHAT_ENTER_SUCCESS(HttpStatus.OK, "채팅 연결 완료"),
+    CHAT_ROOM_CREATE_SUCCESS(HttpStatus.CREATED, "채팅방 생성 완료"),
+
+    CHAT_LIST_GET_SUCCESS(HttpStatus.OK, "채팅방 리스트 확인 완료"),
+    CHAT_POST_SUCCESS(HttpStatus.OK, "채팅 보내기 완료");
+
+    HOMEWORK_SUBMIT_CANCEL(HttpStatus.OK, "과제 제출 취소"),
     HOMEWORK_SUBMIT_LIST_GET_SUCCESS(HttpStatus.OK, "과제 제출자 리스트 조회 성공");
     private final HttpStatus httpStatus;
     private final String detail;

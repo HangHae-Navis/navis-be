@@ -4,6 +4,8 @@ import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
+import com.hanghae.navis.vote.dto.OptionRequestDto;
+import com.hanghae.navis.vote.dto.PickRequestDto;
 import com.hanghae.navis.vote.dto.VoteRequestDto;
 import com.hanghae.navis.vote.service.VoteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,6 +70,14 @@ public class VoteController {
         return voteService.deleteVote(groupId, voteId, userDetails.getUser());
     }
 
+    @DeleteMapping("/{voteId}/unpick")
+    @Operation(summary = "투표 선택 취소", description = "투표 선택 취소")
+    public ResponseEntity<Message> unPickVote(@PathVariable Long groupId,
+                                              @PathVariable Long voteId,
+                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return voteService.unPickVote(groupId, voteId, userDetails.getUser());
+    }
+
     @GetMapping(value = "/{voteId}/force-expired")
     @Operation(summary = "투표 강제종료", description = "투표 강제종료")
     public ResponseEntity<Message> forceExpiredVote(@PathVariable Long groupId,
@@ -76,20 +86,12 @@ public class VoteController {
         return voteService.forceExpired(groupId, voteId, userDetails.getUser());
     }
 
-    @GetMapping(value = "/{voteId}/pick/{voteOption}")
+    @PostMapping(value = "/{voteId}/pick")
     @Operation(summary = "투표 선택", description = "투표 선택")
     public ResponseEntity<Message> pickVote(@PathVariable Long groupId,
                                             @PathVariable Long voteId,
-                                            @PathVariable Long voteOption,
+                                            @RequestBody PickRequestDto pickRequestDto,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return voteService.pickVote(groupId, voteId, voteOption, userDetails.getUser());
-    }
-
-    @DeleteMapping("/hashtag/{hashtagId}")
-    @Operation(summary = "해시태그 삭제", description = "해시태그 삭제")
-    public ResponseEntity<Message> deleteHashtag(@PathVariable Long groupId,
-                                                 @PathVariable Long hashtagId,
-                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return voteService.deleteHashtag(groupId, hashtagId, userDetails.getUser());
+        return voteService.pickVote(groupId, voteId, pickRequestDto.getVoteOption(), userDetails.getUser());
     }
 }

@@ -7,10 +7,7 @@ import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.email.service.EmailService;
 import com.hanghae.navis.group.dto.GroupRequestDto;
-import com.hanghae.navis.user.dto.FindPasswordRequestDto;
-import com.hanghae.navis.user.dto.LoginRequestDto;
-import com.hanghae.navis.user.dto.ProfileUpdateRequestDto;
-import com.hanghae.navis.user.dto.SignupRequestDto;
+import com.hanghae.navis.user.dto.*;
 import com.hanghae.navis.user.service.KakaoService;
 import com.hanghae.navis.user.service.UserService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -65,9 +62,9 @@ public class UserController {
 
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로필 업데이트", description ="프로필 업데이트")
-    public ResponseEntity<Message> profileUpdateUser(@ModelAttribute ProfileUpdateRequestDto requestDto,
+    public ResponseEntity<Message> profileUpdate(@ModelAttribute ProfileUpdateRequestDto requestDto,
                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-        return userService.profileUpdateUser(requestDto, userDetails.getUser());
+        return userService.profileUpdate(requestDto, userDetails.getUser());
     }
 
     @GetMapping("/kakao/callback")
@@ -86,6 +83,11 @@ public class UserController {
     @GetMapping
     public ResponseEntity<Message> userInfo(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.userInfo(userDetails.getUser());
+    }
+    @ResponseBody
+    @PostMapping("/search")
+    public ResponseEntity<Message> searchUser(@RequestBody SearchUserInfoRequestDto requestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.searchUser(requestDto.getUsername(), userDetails.getUser());
     }
     @GetMapping("/forgetPassword")
     @Operation(hidden = true)

@@ -99,15 +99,21 @@ public class KakaoService {
                 kakaoUserInfoRequest,
                 String.class
         );
-
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
         Long id = jsonNode.get("id").asLong();
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
-        String email = jsonNode.get("kakao_account")
-                .get("email").asText();
+
+        String email = "";
+        if(jsonNode.get("kakao_account").get("email") != null) {
+            email = jsonNode.get("kakao_account").get("email").asText();
+        }
+
+        if (email.equals("")) {
+            email = UUID.randomUUID().toString();
+        }
 
         return new KakaoUserInfoDto(id, nickname, email);
     }
@@ -125,7 +131,7 @@ public class KakaoService {
             if (sameEmailUser != null) {
                 kakaoUser = sameEmailUser;
                 // 기존 회원정보에 카카오 Id 추가
-                kakaoUser = kakaoUser.kakaoIdUpdate(kakaoId);
+                kakaoUser = kakaoUser.updateKakaoId(kakaoId);
             } else {
                 // 신규 회원가입
                 // password: random UUID

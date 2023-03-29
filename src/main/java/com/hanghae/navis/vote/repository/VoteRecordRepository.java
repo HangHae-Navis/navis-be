@@ -9,4 +9,7 @@ import java.util.Optional;
 
 public interface VoteRecordRepository extends JpaRepository<VoteRecord, Long> {
     Optional<VoteRecord> findByGroupMemberIdAndVoteOptionId(Long groupMemberId, Long voteOptionId);
+    Optional<VoteRecord> findByGroupMemberIdAndVoteId(Long groupMemberId, Long voteOptionId);
+
+    void deleteByGroupMemberIdAndVoteId(Long groupMemberId, Long voteOptionId);
 }
