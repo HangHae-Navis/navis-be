@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class SubmitMemberResponseDto {
                 .id(responseDto.getUserId())
                 .nickname(responseDto.getNickname())
                 .submit(responseDto.getSubmit())
-                .fileList(Collections.singletonList(responseDto.getFileUrl()))
+                .fileList(Arrays.asList(responseDto.getFileUrl().split(", ")))
                 .createdAt(responseDto.getCreatedAt())
                 .late(responseDto.getLate())
                 .build();
