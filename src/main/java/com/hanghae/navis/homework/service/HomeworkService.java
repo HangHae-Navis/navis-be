@@ -131,11 +131,12 @@ public class HomeworkService {
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 
-        if (homeworkSubject == null) {
+
+        if (homeworkSubject == null) { //미제출 유저
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
-        } else {
+        } else {    //제출한 유저
             homeworkSubject.getHomeworkSubjectFileList().forEach(value -> fileResponseDto.add(HomeworkFileResponseDto.of(value)));
             SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto);
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto);
