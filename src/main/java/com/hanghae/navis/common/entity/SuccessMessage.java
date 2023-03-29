@@ -44,7 +44,8 @@ public enum SuccessMessage {
     VOTE_FORCE_EXPIRED_SUCCESS(HttpStatus.OK,"투표 강제 만료 성공"),
     HASHTAG_DELETE_SUCCESS(HttpStatus.OK, "해시태그 삭제 성공"),
     HOMEWORK_SUBMIT_SUCCESS(HttpStatus.OK, "과제 제출 성공"),
-    HOMEWORK_SUBMIT_CANCEL(HttpStatus.OK, "과제 제출 취소");
+    HOMEWORK_SUBMIT_CANCEL(HttpStatus.OK, "과제 제출 취소"),
+    HOMEWORK_SUBMIT_LIST_GET_SUCCESS(HttpStatus.OK, "과제 제출자 리스트 조회 성공");
     private final HttpStatus httpStatus;
     private final String detail;
 }

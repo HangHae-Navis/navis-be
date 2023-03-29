@@ -6,7 +6,6 @@ import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.homework.dto.HomeworkRequestDto;
-import com.hanghae.navis.homework.dto.HomeworkUpdateRequestDto;
 import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

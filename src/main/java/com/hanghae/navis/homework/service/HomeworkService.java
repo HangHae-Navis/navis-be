@@ -19,8 +19,8 @@ import com.hanghae.navis.homework.entity.HomeworkSubjectFile;
 import com.hanghae.navis.homework.repository.HomeworkRepository;
 import com.hanghae.navis.homework.repository.HomeworkSubjectFileRepository;
 import com.hanghae.navis.homework.repository.HomeworkSubjectRepository;
+import com.hanghae.navis.homework.repository.SubmitRepository;
 import com.hanghae.navis.user.entity.User;
-import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +37,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
@@ -55,6 +54,7 @@ public class HomeworkService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final HashtagRepository hashtagRepository;
+    private final SubmitRepository submitRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
@@ -96,6 +96,27 @@ public class HomeworkService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        //admin, support return
+        if (role.equals(GroupMemberRoleEnum.ADMIN) || role.equals(GroupMemberRoleEnum.SUPPORT)) {
+            List<HomeworkSubmitListResponseDto> memberList = submitRepository.findByGroupMember(groupId, boardId);
+
+            List<NotSubmitMemberResponseDto> notSubmit = new ArrayList<>();
+            List<SubmitMemberResponseDto> submitMember = new ArrayList<>();
+
+            for (HomeworkSubmitListResponseDto member : memberList) {
+                if(member.getSubmit() != null) {
+                    submitMember.add(SubmitMemberResponseDto.of(member));
+                } else {
+                    notSubmit.add(NotSubmitMemberResponseDto.of(member));
+                }
+            }
+
+            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, notSubmit, submitMember);
+
+            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, adminResponse);
+        }
+
+        //user return
         List<FileResponseDto> responseList = new ArrayList<>();
 
         homework.getFileList().forEach(value -> responseList.add(FileResponseDto.of(value)));
@@ -121,12 +142,8 @@ public class HomeworkService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
             throw new CustomException(ADMIN_ONLY);
-        }
-
-        if(expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())) == true) {
-            throw new CustomException(WRONG_DATE);
         }
 
         Homework homework = new Homework(requestDto, user, group, unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())));
@@ -144,7 +161,7 @@ public class HomeworkService {
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
         try {
-            if(requestDto.getMultipartFiles() != null) {
+            if (requestDto.getMultipartFiles() != null) {
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
@@ -153,7 +170,7 @@ public class HomeworkService {
                     fileResponseDto.add(FileResponseDto.of(homeworkFile));
                 }
             }
-            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
+            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
@@ -182,7 +199,7 @@ public class HomeworkService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
@@ -224,7 +241,7 @@ public class HomeworkService {
         try {
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
             if (requestDto.getMultipartFiles() != null) {
-                for (MultipartFile file : requestDto.getMultipartFiles() ) {
+                for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
                     File homeworkFile = new File(fileTitle, fileUrl, homework);
@@ -259,7 +276,7 @@ public class HomeworkService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
@@ -309,12 +326,18 @@ public class HomeworkService {
             if (requestDto.getMultipartFiles() != null) {
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileUrl = s3Uploader.upload(file);
-                    HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl);
+                    HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl, homeworkSubject);
                     homeworkSubjectFileRepository.save(subjectFile);
                     fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
                 }
 
-                HomeworkSubject subject = new HomeworkSubject(true, user, group, homework);
+                HomeworkSubject subject = new HomeworkSubject();
+
+                if (expirationCheck(homework.getExpirationDate()) == true) {
+                    subject = new HomeworkSubject(true, true, user, group, homework);
+                } else {
+                    subject = new HomeworkSubject(true, false, user, group, homework);
+                }
                 homeworkSubjectRepository.save(subject);
 
                 SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
@@ -349,17 +372,13 @@ public class HomeworkService {
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 
-        if(homeworkSubject == null) {
+        if (homeworkSubject == null) {
             throw new CustomException(HOMEWORK_FILE_NOT_FOUND);
         }
 
-        if(expirationCheck(homework.getExpirationDate()) == true) {
-            throw new CustomException(HOMEWORK_EXPIRED);
-        }
-
-        if(homeworkSubject.getHomeworkSubjectFileList().size() > 0) {
+        if (homeworkSubject.getHomeworkSubjectFileList().size() > 0) {
             try {
-                for(HomeworkSubjectFile file : homeworkSubject.getHomeworkSubjectFileList()) {
+                for (HomeworkSubjectFile file : homeworkSubject.getHomeworkSubjectFileList()) {
                     String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
                     s3Uploader.delete(source);
                 }
@@ -370,6 +389,49 @@ public class HomeworkService {
         homeworkSubjectRepository.deleteById(homeworkSubject.getId());
         return Message.toResponseEntity(HOMEWORK_SUBMIT_CANCEL);
     }
+
+//    @Transactional
+//    public ResponseEntity<Message> submitList(Long groupId, Long boardId, User user) {
+//        Group group = groupRepository.findById(groupId).orElseThrow(
+//                () -> new CustomException(GROUP_NOT_FOUND)
+//        );
+//
+//        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+//                () -> new CustomException(MEMBER_NOT_FOUND)
+//        );
+//
+//        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
+//                () -> new CustomException(BOARD_NOT_FOUND)
+//        );
+//
+//        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+//                () -> new CustomException(GROUP_NOT_JOINED)
+//        );
+//
+//        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+//            throw new CustomException(ADMIN_ONLY);
+//        }
+//
+//        //제출한 멤버
+//        List<HomeworkSubject> submitList = new ArrayList<>();
+//        List<HomeworkSubject> homeworkSubject = homeworkSubjectRepository.findAllByHomeworkId(boardId);
+//
+//        for (HomeworkSubject subjects : homeworkSubject) {
+//            submitList.add(subjects);
+//        }
+//
+//        //전체 멤버
+//        Set<SubmitListResponseDto> responseDtoList = new HashSet<>();
+//        List<GroupMember> memberList = groupMemberRepository.findAllByGroupIdAndGroupRole(groupId, GroupMemberRoleEnum.USER);
+//
+//        for (GroupMember member : memberList) {
+////            boolean isSubmit = submitList.contains(member);
+//
+//            responseDtoList.add(SubmitListResponseDto.of(member));
+//        }
+//
+//        return Message.toResponseEntity(HOMEWORK_SUBMIT_LIST_GET_SUCCESS, responseDtoList);
+//    }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {
         return LocalDateTime.ofEpochSecond(unixTime, 6, ZoneOffset.UTC);

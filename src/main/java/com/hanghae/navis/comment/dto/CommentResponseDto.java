@@ -19,7 +19,7 @@ public class CommentResponseDto {
     private LocalDateTime createAt;
     private boolean isOwned;
 
-    public static CommentResponseDto of(Comment comment , User user) {
+    public static CommentResponseDto of(Comment comment, User user) {
         return CommentResponseDto.builder()
                 .id(comment.getId())
                 .content(comment.getContent())

@@ -22,7 +22,8 @@ public class HomeworkSubjectFile extends TimeStamped {
     @ManyToOne
     private HomeworkSubject homeworkSubject;
 
-    public HomeworkSubjectFile(String fileUrl) {
+    public HomeworkSubjectFile(String fileUrl, HomeworkSubject homeworkSubject) {
         this.fileUrl = fileUrl;
+        this.homeworkSubject = homeworkSubject;
     }
 }
