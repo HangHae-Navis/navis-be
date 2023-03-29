@@ -321,24 +321,25 @@ public class HomeworkService {
                 throw new CustomException(DUPLICATE_HOMEWORK);
             }
 
+            HomeworkSubject subject = new HomeworkSubject();
+
+            if (expirationCheck(homework.getExpirationDate()) == true) {
+                subject = new HomeworkSubject(true, true, user, group, homework);
+            } else {
+                subject = new HomeworkSubject(true, false, user, group, homework);
+            }
+            homeworkSubjectRepository.save(subject);
+
             List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
 
             if (requestDto.getMultipartFiles() != null) {
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileUrl = s3Uploader.upload(file);
-                    HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl, homeworkSubject);
+                    HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl, subject);
                     homeworkSubjectFileRepository.save(subjectFile);
                     fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
                 }
 
-                HomeworkSubject subject = new HomeworkSubject();
-
-                if (expirationCheck(homework.getExpirationDate()) == true) {
-                    subject = new HomeworkSubject(true, true, user, group, homework);
-                } else {
-                    subject = new HomeworkSubject(true, false, user, group, homework);
-                }
-                homeworkSubjectRepository.save(subject);
 
                 SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
                 return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
