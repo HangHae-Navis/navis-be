@@ -104,10 +104,12 @@ public class HomeworkService {
             List<SubmitMemberResponseDto> submitMember = new ArrayList<>();
 
             for (HomeworkSubmitListResponseDto member : memberList) {
-                if(member.getSubmit() != null) {
-                    submitMember.add(SubmitMemberResponseDto.of(member));
-                } else {
-                    notSubmit.add(NotSubmitMemberResponseDto.of(member));
+                if(member.getRole().equals("USER")) {
+                    if(member.getSubmit() != null) {
+                        submitMember.add(SubmitMemberResponseDto.of(member));
+                    } else {
+                        notSubmit.add(NotSubmitMemberResponseDto.of(member));
+                    }
                 }
             }
 
