@@ -1,5 +1,4 @@
-package sparat.spartaclone.util;
-
+package com.hanghae.navis.common.config;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
