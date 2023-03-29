@@ -335,8 +335,6 @@ public class HomeworkService {
                     () -> new CustomException(GROUP_NOT_JOINED)
             );
 
-            GroupMemberRoleEnum role = groupMember.getGroupRole();
-
             HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 
             if (homeworkSubject != null) {
@@ -362,8 +360,8 @@ public class HomeworkService {
                     fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
                 }
 
-//                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
-                return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS);
+                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
+                return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
             } else {
                 throw new CustomException(HOMEWORK_FILE_IS_NULL);
             }
@@ -389,8 +387,6 @@ public class HomeworkService {
         GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
-
-        GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 
@@ -424,6 +420,4 @@ public class HomeworkService {
     public boolean expirationCheck(LocalDateTime dbTime) {
         return LocalDateTime.now().isAfter(dbTime);
     }
-
-
 }
