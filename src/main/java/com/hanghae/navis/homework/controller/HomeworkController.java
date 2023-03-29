@@ -63,7 +63,7 @@ public class HomeworkController {
     }
 
     @Operation(summary = "과제 제출", description = "과제 제출, 이미 제출한 사람은 제출 취소를 하고 다시 제출해야함")
-    @PostMapping(value = "/{boardId}/homeworkSubmit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{boardId}/homeworkSubmit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Message> submitHomework(@PathVariable Long groupId, @PathVariable Long boardId,
                                                   @ModelAttribute HomeworkFileRequestDto requestDto,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
