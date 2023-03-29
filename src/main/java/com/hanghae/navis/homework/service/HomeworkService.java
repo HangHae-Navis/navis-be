@@ -98,6 +98,8 @@ public class HomeworkService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        List<String> hashtagResponseDto = new ArrayList<>();
+
         //admin, support return
         if (role.equals(GroupMemberRoleEnum.ADMIN) || role.equals(GroupMemberRoleEnum.SUPPORT)) {
             List<HomeworkSubmitListResponseDto> memberList = submitRepository.findByGroupMember(groupId, boardId);
@@ -122,12 +124,24 @@ public class HomeworkService {
 
         //user return
         List<FileResponseDto> responseList = new ArrayList<>();
+        List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
 
         homework.getFileList().forEach(value -> responseList.add(FileResponseDto.of(value)));
+        homework.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
 
-        HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
+        HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 
-        return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
+        if (homeworkSubject == null) {
+            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
+
+            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
+        } else {
+            homeworkSubject.getHomeworkSubjectFileList().forEach(value -> fileResponseDto.add(HomeworkFileResponseDto.of(value)));
+            SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto);
+            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto);
+
+            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
+        }
     }
 
     @Transactional
@@ -348,9 +362,8 @@ public class HomeworkService {
                     fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
                 }
 
-
-                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
-                return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
+//                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
+                return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS);
             } else {
                 throw new CustomException(HOMEWORK_FILE_IS_NULL);
             }

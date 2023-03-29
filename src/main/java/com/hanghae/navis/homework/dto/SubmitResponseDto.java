@@ -18,12 +18,14 @@ public class SubmitResponseDto {
     private Long id;
     private String nickname;
     private boolean submit;
+    private boolean late;
     private List<HomeworkFileResponseDto> fileList;
 
     public static SubmitResponseDto of(HomeworkSubject homeworkSubject, List<HomeworkFileResponseDto> fileList) {
         return SubmitResponseDto.builder()
                 .id(homeworkSubject.getId())
                 .submit(homeworkSubject.isSubmit())
+                .late(homeworkSubject.isLate())
                 .nickname(homeworkSubject.getUser().getNickname())
                 .fileList(fileList)
                 .build();

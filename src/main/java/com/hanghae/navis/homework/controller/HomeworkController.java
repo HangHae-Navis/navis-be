@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Tag(name = "homework")
 @RestController
 @RequiredArgsConstructor
@@ -76,8 +78,8 @@ public class HomeworkController {
     }
 
 //    @Operation(summary = "제출된 과제 파일 다운로드", description = "제출된 과제 파일 다운로드")
-//    @PostMapping("/download")
-//    public ResponseEntity<Message> downloadFile(@PathVariable Long groupId, @PathVariable Long boardId) {
-//        return homeworkService.
+//    @PostMapping("/{boardId}/download/{fileName}")
+//    public ResponseEntity<Message> downloadFile(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable String fileName) throws IOException {
+//        return homeworkService.downloadFile(groupId, boardId, fileName);
 //    }
 }
