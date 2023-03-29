@@ -9,4 +9,5 @@ public interface HomeworkSubmitListResponseDto {
     String getFileUrl();
     LocalDateTime getCreatedAt();
     Boolean getLate();
+    String getRole();
 }
