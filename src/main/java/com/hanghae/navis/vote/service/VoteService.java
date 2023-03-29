@@ -317,7 +317,11 @@ public class VoteService {
 
 
         //투표를 강제로 만료시킴
-        vote.forceExpiration();
+        if (role != GroupMemberRoleEnum.USER) {
+            vote.forceExpiration();
+        } else {
+            throw new CustomException(ADMIN_ONLY);
+        }
 
         return Message.toResponseEntity(VOTE_FORCE_EXPIRED_SUCCESS);
     }

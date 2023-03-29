@@ -57,7 +57,7 @@ public class MessengerService {
         //내 대화방 목록 가져오기
         List<MessengerListResponseDto> room = messengerRepository.findByMessengerList(me);
 
-        return Message.toResponseEntity(BOARD_POST_SUCCESS, room);
+        return Message.toResponseEntity(CHAT_LIST_GET_SUCCESS, room);
     }
 
     //채팅방 하나 불러오기
