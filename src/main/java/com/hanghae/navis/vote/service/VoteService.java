@@ -1,8 +1,6 @@
 package com.hanghae.navis.vote.service;
 
 import com.hanghae.navis.common.dto.FileResponseDto;
-import com.hanghae.navis.common.dto.HashtagRequestDto;
-import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
@@ -17,6 +15,7 @@ import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.user.entity.User;
+import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
 import com.hanghae.navis.vote.dto.*;
 import com.hanghae.navis.vote.entity.Vote;
@@ -41,6 +40,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
@@ -70,6 +70,7 @@ public class VoteService {
         Page<Vote> votePage = voteRepository.findAllByGroupIdOrderByCreatedAtDesc(groupId, pageable);
 
         Page<VoteListResponseDto> voteListResponseDto = VoteListResponseDto.toDtoPage(votePage);
+
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, voteListResponseDto);
     }
 
@@ -100,8 +101,32 @@ public class VoteService {
         vote.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
         vote.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
 
+        Optional<VoteRecord> myPickCheck = voteRecordRepository.findByGroupMemberIdAndVoteId(groupMember.getId(), vote.getId());
+        Long myPick = -1L;
+
+        if(myPickCheck.isPresent()) {
+             myPick = myPickCheck.get().getVoteOption().getId();
+        }
+
+        if (!role.name().equals("USER")) {
+            List<OptionAdminResponseDto> optionAdminResponseDto = new ArrayList<>();
+            for (VoteOption voteOption : vote.getVoteOptionList()) {
+                List<PickUserInfoDto> pickUserInfoDtoList = new ArrayList<>();
+                List<VoteRecord> voteRecordList = voteOption.getVoteRecordList();
+                for (VoteRecord voteRecord : voteRecordList) {
+                    pickUserInfoDtoList.add(PickUserInfoDto.of(voteRecord.getGroupMember().getUser(), voteRecord.getVoteOption().getId()));
+                }
+                optionAdminResponseDto.add(OptionAdminResponseDto.of(voteOption, pickUserInfoDtoList));
+            }
+
+            VoteAdminResponseDto voteAdminResponseDto = VoteAdminResponseDto.of(vote, fileResponseDto, hashtagList, optionAdminResponseDto, expirationCheck(
+                    vote.getExpirationDate()), vote.getExpirationDate(), role, myPick);
+
+            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteAdminResponseDto);
+        }
+
         VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, expirationCheck(
-                vote.getExpirationDate()), vote.getExpirationDate(), role);
+                vote.getExpirationDate()), vote.getExpirationDate(), role, myPick);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
     }
 
@@ -153,7 +178,7 @@ public class VoteService {
             }
 
             //리턴으로 보내줄 dto생성
-            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
+            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role, null);
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {
@@ -298,13 +323,7 @@ public class VoteService {
             throw new CustomException(ADMIN_ONLY);
         }
 
-        return Message.toResponseEntity(VOTE_FORCE_EXPIRED_SUCCESS,
-                VoteResponseDto.of(vote,
-                        parseFileResponseDto(vote.getFileList()),
-                        null,
-                        parseOptionResponseDto(vote.getVoteOptionList()),
-                        vote.isForceExpiration(),
-                        vote.getExpirationDate(), role));
+        return Message.toResponseEntity(VOTE_FORCE_EXPIRED_SUCCESS);
     }
 
     public ResponseEntity<Message> pickVote(Long groupId, Long voteId, Long voteOptionId, User user) {
@@ -339,7 +358,7 @@ public class VoteService {
                                 null,
                                 parseOptionResponseDto(vote.getVoteOptionList()),
                                 vote.isForceExpiration(),
-                                vote.getExpirationDate(), role));
+                                vote.getExpirationDate(), role, -1L));
             }
         }
         return Message.toExceptionResponseEntity(VOTE_EXPIRED);
@@ -397,4 +416,6 @@ public class VoteService {
     public boolean expirationCheck(LocalDateTime dbTime) {
         return LocalDateTime.now().isAfter(dbTime);
     }
+
+
 }

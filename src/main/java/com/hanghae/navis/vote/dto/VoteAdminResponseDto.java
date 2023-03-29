@@ -1,13 +1,14 @@
 package com.hanghae.navis.vote.dto;
 
-import com.hanghae.navis.common.dto.FileResponseDto;
-import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.dto.BasicBoardResponseDto;
+import com.hanghae.navis.common.dto.FileResponseDto;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.vote.entity.Vote;
-import com.hanghae.navis.vote.entity.VoteOption;
 import com.hanghae.navis.vote.entity.VoteRecord;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -18,14 +19,15 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VoteResponseDto extends BasicBoardResponseDto {
-    private List<OptionResponseDto> optionList;
+public class VoteAdminResponseDto extends BasicBoardResponseDto {
+
+    private List<OptionAdminResponseDto> optionList;
     private LocalDateTime expirationTime;
     private boolean isExpiration;
     private Long myPick;
 
-    public static VoteResponseDto of(Vote vote, List<FileResponseDto> fileList, List<String> hashtagList, List<OptionResponseDto> optionList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role, Long myPick) {
-        return VoteResponseDto.builder()
+    public static VoteAdminResponseDto of(Vote vote, List<FileResponseDto> fileList, List<String> hashtagList, List<OptionAdminResponseDto> optionList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role, Long myPick) {
+        return VoteAdminResponseDto.builder()
                 .id(vote.getId())
                 .nickname(vote.getUser().getNickname())
                 .fileList(fileList)
