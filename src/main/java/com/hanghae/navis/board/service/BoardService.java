@@ -128,7 +128,7 @@ public class BoardService {
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
-//            if(requestDto.getMultipartFiles() != null) {
+            if(requestDto.getMultipartFiles() != null) {
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
@@ -136,7 +136,9 @@ public class BoardService {
                     fileRepository.save(boardFile);
                     fileResponseDto.add(FileResponseDto.of(boardFile));
                 }
-//            }
+            } else {
+                fileResponseDto = null;
+            }
             BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, boardResponseDto);
         } catch (IOException e) {
@@ -207,7 +209,6 @@ public class BoardService {
         try {
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
             if (requestDto.getMultipartFiles() != null) {
-
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
@@ -215,6 +216,8 @@ public class BoardService {
                     fileRepository.save(boardFile);
                     fileResponseDto.add(new FileResponseDto(boardFile.getFileTitle(), boardFile.getFileUrl()));
                 }
+            } else {
+                fileResponseDto = null;
             }
             boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role);
         } catch (IOException e) {
