@@ -56,7 +56,7 @@ public class EmailService {
 //                "<a href='http://localhost:8080/emails/confirm?key=" + ePw + "' target='_blenk'>이메일 인증 확인</a>";
 
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("teamnavis99@gmail.com", "teamnavis99"));//보내는 사람
+        message.setFrom(new InternetAddress("teamnavis@daum.net", "teamnavis"));//보내는 사람
 
         return message;
     }
