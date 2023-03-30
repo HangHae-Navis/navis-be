@@ -6,6 +6,7 @@ public interface HomeworkSubmitListResponseDto {
     Long getUserId();
     String getNickname();
     Boolean getSubmit();
+    String getFileName();
     String getFileUrl();
     LocalDateTime getCreatedAt();
     Boolean getLate();
