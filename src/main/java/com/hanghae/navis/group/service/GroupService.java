@@ -349,6 +349,32 @@ public class GroupService {
     }
 
     @Transactional
+    public ResponseEntity<Message> updateGroupcode(Long groupId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(ExceptionMessage.GROUP_NOT_JOINED)
+        );
+
+        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN)) {
+            throw new CustomException(ExceptionMessage.ADMIN_ONLY);
+        }
+
+        String groupCode = generateGroupCode();
+        //그룹코드 중복시 다시 지정
+        while (groupRepository.findByGroupCode(groupCode).isPresent()) {
+            groupCode = generateGroupCode();
+        }
+        group.setGroupCode(groupCode);
+
+
+        return Message.toResponseEntity(SuccessMessage.GROUPCODE_UPDATE_SUCCESS);
+    }
+
+
+    @Transactional
     public ResponseEntity<Message> transferAdmin(Long groupId, Long memberId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(ExceptionMessage.GROUP_NOT_FOUND)
