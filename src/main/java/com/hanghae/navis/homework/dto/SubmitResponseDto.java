@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -19,6 +20,7 @@ public class SubmitResponseDto {
     private String nickname;
     private boolean submit;
     private boolean late;
+    private LocalDateTime createdAt;
     private List<HomeworkFileResponseDto> fileList;
 
     public static SubmitResponseDto of(HomeworkSubject homeworkSubject, List<HomeworkFileResponseDto> fileList) {
@@ -26,6 +28,7 @@ public class SubmitResponseDto {
                 .id(homeworkSubject.getId())
                 .submit(homeworkSubject.isSubmit())
                 .late(homeworkSubject.isLate())
+                .createdAt(homeworkSubject.getCreatedAt())
                 .nickname(homeworkSubject.getUser().getNickname())
                 .fileList(fileList)
                 .build();

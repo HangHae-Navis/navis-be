@@ -413,10 +413,10 @@ public class HomeworkService {
         return Message.toResponseEntity(HOMEWORK_SUBMIT_CANCEL);
     }
 
-//    @Transactional
-//    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
-//        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS,s3Service.getObject(fileName));
-//    }
+    @Transactional
+    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
+        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS,s3Service.getObject(fileName));
+    }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {
         return LocalDateTime.ofEpochSecond(unixTime, 6, ZoneOffset.UTC);
