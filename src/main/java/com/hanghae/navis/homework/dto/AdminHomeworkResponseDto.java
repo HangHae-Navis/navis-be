@@ -21,7 +21,7 @@ public class AdminHomeworkResponseDto {
     private String subtitle;
     private Long important;
     private String content;
-    private LocalDateTime createdAt;
+    private LocalDateTime createAt;
     private LocalDateTime expirationTime;
     private Boolean isExpiration;
     private List<String> hashtagList;
@@ -38,7 +38,7 @@ public class AdminHomeworkResponseDto {
                 .subtitle(homework.getSubtitle())
                 .important(homework.getImportant())
                 .content(homework.getContent())
-                .createdAt(homework.getCreatedAt())
+                .createAt(homework.getCreatedAt())
                 .expirationTime(homework.getExpirationDate())
                 .isExpiration(homework.isForce_expiration())
                 .hashtagList(hashtagList)
