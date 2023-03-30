@@ -121,7 +121,7 @@ public class HomeworkService {
                 }
             }
 
-            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, fileResponseDto, notSubmit, submitMember);
+            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, fileResponseDto, notSubmit, submitMember, role);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
