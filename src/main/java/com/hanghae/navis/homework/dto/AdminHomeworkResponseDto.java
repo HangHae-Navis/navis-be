@@ -24,11 +24,12 @@ public class AdminHomeworkResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime expirationTime;
     private Boolean isExpiration;
+    private List<String> hashtagList;
     private List<FileResponseDto> boardFileList;
     private List<NotSubmitMemberResponseDto> notSubmitMember;
     private List<SubmitMemberResponseDto> submitMember;
 
-    public static AdminHomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<NotSubmitMemberResponseDto> notSubmitMember, List<SubmitMemberResponseDto> submitMember, GroupMemberRoleEnum role) {
+    public static AdminHomeworkResponseDto of(Homework homework, List<String> hashtagList, List<FileResponseDto> fileList, List<NotSubmitMemberResponseDto> notSubmitMember, List<SubmitMemberResponseDto> submitMember, GroupMemberRoleEnum role) {
         return AdminHomeworkResponseDto.builder()
                 .id(homework.getId())
                 .role(role)
@@ -40,6 +41,7 @@ public class AdminHomeworkResponseDto {
                 .createdAt(homework.getCreatedAt())
                 .expirationTime(homework.getExpirationDate())
                 .isExpiration(homework.isForce_expiration())
+                .hashtagList(hashtagList)
                 .boardFileList(fileList)
                 .notSubmitMember(notSubmitMember)
                 .submitMember(submitMember)
