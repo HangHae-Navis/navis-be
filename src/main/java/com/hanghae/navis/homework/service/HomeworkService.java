@@ -102,6 +102,10 @@ public class HomeworkService {
 
         //admin, support return
         if (role.equals(GroupMemberRoleEnum.ADMIN) || role.equals(GroupMemberRoleEnum.SUPPORT)) {
+            List<FileResponseDto> fileResponseDto = new ArrayList<>();
+
+            homework.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
+
             List<HomeworkSubmitListResponseDto> memberList = submitRepository.findByGroupMember(groupId, boardId);
 
             List<NotSubmitMemberResponseDto> notSubmit = new ArrayList<>();
@@ -117,7 +121,7 @@ public class HomeworkService {
                 }
             }
 
-            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, notSubmit, submitMember);
+            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, fileResponseDto, notSubmit, submitMember);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
@@ -130,7 +134,6 @@ public class HomeworkService {
         homework.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
-
 
         if (homeworkSubject == null) { //미제출 유저
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
@@ -355,8 +358,9 @@ public class HomeworkService {
 
             if (requestDto.getMultipartFiles() != null) {
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
+                    String fileName = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
-                    HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl, subject);
+                    HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl, fileName, subject);
                     homeworkSubjectFileRepository.save(subjectFile);
                     fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
                 }

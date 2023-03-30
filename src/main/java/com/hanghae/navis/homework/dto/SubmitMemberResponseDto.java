@@ -20,6 +20,7 @@ public class SubmitMemberResponseDto {
     private String nickname;
     private boolean submit;
     private List<String> fileList;
+    private List<String> fileName;
     private LocalDateTime createdAt;
     private boolean late;
 
@@ -29,6 +30,7 @@ public class SubmitMemberResponseDto {
                 .nickname(responseDto.getNickname())
                 .submit(responseDto.getSubmit())
                 .fileList(Arrays.asList(responseDto.getFileUrl().split(", ")))
+                .fileName(Arrays.asList(responseDto.getFileName().split(", ")))
                 .createdAt(responseDto.getCreatedAt())
                 .late(responseDto.getLate())
                 .build();
