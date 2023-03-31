@@ -11,12 +11,13 @@ import java.util.Optional;
 
 public interface MessengerRepository extends JpaRepository<Messenger, Long> {
 
-    @Query(value = "SELECT m.id, " +
+    @Query(value = "SELECT m.id, m.user2_id AS toUser, u.profile_image AS profileImage" +
             "(SELECT message FROM messenger_chat WHERE m.id = messenger_chat.messenger_id ORDER BY id DESC LIMIT 1) AS lastMessage, " +
             "(SELECT DISTINCT (SELECT COUNT(*) FROM messenger_chat WHERE messenger_chat.read = FALSE) FROM messenger_chat) AS newMessageCount, " +
             "mc.created_at " +
             "FROM messenger m " +
             "LEFT OUTER JOIN messenger_chat mc ON m.id = mc.id " +
+            "LEFT OUTER JOIN users u ON m.user2_id = u.id " +
             "WHERE mc.author_id = :user"
             , nativeQuery = true)
     List<MessengerListResponseDto> findByMessengerList(User user);

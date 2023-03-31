@@ -55,7 +55,7 @@ public class MessengerController {
     }
     
     // 채팅 읽음처리
-    @Operation(summary = "이전 채팅 가져오기", description = "이전 채팅 가져오기")
+    @Operation(summary = "읽음 처리", description = "읽음 처리")
     @PostMapping("/room/{roomId}/read")
     @ResponseBody
     public ResponseEntity<Message> readChat(@RequestBody ChatBeforeRequestDto requestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
