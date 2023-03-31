@@ -69,7 +69,7 @@ public class MessengerService {
         );
 
         //메신저에 대화방이 있는지 체크
-        Messenger room = messengerRepository.findByMessenger(me, toUser).orElseThrow(
+        Messenger room = messengerRepository.findById(requestDto.getRoomId()).orElseThrow(
                 () -> new CustomException(CHAT_ROOM_NOT_FOUND)
         );
 
