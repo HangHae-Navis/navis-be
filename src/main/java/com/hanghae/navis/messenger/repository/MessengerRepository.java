@@ -13,6 +13,7 @@ public interface MessengerRepository extends JpaRepository<Messenger, Long> {
 
     @Query(value = "SELECT m.id, " +
             "       CASE WHEN m.user1_id = :user THEN m.user2_id ELSE m.user1_id END AS toUser, " +
+            "       u2.username AS username " +
             "       CASE WHEN u.id = :user THEN u2.nickname ELSE u.nickname END AS nickname, " +
             "       CASE WHEN u.id = :user THEN u2.profile_image ELSE u.profile_image END AS profileImage, " +
             "       (SELECT message FROM messenger_chat WHERE m.id = messenger_chat.messenger_id ORDER BY id DESC LIMIT 1) AS lastMessage, " +
