@@ -52,7 +52,6 @@ public class MessengerService {
         User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-
         //내 대화방 목록 가져오기
         List<MessengerListResponseDto> room = messengerRepository.findByMessengerList(me);
 
