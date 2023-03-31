@@ -99,6 +99,7 @@ public class HomeworkService {
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         List<String> hashtagResponseDto = new ArrayList<>();
+        homework.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
 
         //admin, support return
         if (role.equals(GroupMemberRoleEnum.ADMIN) || role.equals(GroupMemberRoleEnum.SUPPORT)) {
@@ -121,7 +122,7 @@ public class HomeworkService {
                 }
             }
 
-            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, fileResponseDto, notSubmit, submitMember);
+            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, hashtagResponseDto, fileResponseDto, notSubmit, submitMember, role);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
@@ -131,7 +132,7 @@ public class HomeworkService {
         List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
 
         homework.getFileList().forEach(value -> responseList.add(FileResponseDto.of(value)));
-        homework.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
+
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
 
@@ -413,10 +414,10 @@ public class HomeworkService {
         return Message.toResponseEntity(HOMEWORK_SUBMIT_CANCEL);
     }
 
-//    @Transactional
-//    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
-//        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS,s3Service.getObject(fileName));
-//    }
+    @Transactional
+    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
+        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS,s3Service.getObject(fileName));
+    }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {
         return LocalDateTime.ofEpochSecond(unixTime, 6, ZoneOffset.UTC);
