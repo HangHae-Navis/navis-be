@@ -3,6 +3,7 @@ package com.hanghae.navis.messenger.controller;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.messenger.dto.ChatBeforeRequestDto;
+import com.hanghae.navis.messenger.dto.ChatCreateRequestDto;
 import com.hanghae.navis.messenger.dto.MessengerChatRequestDto;
 import com.hanghae.navis.messenger.service.MessengerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,9 +42,9 @@ public class MessengerController {
     @Operation(summary = "채팅방 생성", description = "채팅방 생성")
     @PostMapping("/room")
     @ResponseBody
-    public ResponseEntity<Message> createRoom(@RequestParam String to,
+    public ResponseEntity<Message> createRoom(@RequestBody ChatCreateRequestDto requestDto,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return messengerService.createRoom(to, userDetails.getUser());
+        return messengerService.createRoom(requestDto, userDetails.getUser());
     }
 
     // 특정 채팅방 조회
