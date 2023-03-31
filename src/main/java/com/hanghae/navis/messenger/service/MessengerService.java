@@ -80,12 +80,12 @@ public class MessengerService {
     }
 
     //채팅방 생성
-    public ResponseEntity<Message> createRoom(String to, User user) {
-        if (to.equals(user.getUsername())) {
+    public ResponseEntity<Message> createRoom(ChatCreateRequestDto requestDto, User user) {
+        if (requestDto.getTo().equals(user.getUsername())) {
             throw new CustomException(CANNOT_CHAT_MYSELF);
         }
 
-        User toUser = userRepository.findByUsername(to).orElseThrow(
+        User toUser = userRepository.findByUsername(requestDto.getTo()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
