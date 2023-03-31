@@ -52,6 +52,7 @@ public class MessengerService {
         User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
+
         //내 대화방 목록 가져오기
         List<MessengerListResponseDto> room = messengerRepository.findByMessengerList(me);
 
@@ -111,7 +112,6 @@ public class MessengerService {
 
     //메세지 보내기
     public ResponseEntity<Message> sendMessage(MessengerChatRequestDto requestDto, String message, String token) {
-        log.warn(token);
         Claims claims = jwtUtil.getUserInfoFromToken(token);
         String username = claims.getSubject();
         User toUser = userRepository.findByUsername(requestDto.getTo()).orElseThrow(
