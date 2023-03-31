@@ -77,6 +77,10 @@ public class EmailService {
             return Message.toExceptionResponseEntity(DUPLICATE_EMAIL);
         }
 
+        if(redisUtil.get(to) != null) {
+            redisUtil.delete(to);
+        }
+
         MimeMessage sendMessage = createMessage(to);
 
         try {

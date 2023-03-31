@@ -28,8 +28,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import java.util.*;
 
-import static com.hanghae.navis.common.entity.ExceptionMessage.CHAT_ROOM_NOT_FOUND;
-import static com.hanghae.navis.common.entity.ExceptionMessage.MEMBER_NOT_FOUND;
+import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
 
 @Service
@@ -53,7 +52,6 @@ public class MessengerService {
         User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-
         //내 대화방 목록 가져오기
         List<MessengerListResponseDto> room = messengerRepository.findByMessengerList(me);
 
@@ -82,6 +80,10 @@ public class MessengerService {
 
     //채팅방 생성
     public ResponseEntity<Message> createRoom(String to, User user) {
+        if (to.equals(user.getUsername())) {
+            throw new CustomException(CANNOT_CHAT_MYSELF);
+        }
+
         User toUser = userRepository.findByUsername(to).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
