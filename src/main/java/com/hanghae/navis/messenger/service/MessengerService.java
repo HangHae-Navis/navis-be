@@ -28,8 +28,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import java.util.*;
 
-import static com.hanghae.navis.common.entity.ExceptionMessage.CHAT_ROOM_NOT_FOUND;
-import static com.hanghae.navis.common.entity.ExceptionMessage.MEMBER_NOT_FOUND;
+import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
 
 @Service
@@ -74,15 +73,19 @@ public class MessengerService {
                 () -> new CustomException(CHAT_ROOM_NOT_FOUND)
         );
 
-        Pageable pageable = PageRequest.of(requestDto.getPage(), requestDto.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(requestDto.getPage() - 1, requestDto.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<MessengerChat> messengerChatPage = messengerChatRepository.findByMessengerIdOrderByCreatedAtDesc(room.getId(), pageable);
         Page<MessengerResponseDto> messengerResponseDto = MessengerResponseDto.toDtoPage(messengerChatPage, me);
         return Message.toResponseEntity(CHAT_ENTER_SUCCESS, messengerResponseDto);
     }
 
     //채팅방 생성
-    public ResponseEntity<Message> createRoom(String to, User user) {
-        User toUser = userRepository.findByUsername(to).orElseThrow(
+    public ResponseEntity<Message> createRoom(ChatCreateRequestDto requestDto, User user) {
+        if (requestDto.getTo().equals(user.getUsername())) {
+            throw new CustomException(CANNOT_CHAT_MYSELF);
+        }
+
+        User toUser = userRepository.findByUsername(requestDto.getTo()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
@@ -109,7 +112,6 @@ public class MessengerService {
 
     //메세지 보내기
     public ResponseEntity<Message> sendMessage(MessengerChatRequestDto requestDto, String message, String token) {
-        log.warn(token);
         Claims claims = jwtUtil.getUserInfoFromToken(token);
         String username = claims.getSubject();
         User toUser = userRepository.findByUsername(requestDto.getTo()).orElseThrow(

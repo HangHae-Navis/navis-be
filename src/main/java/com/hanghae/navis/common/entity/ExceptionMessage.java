@@ -22,6 +22,8 @@ public enum ExceptionMessage {
     HOMEWORK_FILE_IS_NULL(BAD_REQUEST, "첨부한 과제가 없습니다."),
     CONTENT_IS_NULL(BAD_REQUEST, "댓글을 입력해주세요"),
     CANNOT_FOLLOW_MYSELF(BAD_REQUEST, "자기 자신은 팔로우 할 수 없습니다"),
+
+    CANNOT_CHAT_MYSELF(BAD_REQUEST, "자기 자신은 채팅 할 수 없습니다"),
     NICKNAME_WITH_SPACES(BAD_REQUEST,"공백이 포함된 닉네임입니다."),
     BUDGET_INVALID_RANGE(BAD_REQUEST,"유효한 범위 내에 있는 예산이 아닙니다."),
     IMAGE_INVALID(BAD_REQUEST,"이미지가 잘못 되었습니다."),

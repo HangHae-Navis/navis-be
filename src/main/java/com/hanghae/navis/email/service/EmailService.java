@@ -28,16 +28,17 @@ public class EmailService {
     JavaMailSender emailSender;
     private final RedisUtil redisUtil;
 
-    public static final String ePw = createKey();
+    public static String ePw = createKey();
 
 
     private MimeMessage createMessage(String to) throws Exception {
+        ePw = createKey();
         System.out.println("보내는 대상 : " + to);
         System.out.println("인증 번호 : " + ePw);
         MimeMessage message = emailSender.createMimeMessage();
 
         message.addRecipients(RecipientType.TO, to);//보내는 대상
-        message.setSubject("이메일 인증 테스트");//제목
+        message.setSubject("이메일 인증");//제목
 
         String msgg = "";
         msgg += "<div style='margin:20px;'>";
@@ -46,7 +47,7 @@ public class EmailService {
 
         msgg += "<p>아래 코드를 입력해주세요<p>";
         msgg += "<div align='center' style='border:1px solid black; font-family:verdana';>";
-        msgg += "<h3 style='color:blue;'>회원가입 인증 코드입니다.</h3>";
+        msgg += "<h3 style='color:blue;'>이메일 인증 코드입니다.</h3>";
         msgg += "<div style='font-size:130%'>";
         msgg += "CODE : <strong>";
         msgg += ePw + "</strong><div><br/> ";
@@ -77,6 +78,10 @@ public class EmailService {
             return Message.toExceptionResponseEntity(DUPLICATE_EMAIL);
         }
 
+        if(redisUtil.get(to) != null) {
+            redisUtil.delete(to);
+        }
+
         MimeMessage sendMessage = createMessage(to);
 
         try {
@@ -93,9 +98,6 @@ public class EmailService {
         if (redisUtil.get(key) == null) {
             return Message.toExceptionResponseEntity(EMAIL_CODE_INVALID);
         }
-
-        //코드가 유효하다면 키 삭제 후 ok보내줌
-        redisUtil.delete(key);
 
         return Message.toResponseEntity(EMAIL_CONFIRM_SUCCESS);
     }
