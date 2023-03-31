@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 
 public interface MessengerListResponseDto {
      Long getId();
-     String getToUser();
+     Long getToUser();
+     String getNickname();
      String getProfileImage();
      String getLastMessage();
      Long getNewMessageCount();

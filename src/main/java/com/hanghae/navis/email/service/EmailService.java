@@ -99,9 +99,6 @@ public class EmailService {
             return Message.toExceptionResponseEntity(EMAIL_CODE_INVALID);
         }
 
-        //코드가 유효하다면 키 삭제 후 ok보내줌
-        redisUtil.delete(key);
-
         return Message.toResponseEntity(EMAIL_CONFIRM_SUCCESS);
     }
 }
