@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface MessengerChatRepository extends JpaRepository<MessengerChat, Long> {
     List<MessengerChat> findTop1ByMessengerAndReadOrderByCreatedAt(Messenger messenger, boolean read);
     Long countByMessengerAndRead(Messenger messenger, boolean read);
-    Page<MessengerChat> findByMessengerIdOrderByCreatedAtDesc(Long messengerId, Pageable pageable);
+    Page<MessengerChat> findByMessengerIdOrderByCreatedAt(Long messengerId, Pageable pageable);
 }

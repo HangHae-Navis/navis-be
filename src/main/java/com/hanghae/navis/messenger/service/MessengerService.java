@@ -73,8 +73,8 @@ public class MessengerService {
                 () -> new CustomException(CHAT_ROOM_NOT_FOUND)
         );
 
-        Pageable pageable = PageRequest.of(requestDto.getPage() - 1, requestDto.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<MessengerChat> messengerChatPage = messengerChatRepository.findByMessengerIdOrderByCreatedAtDesc(room.getId(), pageable);
+        Pageable pageable = PageRequest.of(requestDto.getPage() - 1, requestDto.getSize(), Sort.by(Sort.Direction.ASC, "createdAt"));
+        Page<MessengerChat> messengerChatPage = messengerChatRepository.findByMessengerIdOrderByCreatedAt(room.getId(), pageable);
         Page<MessengerResponseDto> messengerResponseDto = MessengerResponseDto.toDtoPage(messengerChatPage, me);
         return Message.toResponseEntity(CHAT_ENTER_SUCCESS, messengerResponseDto);
     }
