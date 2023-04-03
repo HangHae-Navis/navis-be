@@ -33,9 +33,10 @@ public class HomeworkSubject extends TimeStamped {
     @OneToMany(mappedBy = "homeworkSubject", cascade = {CascadeType.ALL})
     List<Feedback> feedbackList = new ArrayList<>();
 
-    public HomeworkSubject(boolean submit, boolean late, User user, Group group, Homework homework) {
+    public HomeworkSubject(boolean submit, boolean late, boolean submitCheck, User user, Group group, Homework homework) {
         this.submit = submit;
         this.late = late;
+        this.submitCheck = submitCheck;
         this.user = user;
         this.group = group;
         this.homework = homework;

@@ -7,4 +7,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FeedbackRequestDto {
     private String feedback;
+    private boolean submitCheck;
 }
