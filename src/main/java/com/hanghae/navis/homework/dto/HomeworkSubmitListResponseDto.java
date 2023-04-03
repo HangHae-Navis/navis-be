@@ -13,4 +13,5 @@ public interface HomeworkSubmitListResponseDto {
     Boolean getLate();
     String getRole();
     String getFeedback();
+    Boolean getSubmitCheck();
 }

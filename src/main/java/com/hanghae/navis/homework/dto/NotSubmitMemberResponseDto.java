@@ -11,13 +11,15 @@ import lombok.Getter;
 public class NotSubmitMemberResponseDto {
     private Long id;
     private String nickname;
-    private Boolean submit;
+    private boolean submit;
+    private boolean submitCheck;
 
     public static NotSubmitMemberResponseDto of(HomeworkSubmitListResponseDto responseDto) {
         return NotSubmitMemberResponseDto.builder()
                 .id(responseDto.getUserId())
                 .nickname(responseDto.getNickname())
                 .submit(false)
+                .submitCheck(false)
                 .build();
     }
 }
