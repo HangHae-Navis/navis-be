@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
@@ -76,6 +77,7 @@ public class MessengerService {
         Pageable pageable = PageRequest.of(requestDto.getPage() - 1, requestDto.getSize(), Sort.by(Sort.Direction.ASC, "createdAt"));
         Page<MessengerChat> messengerChatPage = messengerChatRepository.findByMessengerIdOrderByCreatedAt(room.getId(), pageable);
         Page<MessengerResponseDto> messengerResponseDto = MessengerResponseDto.toDtoPage(messengerChatPage, me);
+
         return Message.toResponseEntity(CHAT_ENTER_SUCCESS, messengerResponseDto);
     }
 
@@ -133,5 +135,21 @@ public class MessengerService {
             sendingOperations.convertAndSend("/chats/room/" + room.getId(), MessengerResponseDto.of(messengerChat, me));
         }
         return Message.toResponseEntity(CHAT_POST_SUCCESS);
+    }
+
+
+    public ResponseEntity<Message> readChat(ChatReadRequestDto requestDto, User user) {
+        User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        //메신저에 대화방이 있는지 체크
+        Messenger room = messengerRepository.findById(requestDto.getRoomId()).orElseThrow(
+                () -> new CustomException(CHAT_ROOM_NOT_FOUND)
+        );
+
+        messengerChatRepository.updateRead(room.getId(), me.getId());
+
+         return Message.toResponseEntity(CHAT_READ_SUCCESS);
     }
 }

@@ -17,7 +17,7 @@ public interface MessengerRepository extends JpaRepository<Messenger, Long> {
             "       CASE WHEN u.id = :user THEN u2.nickname ELSE u.nickname END AS nickname, " +
             "       CASE WHEN u.id = :user THEN u2.profile_image ELSE u.profile_image END AS profileImage, " +
             "       (SELECT message FROM messenger_chat WHERE m.id = messenger_chat.messenger_id ORDER BY id DESC LIMIT 1) AS lastMessage, " +
-            "       (SELECT DISTINCT (SELECT COUNT(*) FROM messenger_chat WHERE messenger_chat.read = FALSE) FROM messenger_chat) AS newMessageCount, " +
+            "       (SELECT DISTINCT (SELECT COUNT(*) FROM messenger_chat WHERE messenger_chat.read = FALSE AND messenger_chat.messenger_id = m.id AND messenger_chat.author_id != :user) FROM messenger_chat) AS newMessageCount, " +
             "       mc.created_at as createdAt " +
             "       FROM messenger m " +
             "       LEFT OUTER JOIN messenger_chat mc ON m.id = mc.messenger_id " +
