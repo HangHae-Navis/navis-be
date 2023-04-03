@@ -56,7 +56,6 @@ public class HomeworkService {
     private final SubmitRepository submitRepository;
     private final FeedbackRepository feedbackRepository;
     private final S3Uploader s3Uploader;
-    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> homeworkList(Long groupId, int page, int size, User user) {
@@ -127,13 +126,18 @@ public class HomeworkService {
         }
 
         //user return
+        //게시글 파일리스트
         List<FileResponseDto> responseList = new ArrayList<>();
-        List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
-
         homework.getFileList().forEach(value -> responseList.add(FileResponseDto.of(value)));
 
+        //제출한 과제 파일리스트
+        List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
+
+        //피드백 리스트
+        List<String> feedbackResponse = new ArrayList<>();
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
+        homeworkSubject.getFeedbackList().forEach(value -> feedbackResponse.add(value.getFeedback()));
 
         if (homeworkSubject == null) { //미제출 유저
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
@@ -141,7 +145,7 @@ public class HomeworkService {
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
         } else {    //제출한 유저
             homeworkSubject.getHomeworkSubjectFileList().forEach(value -> fileResponseDto.add(HomeworkFileResponseDto.of(value)));
-            SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto);
+            SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto, feedbackResponse);
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
@@ -365,7 +369,7 @@ public class HomeworkService {
                     fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
                 }
 
-                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
+                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto, null);
                 return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
             } else {
                 throw new CustomException(HOMEWORK_FILE_IS_NULL);
