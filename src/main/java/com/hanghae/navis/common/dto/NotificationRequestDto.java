@@ -5,6 +5,7 @@ import lombok.*;
 @Setter
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class NotificationRequestDto {
     private String topicName;
 }
