@@ -4,6 +4,7 @@ import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.messenger.dto.ChatBeforeRequestDto;
 import com.hanghae.navis.messenger.dto.ChatCreateRequestDto;
+import com.hanghae.navis.messenger.dto.ChatReadRequestDto;
 import com.hanghae.navis.messenger.dto.MessengerChatRequestDto;
 import com.hanghae.navis.messenger.service.MessengerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,10 +59,10 @@ public class MessengerController {
     
     // 채팅 읽음처리
     @Operation(summary = "읽음 처리", description = "읽음 처리")
-    @PostMapping("/room/{roomId}/read")
+    @PutMapping("/room/{roomId}/read")
     @ResponseBody
-    public ResponseEntity<Message> readChat(@RequestBody ChatBeforeRequestDto requestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return messengerService.getChatDetail(requestDto, userDetails.getUser());
+    public ResponseEntity<Message> readChat(@RequestBody ChatReadRequestDto requestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return messengerService.readChat(requestDto, userDetails.getUser());
     }
 
     @Operation(summary = "채팅하기", description = "채팅하기")

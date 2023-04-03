@@ -16,7 +16,7 @@ public class MessengerResponseDto {
 
     private Long roomId;
     private Long id;
-    private boolean isAuthor;
+    private String authorName;
     private String message;
     private boolean read;
     private LocalDateTime created_at;
@@ -24,7 +24,7 @@ public class MessengerResponseDto {
         return MessengerResponseDto.builder()
                 .roomId(messengerChat.getMessenger().getId())
                 .id(messengerChat.getId())
-                .isAuthor(messengerChat.getAuthor().getUsername().equals(me.getUsername()))
+                .authorName(messengerChat.getAuthor().getUsername())
                 .message(messengerChat.getMessage())
                 .read(messengerChat.isRead())
                 .created_at(messengerChat.getCreatedAt())
