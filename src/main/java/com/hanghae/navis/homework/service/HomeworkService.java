@@ -14,13 +14,11 @@ import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.homework.dto.*;
+import com.hanghae.navis.homework.entity.Feedback;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.entity.HomeworkSubject;
 import com.hanghae.navis.homework.entity.HomeworkSubjectFile;
-import com.hanghae.navis.homework.repository.HomeworkRepository;
-import com.hanghae.navis.homework.repository.HomeworkSubjectFileRepository;
-import com.hanghae.navis.homework.repository.HomeworkSubjectRepository;
-import com.hanghae.navis.homework.repository.SubmitRepository;
+import com.hanghae.navis.homework.repository.*;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +54,7 @@ public class HomeworkService {
     private final GroupMemberRepository groupMemberRepository;
     private final HashtagRepository hashtagRepository;
     private final SubmitRepository submitRepository;
+    private final FeedbackRepository feedbackRepository;
     private final S3Uploader s3Uploader;
     private final S3Service s3Service;
 
@@ -377,6 +376,7 @@ public class HomeworkService {
         }
     }
 
+    @Transactional
     public ResponseEntity<Message> submitCancel(Long groupId, Long boardId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
@@ -415,9 +415,42 @@ public class HomeworkService {
     }
 
     @Transactional
-    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
-        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS,s3Service.getObject(fileName));
+    public ResponseEntity<Message> homeworkFeedback(Long groupId, Long boardId, Long subjectId, FeedbackRequestDto requestDto, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        HomeworkSubject subject = homeworkSubjectRepository.findById(subjectId).orElseThrow(
+                () -> new CustomException(HOMEWORK_FILE_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+            throw new CustomException(ADMIN_ONLY);
+        }
+
+        Feedback feedback = new Feedback(requestDto.getFeedback(), subject);
+
+        feedbackRepository.save(feedback);
+
+        return Message.toResponseEntity(FEEDBACK_POST_SUCCESS);
     }
+
+//    @Transactional
+//    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
+//        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS,s3Service.getObject(fileName));
+//    }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {
         return LocalDateTime.ofEpochSecond(unixTime, 6, ZoneOffset.UTC);
@@ -426,4 +459,6 @@ public class HomeworkService {
     public boolean expirationCheck(LocalDateTime dbTime) {
         return LocalDateTime.now().isAfter(dbTime);
     }
+
+
 }
