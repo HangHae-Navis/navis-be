@@ -448,32 +448,14 @@ public class HomeworkService {
         Feedback feedback = new Feedback(requestDto.getFeedback(), subject);
         feedbackRepository.save(feedback);
 
-//        if(requestDto.isSubmitCheck() == true) {
-//            subject =
-//        }
-
-
-
-        return Message.toResponseEntity(FEEDBACK_POST_SUCCESS);
+        if(requestDto.isSubmitCheck() == true) {
+            subject.submitCheck(true);
+            return Message.toResponseEntity(HOMEWORK_SUBMIT_CHECK_SUCCESS);
+        } else {
+            subject.submitCheck(false);
+            return Message.toResponseEntity(HOMEWORK_SUBMIT_CHECK_RETURN_SUCCESS);
+        }
     }
-
-//    @Transactional
-//    public ResponseEntity<Message> homeworkSubmitCheck(Long groupId, Long boardId, Long subjectId, User user) {
-//        Group group = groupRepository.findById(groupId).orElseThrow(
-//                () -> new CustomException(GROUP_NOT_FOUND)
-//        );
-//
-//        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
-//                () -> new CustomException(BOARD_NOT_FOUND)
-//        );
-//
-//        HomeworkSubject subject = homeworkSubjectRepository.findById(subjectId).orElseThrow(
-//                () -> new CustomException(HOMEWORK_FILE_NOT_FOUND)
-//        );
-//        subject.homeworkSubmitCheck(true);
-//
-//        return Message.toResponseEntity(HOMEWORK_SUBMIT_CHECK_SUCCESS);
-//    }
 
 //    @Transactional
 //    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {

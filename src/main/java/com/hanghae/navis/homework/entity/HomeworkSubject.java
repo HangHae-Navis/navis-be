@@ -41,4 +41,8 @@ public class HomeworkSubject extends TimeStamped {
         this.group = group;
         this.homework = homework;
     }
+
+    public void submitCheck(boolean submitCheck) {
+        this.submitCheck = submitCheck;
+    }
 }
