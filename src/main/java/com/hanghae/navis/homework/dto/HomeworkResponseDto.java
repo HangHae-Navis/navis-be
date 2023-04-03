@@ -21,6 +21,7 @@ import java.util.List;
 public class HomeworkResponseDto extends BasicBoardResponseDto {
     private LocalDateTime expirationTime;
     private boolean isExpiration;
+    private boolean submit;
     private SubmitResponseDto submitResponseDto;
 
     public static HomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<String> hashtagList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role) {
@@ -36,6 +37,7 @@ public class HomeworkResponseDto extends BasicBoardResponseDto {
                 .hashtagList(hashtagList)
                 .isExpiration(expiration)
                 .expirationTime(expirationTime)
+                .submit(false)
                 .role(role)
                 .build();
     }
