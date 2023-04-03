@@ -70,4 +70,6 @@ public class MessengerController {
     public void enter(MessengerChatRequestDto message, @Header("Authorization") String token) {
         messengerService.sendMessage(message, message.getMessage(), token);
     }
+
+
 }

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+import redis from "redis";
+<html lang="en">
+<head>
+    ...
+
+    <script
+            crossorigin
+            src="https://unpkg.com/react@17/umd/react.development.js"
+    ></script>
+    <script
+            crossorigin
+            src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"
+    ></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <title>React</title>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+    class LikeButton extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                liked: false,
+            };
+        }
+
+        render() {
+            return (
+                <button onClick={() => this.setState({ liked: true })}>
+                    {this.state.liked === true ? "Liked" : "Like"}
+                </button>
+            );
+        }
+    }
+</script>
+<script type="text/babel">
+    ReactDOM.render(<LikeButton />, document.querySelector("#root"));
+
+    const client = redis.createClient({
+        host: "sparta-kdh.kro.kr",
+        port: 6379,
+    });
+
+    client.on("connect", function () {
+        console.log("Redis client connected");
+    });
+
+    client.on("error", function (error) {
+        console.error(error);
+    });
+
+    client.subscribe("42");
+
+    client.on("message", function (channel, message) {
+        console.log("Received message from channel %s: %s", channel, message);
+        // 받은 메시지를 처리하는 코드를 작성합니다.
+    });
+</script>
+</body>
+</html>
