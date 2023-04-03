@@ -8,6 +8,7 @@ import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
+import com.hanghae.navis.common.service.PubSubService;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
@@ -56,6 +57,8 @@ public class HomeworkService {
     private final SubmitRepository submitRepository;
     private final FeedbackRepository feedbackRepository;
     private final S3Uploader s3Uploader;
+    private final S3Service s3Service;
+    private final PubSubService pubSubService;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> homeworkList(Long groupId, int page, int size, User user) {
@@ -200,6 +203,8 @@ public class HomeworkService {
                 fileResponseDto = null;
             }
             HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
+
+            pubSubService.pushMessage(String.valueOf(groupId), NotificationResponseDto.of(NotificationResponseDto.MessageType.HOMEWORK));
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
