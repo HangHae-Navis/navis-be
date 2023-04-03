@@ -2,6 +2,7 @@ package com.hanghae.navis.homework.controller;
 
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
+import com.hanghae.navis.homework.dto.FeedbackRequestDto;
 import com.hanghae.navis.homework.dto.HomeworkFileRequestDto;
 import com.hanghae.navis.homework.dto.HomeworkRequestDto;
 import com.hanghae.navis.homework.service.HomeworkService;
@@ -77,9 +78,24 @@ public class HomeworkController {
         return homeworkService.submitCancel(groupId, boardId, userDetails.getUser());
     }
 
-    @Operation(summary = "제출된 과제 파일 다운로드", description = "제출된 과제 파일 다운로드")
-    @PostMapping("/{boardId}/download/{fileName}")
-    public ResponseEntity<Message> downloadFile(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable String fileName) throws IOException {
-        return homeworkService.downloadFile(groupId, boardId, fileName);
+    @Operation(summary = "과제 피드백 남기기", description = "완료된 과제에 대한 피드백")
+    @PostMapping("/{boardId}/{subjectId}/feedbacks")
+    public ResponseEntity<Message> homeworkFeedback(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable Long subjectId,
+                                                    @RequestBody FeedbackRequestDto requestDto,
+                                                    @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return homeworkService.homeworkFeedback(groupId, boardId, subjectId, requestDto, userDetails.getUser());
     }
+
+    @Operation(summary = "제출한 과제 검토 완료", description = "유저가 과제에 대한 피드백을 완료했을 때 최종 제출 완료")
+    @PostMapping("/{boardId}/submitCheck")
+    public ResponseEntity<Message> homeworkSubmitCheck(@PathVariable Long groupId, @PathVariable Long boardId,
+                                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return null;
+    }
+
+//    @Operation(summary = "제출된 과제 파일 다운로드", description = "제출된 과제 파일 다운로드")
+//    @PostMapping("/{boardId}/download/{fileName}")
+//    public ResponseEntity<Message> downloadFile(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable String fileName) throws IOException {
+//        return homeworkService.downloadFile(groupId, boardId, fileName);
+//    }
 }

@@ -52,7 +52,8 @@ public enum SuccessMessage {
     CHAT_LIST_GET_SUCCESS(HttpStatus.OK, "채팅방 리스트 확인 완료"),
     CHAT_POST_SUCCESS(HttpStatus.OK, "채팅 보내기 완료"),
     HOMEWORK_SUBMIT_LIST_GET_SUCCESS(HttpStatus.OK, "과제 제출자 리스트 조회 성공"),
-    FILE_DOWNLOAD_SUCCESS(HttpStatus.OK, "과제 파일 다운로드 성공");
+    FILE_DOWNLOAD_SUCCESS(HttpStatus.OK, "과제 파일 다운로드 성공"),
+    FEEDBACK_POST_SUCCESS(HttpStatus.CREATED, "피드백 작성 성공");
     private final HttpStatus httpStatus;
     private final String detail;
 }
