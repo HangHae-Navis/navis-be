@@ -78,7 +78,7 @@ public class HomeworkController {
         return homeworkService.submitCancel(groupId, boardId, userDetails.getUser());
     }
 
-    @Operation(summary = "과제 피드백 남기기", description = "완료된 과제에 대한 피드백")
+    @Operation(summary = "과제 피드백 남기기", description = "완료된 과제에 대한 피드백, submitCheck가 true로 넘어오면 최종제출 완료, false로 넘어오면 수정해서 제출")
     @PostMapping("/{boardId}/{subjectId}/feedbacks")
     public ResponseEntity<Message> homeworkFeedback(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable Long subjectId,
                                                     @RequestBody FeedbackRequestDto requestDto,
@@ -86,12 +86,12 @@ public class HomeworkController {
         return homeworkService.homeworkFeedback(groupId, boardId, subjectId, requestDto, userDetails.getUser());
     }
 
-    @Operation(summary = "제출한 과제 검토 완료", description = "유저가 과제에 대한 피드백을 완료했을 때 최종 제출 완료")
-    @PostMapping("/{boardId}/submitCheck")
-    public ResponseEntity<Message> homeworkSubmitCheck(@PathVariable Long groupId, @PathVariable Long boardId,
-                                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return null;
-    }
+//    @Operation(summary = "제출한 과제 검토 완료", description = "유저가 과제에 대한 피드백을 완료했을 때 최종 제출 완료")
+//    @PostMapping("/{boardId}/{subjectId}/submitCheck")
+//    public ResponseEntity<Message> homeworkSubmitCheck(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable Long subjectId,
+//                                                       @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        return homeworkService.homeworkSubmitCheck(groupId, boardId, subjectId, userDetails.getUser());
+//    }
 
 //    @Operation(summary = "제출된 과제 파일 다운로드", description = "제출된 과제 파일 다운로드")
 //    @PostMapping("/{boardId}/download/{fileName}")

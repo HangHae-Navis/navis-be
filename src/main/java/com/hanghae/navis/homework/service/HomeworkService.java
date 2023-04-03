@@ -137,7 +137,7 @@ public class HomeworkService {
         List<String> feedbackResponse = new ArrayList<>();
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
-        homeworkSubject.getFeedbackList().forEach(value -> feedbackResponse.add(value.getFeedback()));
+
 
         if (homeworkSubject == null) { //미제출 유저
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
@@ -145,6 +145,7 @@ public class HomeworkService {
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
         } else {    //제출한 유저
             homeworkSubject.getHomeworkSubjectFileList().forEach(value -> fileResponseDto.add(HomeworkFileResponseDto.of(value)));
+            homeworkSubject.getFeedbackList().forEach(value -> feedbackResponse.add(value.getFeedback()));
             SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto, feedbackResponse);
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto);
 
@@ -352,9 +353,9 @@ public class HomeworkService {
             HomeworkSubject subject = new HomeworkSubject();
 
             if (expirationCheck(homework.getExpirationDate()) == true) {
-                subject = new HomeworkSubject(true, true, user, group, homework);
+                subject = new HomeworkSubject(true, true, false, user, group, homework);
             } else {
-                subject = new HomeworkSubject(true, false, user, group, homework);
+                subject = new HomeworkSubject(true, false, false, user, group, homework);
             }
             homeworkSubjectRepository.save(subject);
 
@@ -445,11 +446,34 @@ public class HomeworkService {
         }
 
         Feedback feedback = new Feedback(requestDto.getFeedback(), subject);
-
         feedbackRepository.save(feedback);
+
+//        if(requestDto.isSubmitCheck() == true) {
+//            subject =
+//        }
+
+
 
         return Message.toResponseEntity(FEEDBACK_POST_SUCCESS);
     }
+
+//    @Transactional
+//    public ResponseEntity<Message> homeworkSubmitCheck(Long groupId, Long boardId, Long subjectId, User user) {
+//        Group group = groupRepository.findById(groupId).orElseThrow(
+//                () -> new CustomException(GROUP_NOT_FOUND)
+//        );
+//
+//        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
+//                () -> new CustomException(BOARD_NOT_FOUND)
+//        );
+//
+//        HomeworkSubject subject = homeworkSubjectRepository.findById(subjectId).orElseThrow(
+//                () -> new CustomException(HOMEWORK_FILE_NOT_FOUND)
+//        );
+//        subject.homeworkSubmitCheck(true);
+//
+//        return Message.toResponseEntity(HOMEWORK_SUBMIT_CHECK_SUCCESS);
+//    }
 
 //    @Transactional
 //    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
@@ -463,6 +487,4 @@ public class HomeworkService {
     public boolean expirationCheck(LocalDateTime dbTime) {
         return LocalDateTime.now().isAfter(dbTime);
     }
-
-
 }
