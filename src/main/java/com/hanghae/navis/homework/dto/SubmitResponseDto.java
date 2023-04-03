@@ -25,7 +25,7 @@ public class SubmitResponseDto {
     private List<HomeworkFileResponseDto> fileList;
     private List<String> feedbackList;
 
-    public static SubmitResponseDto of(HomeworkSubject homeworkSubject, List<HomeworkFileResponseDto> fileList) {
+    public static SubmitResponseDto of(HomeworkSubject homeworkSubject, List<HomeworkFileResponseDto> fileList, List<String> feedbackList) {
         return SubmitResponseDto.builder()
                 .id(homeworkSubject.getId())
                 .submit(homeworkSubject.isSubmit())
@@ -33,7 +33,7 @@ public class SubmitResponseDto {
                 .createdAt(homeworkSubject.getCreatedAt())
                 .nickname(homeworkSubject.getUser().getNickname())
                 .fileList(fileList)
-//                .feedbackList(homeworkSubject.getFeedbackList())
+                .feedbackList(feedbackList)
                 .build();
     }
 }
