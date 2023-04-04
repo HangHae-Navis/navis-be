@@ -45,6 +45,7 @@ public enum SuccessMessage {
     VOTE_FORCE_EXPIRED_SUCCESS(HttpStatus.OK,"투표 강제 만료 성공"),
     HASHTAG_DELETE_SUCCESS(HttpStatus.OK, "해시태그 삭제 성공"),
     HOMEWORK_SUBMIT_SUCCESS(HttpStatus.OK, "과제 제출 성공"),
+    HOMEWORK_SUBJECT_FILE_UPDATE_SUCCESS(HttpStatus.OK, "과제 파일 수정 성공"),
     HOMEWORK_SUBMIT_CANCEL(HttpStatus.OK, "과제 제출 취소"),
     CHAT_ENTER_SUCCESS(HttpStatus.OK, "채팅 연결 완료"),
     CHAT_READ_SUCCESS(HttpStatus.OK, "채팅 읽음처리 완료"),

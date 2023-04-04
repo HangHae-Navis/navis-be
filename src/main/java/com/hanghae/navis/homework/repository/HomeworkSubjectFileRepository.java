@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface HomeworkSubjectFileRepository extends JpaRepository<HomeworkSubjectFile, Long> {
-//    List<HomeworkSubjectFile> findFileUrlByHomeworkId(Long boardId);
+    List<HomeworkSubjectFile> findFileUrlByHomeworkSubjectId(Long subjectId);
 }

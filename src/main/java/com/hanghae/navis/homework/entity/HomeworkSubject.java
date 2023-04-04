@@ -20,6 +20,7 @@ public class HomeworkSubject extends TimeStamped {
     private boolean submit;
     private boolean late;
     private boolean submitCheck;
+    private boolean updateSubject = false;
     @ManyToOne
     private User user;
     @ManyToOne
@@ -37,6 +38,7 @@ public class HomeworkSubject extends TimeStamped {
         this.submit = submit;
         this.late = late;
         this.submitCheck = submitCheck;
+        this.updateSubject = false;
         this.user = user;
         this.group = group;
         this.homework = homework;
@@ -44,5 +46,9 @@ public class HomeworkSubject extends TimeStamped {
 
     public void submitCheck(boolean submitCheck) {
         this.submitCheck = submitCheck;
+    }
+
+    public void updateSubject(boolean updateSubject) {
+        this.updateSubject = updateSubject;
     }
 }

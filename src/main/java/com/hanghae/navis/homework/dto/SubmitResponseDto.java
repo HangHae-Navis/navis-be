@@ -24,6 +24,7 @@ public class SubmitResponseDto {
     private LocalDateTime createdAt;
     private List<HomeworkFileResponseDto> fileList;
     private boolean submitCheck;
+    private boolean updateSubject;
     private List<String> feedbackList;
 
     public static SubmitResponseDto of(HomeworkSubject homeworkSubject, List<HomeworkFileResponseDto> fileList, List<String> feedbackList) {
@@ -35,6 +36,7 @@ public class SubmitResponseDto {
                 .nickname(homeworkSubject.getUser().getNickname())
                 .fileList(fileList)
                 .submitCheck(homeworkSubject.isSubmitCheck())
+                .updateSubject(homeworkSubject.isUpdateSubject())
                 .feedbackList(feedbackList)
                 .build();
     }

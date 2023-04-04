@@ -17,7 +17,7 @@ public enum ExceptionMessage {
     ILLEAGAL_TOKEN(BAD_REQUEST, "JWT claims is empty, 잘못된 JWT 토큰 입니다."),
     VOTE_EXPIRED(NOT_FOUND, "투표가 종료되었습니다."),
     HOMEWORK_EXPIRED(NOT_FOUND, "마감된 과제입니다."),
-    DUPLICATE_HOMEWORK_OR_HOMEWORK_EXPIRED(BAD_REQUEST, "마감됐거나 이미 제출한 과제입니다."),
+    HOMEWORK_SUBMIT_CHECK_TRUE(BAD_REQUEST, "최종 제출이 완료된 과제는 취소할 수 없습니다."),
     WRONG_DATE(BAD_REQUEST, "현재 날짜보다 이전 날짜를 과제 마감일로 설정할 수 업습니다."),
     HOMEWORK_FILE_IS_NULL(BAD_REQUEST, "첨부한 과제가 없습니다."),
     CONTENT_IS_NULL(BAD_REQUEST, "댓글을 입력해주세요"),
