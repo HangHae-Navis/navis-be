@@ -83,6 +83,13 @@ public class GroupController {
         return groupService.updateRole(groupId, memberId, userDetails.getUser());
     }
 
+    @PutMapping("/{groupId}/admin/updategroupcode")
+    @Operation(summary = "그룹 초대코드 재발급", description ="그룹 초대코드 재발급, Admin만 가능")
+    public ResponseEntity<Message> updateGroupcode(@PathVariable Long groupId,
+                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return groupService.updateGroupcode(groupId, userDetails.getUser());
+    }
+
     @PutMapping("/{groupId}/admin/transferadmin")
     @Operation(summary = "관리자 변경", description = "관리자 권한을 다른 유저에게 넘기고 일반 유저가 됨. Admin만 가능, 넘기고 나면 admin페이지 접속 안되니 주의")
     public ResponseEntity<Message> transferAdmin(@PathVariable Long groupId, @RequestParam Long memberId,
