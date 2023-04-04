@@ -204,8 +204,6 @@ public class HomeworkService {
             }
             HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
 
-            pubSubService.pushMessage(String.valueOf(groupId), NotificationResponseDto.of(NotificationResponseDto.MessageType.HOMEWORK));
-
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
         } catch (IOException e) {
