@@ -18,6 +18,7 @@ import java.util.List;
 @Builder
 public class NotificationResponseDto {
 
+    private Long id;
     private String type;
     private String content;
     private String url;
@@ -25,6 +26,7 @@ public class NotificationResponseDto {
 
     public static NotificationResponseDto of(Notification notification) {
         return NotificationResponseDto.builder()
+                .id(notification.getId())
                 .type(notification.getNotificationType().getType())
                 .content(notification.getContent())
                 .url(notification.getUrl())

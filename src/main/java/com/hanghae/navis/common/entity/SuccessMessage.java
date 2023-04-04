@@ -56,7 +56,9 @@ public enum SuccessMessage {
     FILE_DOWNLOAD_SUCCESS(HttpStatus.OK, "과제 파일 다운로드 성공"),
 //    FEEDBACK_POST_SUCCESS(HttpStatus.CREATED, "피드백 작성 성공"),
     HOMEWORK_SUBMIT_CHECK_SUCCESS(HttpStatus.OK, "과제 최종제출 확정 성공"),
-    HOMEWORK_SUBMIT_CHECK_RETURN_SUCCESS(HttpStatus.OK, "과제 최종제출 반려 성공");
+    HOMEWORK_SUBMIT_CHECK_RETURN_SUCCESS(HttpStatus.OK, "과제 최종제출 반려 성공"),
+    NOTIFICATION_GET_SUCCESS(HttpStatus.OK, "알림 가져오기 성공"),
+    NOTIFICATION_DELETE_SUCCESS(HttpStatus.OK, "알림 삭제 성공");
     private final HttpStatus httpStatus;
     private final String detail;
 }

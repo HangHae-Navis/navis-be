@@ -10,15 +10,12 @@ import javax.validation.constraints.*;
 @Getter
 public class SignupRequestDto {
 
-    @Pattern(regexp = "^[a-z0-9]+$", message = "아이디는 소문자랑 숫자만 가능합니다.")
-    @Size(min=4, max=10, message = "4 ~ 10길이의 소문자, 숫자만 가능합니다.")
-
     @Email
     @Schema(example = "user@gmail.com")
     private String username;
 
     @NotNull(message = "닉네임은 공백일 수 없습니다.")
-    @Min(value = 1, message = "1글자 이상이어야 합니다.")
+    @Size(min = 1, max = 10, message = "닉네임은 1~10글자 이내입니다.")
     @Schema(example = "테스트")
     private String nickname;
 
