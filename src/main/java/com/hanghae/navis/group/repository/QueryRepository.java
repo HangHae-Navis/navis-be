@@ -31,7 +31,7 @@ public class QueryRepository {
 
         BooleanBuilder builder = new BooleanBuilder();
         switch (category) {
-            case "myown" :
+            case "myOwn" :
                 builder.and(gm.groupRole.eq(GroupMemberRoleEnum.ADMIN));
                 break;
             case "joined" :
