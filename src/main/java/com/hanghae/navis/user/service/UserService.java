@@ -93,6 +93,7 @@ public class UserService {
         return Message.toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
     }
 
+    @Transactional(readOnly = true)
     public ResponseEntity<Message> userInfo(User user) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
@@ -109,6 +110,7 @@ public class UserService {
         return Message.toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
     }
 
+    @Transactional(readOnly = true)
     public ResponseEntity<Message> searchUser(String searchName, User user) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
@@ -144,7 +146,7 @@ public class UserService {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ResponseEntity<Message> findPassword(FindPasswordRequestDto findPasswordRequestDto) {
         String username = findPasswordRequestDto.getUsername();
 

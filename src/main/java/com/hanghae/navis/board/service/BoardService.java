@@ -279,7 +279,7 @@ public class BoardService {
         hashtagRepository.deleteById(hashtagId);
         return Message.toResponseEntity(HASHTAG_DELETE_SUCCESS);
     }
-
+    @Transactional(readOnly = true)
     public UserGroup authCheck(Long groupId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)

@@ -25,6 +25,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.*;
@@ -46,7 +47,7 @@ public class MessengerService {
     private final JwtUtil jwtUtil;
 
     public static LinkedList<ChatingRoom> chatingRoomList = new LinkedList<>();
-
+    @Transactional(readOnly = true)
     //채팅방 불러오기
     public ResponseEntity<Message> getChatList(User user) {
         //유저 체크
@@ -61,6 +62,7 @@ public class MessengerService {
     }
 
     //채팅방 하나 불러오기
+    @Transactional(readOnly = true)
     public ResponseEntity<Message> getChatDetail(ChatBeforeRequestDto requestDto, User user) {
         User toUser = userRepository.findByUsername(requestDto.getTo()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
@@ -82,6 +84,7 @@ public class MessengerService {
     }
 
     //채팅방 생성
+    @Transactional
     public ResponseEntity<Message> createRoom(ChatCreateRequestDto requestDto, User user) {
         if (requestDto.getTo().equals(user.getUsername())) {
             throw new CustomException(CANNOT_CHAT_MYSELF);
@@ -113,6 +116,7 @@ public class MessengerService {
 
 
     //메세지 보내기
+    @Transactional
     public ResponseEntity<Message> sendMessage(MessengerChatRequestDto requestDto, String message, String token) {
         Claims claims = jwtUtil.getUserInfoFromToken(token);
         String username = claims.getSubject();
@@ -137,7 +141,7 @@ public class MessengerService {
         return Message.toResponseEntity(CHAT_POST_SUCCESS);
     }
 
-
+    @Transactional
     public ResponseEntity<Message> readChat(ChatReadRequestDto requestDto, User user) {
         User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)

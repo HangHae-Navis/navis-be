@@ -33,7 +33,7 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final UserRepository userRepository;
     private Long DEFAULT_TIMEOUT = 60L * 1000L * 60L;
-
+    @Transactional
     public SseEmitter subscribe(User user, String lastEventId) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
