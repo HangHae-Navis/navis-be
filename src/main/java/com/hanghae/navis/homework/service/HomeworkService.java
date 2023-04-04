@@ -384,61 +384,6 @@ public class HomeworkService {
         }
     }
 
-//    @Transactional
-//    public ResponseEntity<Message> updateHomeworkSubject(Long groupId, Long boardId, Long subjectId, HomeworkFileRequestDto requestDto, User user) {
-//        try {
-//            Group group = groupRepository.findById(groupId).orElseThrow(
-//                    () -> new CustomException(GROUP_NOT_FOUND)
-//            );
-//
-//            Homework homework = homeworkRepository.findById(boardId).orElseThrow(
-//                    () -> new CustomException(BOARD_NOT_FOUND)
-//            );
-//
-//            user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-//                    () -> new CustomException(MEMBER_NOT_FOUND)
-//            );
-//
-//            HomeworkSubject subject = homeworkSubjectRepository.findById(subjectId).orElseThrow(
-//                    () -> new CustomException(HOMEWORK_FILE_NOT_FOUND)
-//            );
-//
-//            GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
-//                    () -> new CustomException(MEMBER_NOT_FOUND)
-//            );
-//
-//            GroupMemberRoleEnum role = groupMember.getGroupRole();
-//
-//            if(user.getId().equals(subject.getUser().getId())) {
-//                throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
-//            }
-//
-//            List<MultipartFile> multipartFiles = requestDto.getMultipartFiles();
-//
-//            try {
-//                for (HomeworkSubjectFile file : subject.getHomeworkSubjectFileList()) {
-//                    String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
-//                    s3Uploader.delete(source);
-//                    homeworkSubjectRepository.delete(subject);
-//                }
-//            } catch (UnsupportedEncodingException e) {
-//                throw new CustomException(HOMEWORK_FILE_IS_NULL);
-//            }
-//
-//            for (MultipartFile saveFile : requestDto.getMultipartFiles()) {
-//                String fileName = saveFile.getOriginalFilename();
-//                String fileUrl = s3Uploader.upload(saveFile);
-//
-//                HomeworkSubjectFile subjectFile = new HomeworkSubjectFile(fileUrl, fileName, subject);
-//                homeworkSubjectFileRepository.save(subjectFile);
-//                subject.updateSubject(true);
-//            }
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        return Message.toResponseEntity(HOMEWORK_SUBJECT_FILE_UPDATE_SUCCESS);
-//    }
-
     @Transactional
     public ResponseEntity<Message> updateHomeworkSubject(Long groupId, Long boardId, HomeworkFileRequestDto requestDto, User user) {
         try {
@@ -459,6 +404,10 @@ public class HomeworkService {
             );
 
             HomeworkSubject subject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
+
+            if (!user.getId().equals(subject.getUser().getId())) {
+                throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+            }
 
             if (subject.isSubmitCheck() == true) {
                 throw new CustomException(HOMEWORK_SUBMIT_CHECK_TRUE);

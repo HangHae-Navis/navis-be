@@ -18,12 +18,12 @@ public class BoardRequestDto {
     @Size(min = 1, max = 50)
     private String title;
 
+    @Size(min = 1, max = 50)
     private String subtitle;
 
     @Size(min = 1, max = 3000)
     private String content;
 
-    @Size(min = 1, max = 50)
     private Long important;
 
     @Size(min = 1, max = 5)

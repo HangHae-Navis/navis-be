@@ -99,7 +99,7 @@ public class BoardService {
     }
 
     @Transactional
-    public ResponseEntity<Message>  createBoard(Long groupId, BoardRequestDto requestDto, User user) {
+    public ResponseEntity<Message> createBoard(Long groupId, BoardRequestDto requestDto, User user) {
         try {
             Group group = groupRepository.findById(groupId).orElseThrow(
                     () -> new CustomException(GROUP_NOT_FOUND)

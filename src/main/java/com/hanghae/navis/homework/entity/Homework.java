@@ -1,8 +1,5 @@
 package com.hanghae.navis.homework.entity;
 
-import com.hanghae.navis.board.dto.BoardRequestDto;
-import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
-import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.homework.dto.HomeworkRequestDto;
