@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
@@ -72,7 +73,7 @@ public class EmailService {
         }
         return key.toString();
     }
-
+    @Transactional
     public ResponseEntity<Message> sendMail(String to) throws Exception {
         if (userRepository.findByUsername(to).isPresent()) {
             return Message.toExceptionResponseEntity(DUPLICATE_EMAIL);
@@ -92,7 +93,7 @@ public class EmailService {
         }
         return Message.toResponseEntity(EMAIL_SEND_SUCCESS);
     }
-
+    @Transactional
     public ResponseEntity<Message> emailConfirm(String key) {
         //코드가 유효하지 않으면
         if (redisUtil.get(key) == null) {
