@@ -83,7 +83,7 @@ class GlobalExceptionHandler {
         throw new CustomException(TOO_MANY_REQUEST);
     }
 
-    @Around("execution(* com.example.controller.*.*(..))")
+    @Around("execution(* com.hanghae.navis.*.*(..))")
     public Object processRequest(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
