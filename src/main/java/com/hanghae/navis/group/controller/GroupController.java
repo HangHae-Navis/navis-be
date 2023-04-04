@@ -1,5 +1,6 @@
 package com.hanghae.navis.group.controller;
 
+import com.hanghae.navis.common.annotation.ApiRateLimiter;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.group.dto.GroupRequestDto;
