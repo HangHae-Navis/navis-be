@@ -10,11 +10,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Tag(name = "group")
 @Controller
@@ -23,9 +26,12 @@ import org.springframework.web.bind.annotation.*;
 public class GroupController {
 
     private final GroupService groupService;
+    @Autowired
+    private HttpServletRequest request;
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "그룹 개설", description ="그룹명 필수, groupInfo는 생략 가능")
+    @ApiRateLimiter(key = "createGroup" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> createGroup(@ModelAttribute GroupRequestDto requestDto,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return groupService.createGroup(requestDto, userDetails.getUser());
@@ -33,6 +39,7 @@ public class GroupController {
 
     @PostMapping("/apply")
     @Operation(summary = "그룹 가입", description ="그룹 코드를 입력해 가입")
+    @ApiRateLimiter(key = "applyGroup" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> applyGroup(@RequestBody ApplyRequestDto requestDto,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return groupService.applyGroup(requestDto, userDetails.getUser());

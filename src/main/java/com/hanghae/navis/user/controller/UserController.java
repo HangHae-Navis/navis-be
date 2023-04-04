@@ -1,6 +1,7 @@
 package com.hanghae.navis.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hanghae.navis.common.annotation.ApiRateLimiter;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.jwt.JwtUtil;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -41,6 +44,8 @@ import static com.hanghae.navis.common.entity.ExceptionMessage.USER_FORBIDDEN;
 public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
+    @Autowired
+    private HttpServletRequest request;
 
     @GetMapping("/login-page")
     public ModelAndView loginPage() {
@@ -48,6 +53,7 @@ public class UserController {
     }
     @ResponseBody
     @PostMapping("/signup")
+    @ApiRateLimiter(key = "signup" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> signup(@RequestBody @Valid SignupRequestDto signupRequestDto) {
         return userService.signup(signupRequestDto);
     }
@@ -55,7 +61,7 @@ public class UserController {
     @ResponseBody
     @PostMapping("/login")
     @Operation(summary = "로그인", description ="로그인")
-
+    @ApiRateLimiter(key = "login" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> login(@RequestBody LoginRequestDto loginRequestDto, @Parameter(hidden = true) HttpServletResponse response) {
         return userService.login(loginRequestDto, response);
     }
@@ -69,6 +75,7 @@ public class UserController {
 
     @GetMapping("/kakao/callback")
     @Operation(hidden = true)
+    @ApiRateLimiter(key = "kakaoLogin" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         return kakaoService.kakaoLogin(code, response);
     }
