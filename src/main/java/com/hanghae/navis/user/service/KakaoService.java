@@ -48,7 +48,7 @@ public class KakaoService {
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createToken);
-        LoginResponseDto loginResponseDto = new LoginResponseDto(userRepository.findByNickname(kakaoUser.getNickname()).get().getNickname(), createToken);
+        LoginResponseDto loginResponseDto = new LoginResponseDto(kakaoUser, createToken);
         return Message.toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
     }
 
@@ -62,7 +62,7 @@ public class KakaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "824bc0f4442a06c2905b527703106262");
-        body.add("redirect_uri", "http://localhost:3000");
+        body.add("redirect_uri", "http://navis.kro.kr");
         body.add("code", code);
 
         // HTTP 요청 보내기

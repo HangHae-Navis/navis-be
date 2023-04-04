@@ -1,5 +1,6 @@
 package com.hanghae.navis.homework.dto;
 
+import com.hanghae.navis.homework.entity.Feedback;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.entity.HomeworkSubject;
 import com.hanghae.navis.user.entity.User;
@@ -22,8 +23,10 @@ public class SubmitResponseDto {
     private boolean late;
     private LocalDateTime createdAt;
     private List<HomeworkFileResponseDto> fileList;
+    private boolean submitCheck;
+    private List<String> feedbackList;
 
-    public static SubmitResponseDto of(HomeworkSubject homeworkSubject, List<HomeworkFileResponseDto> fileList) {
+    public static SubmitResponseDto of(HomeworkSubject homeworkSubject, List<HomeworkFileResponseDto> fileList, List<String> feedbackList) {
         return SubmitResponseDto.builder()
                 .id(homeworkSubject.getId())
                 .submit(homeworkSubject.isSubmit())
@@ -31,6 +34,8 @@ public class SubmitResponseDto {
                 .createdAt(homeworkSubject.getCreatedAt())
                 .nickname(homeworkSubject.getUser().getNickname())
                 .fileList(fileList)
+                .submitCheck(homeworkSubject.isSubmitCheck())
+                .feedbackList(feedbackList)
                 .build();
     }
 }

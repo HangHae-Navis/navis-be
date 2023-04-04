@@ -89,7 +89,7 @@ public class UserService {
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.get().getUsername(), user.get().getRole()));
 
         String token = jwtUtil.createToken(user.get().getUsername(), user.get().getRole());
-        LoginResponseDto loginResponseDto = new LoginResponseDto(userRepository.findByNickname(user.get().getNickname()).get().getNickname(), token);
+        LoginResponseDto loginResponseDto = new LoginResponseDto(user.get(), token);
         return Message.toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
     }
 

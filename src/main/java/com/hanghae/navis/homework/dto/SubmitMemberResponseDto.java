@@ -1,16 +1,12 @@
 package com.hanghae.navis.homework.dto;
 
-import com.hanghae.navis.homework.entity.HomeworkSubject;
-import com.hanghae.navis.homework.entity.HomeworkSubjectFile;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -19,8 +15,11 @@ public class SubmitMemberResponseDto {
     private Long id;
     private String nickname;
     private boolean submit;
+    private Long subjectId;
     private List<String> fileList;
     private List<String> fileName;
+    private List<String> feedbackList;
+    private boolean submitCheck;
     private LocalDateTime createdAt;
     private boolean late;
 
@@ -29,10 +28,13 @@ public class SubmitMemberResponseDto {
                 .id(responseDto.getUserId())
                 .nickname(responseDto.getNickname())
                 .submit(responseDto.getSubmit())
+                .subjectId(responseDto.getSubjectId())
                 .fileList(Arrays.asList(responseDto.getFileUrl().split(", ")))
                 .fileName(Arrays.asList(responseDto.getFileName().split(", ")))
                 .createdAt(responseDto.getCreatedAt())
                 .late(responseDto.getLate())
+                .feedbackList(Arrays.asList(responseDto.getFeedback().split(", ")))
+                .submitCheck(responseDto.getSubmitCheck())
                 .build();
     }
 }

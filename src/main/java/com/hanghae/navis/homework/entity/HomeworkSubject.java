@@ -19,6 +19,7 @@ public class HomeworkSubject extends TimeStamped {
     private Long id;
     private boolean submit;
     private boolean late;
+    private boolean submitCheck;
     @ManyToOne
     private User user;
     @ManyToOne
@@ -29,11 +30,19 @@ public class HomeworkSubject extends TimeStamped {
     @OneToMany(mappedBy = "homeworkSubject", cascade = {CascadeType.ALL})
     List<HomeworkSubjectFile> homeworkSubjectFileList = new ArrayList<>();
 
-    public HomeworkSubject(boolean submit,boolean late, User user, Group group, Homework homework) {
+    @OneToMany(mappedBy = "homeworkSubject", cascade = {CascadeType.ALL})
+    List<Feedback> feedbackList = new ArrayList<>();
+
+    public HomeworkSubject(boolean submit, boolean late, boolean submitCheck, User user, Group group, Homework homework) {
         this.submit = submit;
         this.late = late;
+        this.submitCheck = submitCheck;
         this.user = user;
         this.group = group;
         this.homework = homework;
+    }
+
+    public void submitCheck(boolean submitCheck) {
+        this.submitCheck = submitCheck;
     }
 }

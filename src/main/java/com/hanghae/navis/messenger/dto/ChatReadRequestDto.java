@@ -7,9 +7,6 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatBeforeRequestDto {
+public class ChatReadRequestDto {
     private Long roomId;
-    private String to;
-    private int page;
-    private int size;
 }

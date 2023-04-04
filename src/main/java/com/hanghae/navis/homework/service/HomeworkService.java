@@ -8,19 +8,18 @@ import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
+import com.hanghae.navis.common.service.PubSubService;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.homework.dto.*;
+import com.hanghae.navis.homework.entity.Feedback;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.entity.HomeworkSubject;
 import com.hanghae.navis.homework.entity.HomeworkSubjectFile;
-import com.hanghae.navis.homework.repository.HomeworkRepository;
-import com.hanghae.navis.homework.repository.HomeworkSubjectFileRepository;
-import com.hanghae.navis.homework.repository.HomeworkSubjectRepository;
-import com.hanghae.navis.homework.repository.SubmitRepository;
+import com.hanghae.navis.homework.repository.*;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -56,8 +55,10 @@ public class HomeworkService {
     private final GroupMemberRepository groupMemberRepository;
     private final HashtagRepository hashtagRepository;
     private final SubmitRepository submitRepository;
+    private final FeedbackRepository feedbackRepository;
     private final S3Uploader s3Uploader;
     private final S3Service s3Service;
+    private final PubSubService pubSubService;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> homeworkList(Long groupId, int page, int size, User user) {
@@ -128,13 +129,18 @@ public class HomeworkService {
         }
 
         //user return
+        //게시글 파일리스트
         List<FileResponseDto> responseList = new ArrayList<>();
-        List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
-
         homework.getFileList().forEach(value -> responseList.add(FileResponseDto.of(value)));
 
+        //제출한 과제 파일리스트
+        List<HomeworkFileResponseDto> fileResponseDto = new ArrayList<>();
+
+        //피드백 리스트
+        List<String> feedbackResponse = new ArrayList<>();
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
+
 
         if (homeworkSubject == null) { //미제출 유저
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
@@ -142,7 +148,8 @@ public class HomeworkService {
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
         } else {    //제출한 유저
             homeworkSubject.getHomeworkSubjectFileList().forEach(value -> fileResponseDto.add(HomeworkFileResponseDto.of(value)));
-            SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto);
+            homeworkSubject.getFeedbackList().forEach(value -> feedbackResponse.add(value.getFeedback()));
+            SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto, feedbackResponse);
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
@@ -349,9 +356,9 @@ public class HomeworkService {
             HomeworkSubject subject = new HomeworkSubject();
 
             if (expirationCheck(homework.getExpirationDate()) == true) {
-                subject = new HomeworkSubject(true, true, user, group, homework);
+                subject = new HomeworkSubject(true, true, false, user, group, homework);
             } else {
-                subject = new HomeworkSubject(true, false, user, group, homework);
+                subject = new HomeworkSubject(true, false, false, user, group, homework);
             }
             homeworkSubjectRepository.save(subject);
 
@@ -366,7 +373,7 @@ public class HomeworkService {
                     fileResponseDto.add(HomeworkFileResponseDto.of(subjectFile));
                 }
 
-                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto);
+                SubmitResponseDto submitResponseDto = SubmitResponseDto.of(subject, fileResponseDto, null);
                 return Message.toResponseEntity(HOMEWORK_SUBMIT_SUCCESS, submitResponseDto);
             } else {
                 throw new CustomException(HOMEWORK_FILE_IS_NULL);
@@ -377,6 +384,7 @@ public class HomeworkService {
         }
     }
 
+    @Transactional
     public ResponseEntity<Message> submitCancel(Long groupId, Long boardId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
@@ -415,9 +423,47 @@ public class HomeworkService {
     }
 
     @Transactional
-    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
-        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS,s3Service.getObject(fileName));
+    public ResponseEntity<Message> homeworkFeedback(Long groupId, Long boardId, Long subjectId, FeedbackRequestDto requestDto, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        HomeworkSubject subject = homeworkSubjectRepository.findById(subjectId).orElseThrow(
+                () -> new CustomException(HOMEWORK_FILE_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+            throw new CustomException(ADMIN_ONLY);
+        }
+
+        Feedback feedback = new Feedback(requestDto.getFeedback(), subject);
+        feedbackRepository.save(feedback);
+
+        if(requestDto.isSubmitCheck() == true) {
+            subject.submitCheck(true);
+            return Message.toResponseEntity(HOMEWORK_SUBMIT_CHECK_SUCCESS);
+        } else {
+            subject.submitCheck(false);
+            return Message.toResponseEntity(HOMEWORK_SUBMIT_CHECK_RETURN_SUCCESS);
+        }
     }
+
+//    @Transactional
+//    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
+//        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS,s3Service.getObject(fileName));
+//    }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {
         return LocalDateTime.ofEpochSecond(unixTime, 6, ZoneOffset.UTC);
