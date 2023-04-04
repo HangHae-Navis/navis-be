@@ -1,12 +1,8 @@
 package com.hanghae.navis.notice.dto;
 
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
-import com.hanghae.navis.common.dto.HashtagRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor

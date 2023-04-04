@@ -1,6 +1,5 @@
 package com.hanghae.navis.vote.entity;
 
-import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.user.entity.User;

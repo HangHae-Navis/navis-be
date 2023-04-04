@@ -1,7 +1,6 @@
 package com.hanghae.navis.vote.controller;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
-import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.vote.dto.OptionRequestDto;

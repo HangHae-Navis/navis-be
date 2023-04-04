@@ -4,6 +4,7 @@ import com.amazonaws.Response;
 import com.hanghae.navis.comment.dto.CommentRequestDto;
 import com.hanghae.navis.comment.dto.CommentResponseDto;
 import com.hanghae.navis.comment.service.CommentService;
+import com.hanghae.navis.common.annotation.ApiRateLimiter;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,7 @@ public class CommentController {
 
     @PostMapping("")
     @Operation(summary = "댓글 등록", description = "댓글 등록")
+    @ApiRateLimiter(key = "createComment" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> createComment(@PathVariable Long groupId, @PathVariable Long boardId,
                                                  @RequestBody CommentRequestDto requestDto,
                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -43,6 +45,7 @@ public class CommentController {
 
     @PutMapping("/{commentId}")
     @Operation(summary = "댓글 수정", description = "댓글 수정(관리자만 가능)")
+    @ApiRateLimiter(key = "updateComment" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> updateComment(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable Long commentId,
                                                  @RequestBody CommentRequestDto requestDto,
                                                  @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
