@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -81,6 +82,7 @@ public class NotificationService {
                 .forEach(entry -> sendNotification(emitter, entry.getKey(), emitterId, entry.getValue()));
     }
 
+    @Transactional
     public void send(User receiver, NotificationType notificationType, String content, String url) {
         Notification notification = notificationRepository.save(createNotification(receiver, notificationType, content, url));
 
@@ -105,6 +107,7 @@ public class NotificationService {
                 .build();
     }
 
+    @Transactional
     public ResponseEntity<Message> getNotification(User user) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
@@ -123,6 +126,7 @@ public class NotificationService {
         return Message.toResponseEntity(NOTIFICATION_GET_SUCCESS, notificationResponseDtoList);
     }
 
+    @Transactional
     public ResponseEntity<Message> deleteNotification(String notificationId, User user) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
@@ -138,6 +142,7 @@ public class NotificationService {
         return Message.toResponseEntity(NOTIFICATION_DELETE_SUCCESS);
     }
 
+    @Transactional
     public ResponseEntity<Message> deleteAllNotification(User user) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
