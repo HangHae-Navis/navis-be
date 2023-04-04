@@ -58,12 +58,8 @@ public class NotificationService {
         try {
             emitter.send(SseEmitter.event()
                     .id(eventId)
-                    .data(data, MediaType.APPLICATION_JSON)
-                    .reconnectTime(0));
+                    .data(data, MediaType.APPLICATION_JSON));
 
-            emitter.complete();
-
-            emitterRepository.deleteById(emitterId);
         } catch (IOException exception) {
             emitterRepository.deleteById(emitterId);
         }
