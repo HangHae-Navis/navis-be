@@ -110,7 +110,7 @@ public class NotificationService {
         );
 
         List<NotificationResponseDto> notificationResponseDtoList = new ArrayList<>();
-        List<Notification> notificationList = notificationRepository.findByUserIdOrderByCreatedAt(user);
+        List<Notification> notificationList = notificationRepository.findByUserOrderByCreatedAt(user);
 
         for(Notification notification : notificationList){
             notificationResponseDtoList.add(NotificationResponseDto.of(notification));
