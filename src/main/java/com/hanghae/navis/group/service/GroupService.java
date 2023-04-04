@@ -15,6 +15,7 @@ import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.BannedGroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
+import com.hanghae.navis.group.repository.QueryRepository;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.repository.HomeworkRepository;
 import com.hanghae.navis.user.entity.User;
@@ -25,6 +26,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +57,8 @@ public class GroupService {
     private final HomeworkRepository homeworkRepository;
     private final VoteRepository voteRepository;
     private final S3Uploader s3Uploader;
+
+    private final QueryRepository queryRepository;
 
     @Transactional
     public ResponseEntity<Message> createGroup(@RequestBody GroupRequestDto requestDto, User user) {
@@ -133,23 +137,14 @@ public class GroupService {
     public ResponseEntity<Message> getGroups(int page, int size, String category, User user) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<GroupMember> groupMemberPage;
+        List<GroupResponseDto> groupMemberPage;
 
-        switch (category) {
-            case "joined":
-                groupMemberPage = groupMemberRepository.findAllByUserAndGroupRoleIsNot(user, GroupMemberRoleEnum.ADMIN, pageable);
-                break;
-            case "myOwn":
-                groupMemberPage = groupMemberRepository.findAllByUserAndGroupRole(user, GroupMemberRoleEnum.ADMIN, pageable);
-                break;
-            case "all":
-                groupMemberPage = groupMemberRepository.findAllByUser(user, pageable);
-                break;
-            default:
-                throw new CustomException(ExceptionMessage.INVALID_CATEGORY);
-        }
+        groupMemberPage = queryRepository.findAllGroupByUserId(user.getId(), category);
 
-        Page<GroupResponseDto> groupResponseDtoPage = GroupResponseDto.toDtoPage(groupMemberPage);
+
+        Long total = groupMemberRepository.countByUser(user);
+
+        Page<GroupResponseDto> groupResponseDtoPage = new PageImpl<>(groupMemberPage, pageable, total);
 
         //24시간 이내 마감이 있는 그룹일 경우 마감 개수 및 가장 급한것 하나 시간, 제목 노출
         //todo 나중에 쿼리문으로 리팩토링 시도 예정
