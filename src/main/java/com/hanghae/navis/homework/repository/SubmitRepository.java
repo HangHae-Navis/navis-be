@@ -14,7 +14,8 @@ public interface SubmitRepository extends JpaRepository <GroupMember, Long> {
             "GROUP_CONCAT(DISTINCT hsf.file_name SEPARATOR ', ') as fileName, " +
             "hs.late as late, hs.created_at as createdAt, gm.group_role as role, " +
             "GROUP_CONCAT(DISTINCT IFNULL(f.feedback, 'None') SEPARATOR ', ') as feedback, " +
-            "hs.submit_check as submitCheck " +
+            "hs.submit_check as submitCheck, " +
+            "hs.update_subject as updateSubject " +
             "FROM group_member as gm " +
             "LEFT OUTER JOIN users u ON u.id = gm.user_id " +
             "LEFT OUTER JOIN basic_board bb ON bb.dtype = 'homework' AND bb.group_id = gm.group_id " +

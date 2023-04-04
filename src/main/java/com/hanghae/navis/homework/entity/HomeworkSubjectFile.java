@@ -17,6 +17,7 @@ public class HomeworkSubjectFile extends TimeStamped {
     private Long id;
 
     private String fileName;
+
     @Column(nullable = false)
     private String fileUrl;
 

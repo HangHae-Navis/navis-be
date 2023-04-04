@@ -19,6 +19,7 @@ public class SubmitMemberResponseDto {
     private List<String> fileList;
     private List<String> fileName;
     private List<String> feedbackList;
+    private boolean updateSubject;
     private boolean submitCheck;
     private LocalDateTime createdAt;
     private boolean late;
@@ -34,6 +35,7 @@ public class SubmitMemberResponseDto {
                 .createdAt(responseDto.getCreatedAt())
                 .late(responseDto.getLate())
                 .feedbackList(Arrays.asList(responseDto.getFeedback().split(", ")))
+                .updateSubject(responseDto.getUpdateSubject())
                 .submitCheck(responseDto.getSubmitCheck())
                 .build();
     }

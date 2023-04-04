@@ -78,6 +78,22 @@ public class HomeworkController {
         return homeworkService.submitCancel(groupId, boardId, userDetails.getUser());
     }
 
+//    @Operation(summary = "제출한 과제 파일 수정", description = "피드백을 받고 수정한 후 업로드 하는 경우")
+//    @PutMapping(value = "/{boardId}/{subjectId}/updateSubjects", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<Message> updateHomeworkSubject(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable Long subjectId,
+//                                                         @ModelAttribute HomeworkFileRequestDto requestDto,
+//                                                         @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        return homeworkService.updateHomeworkSubject(groupId, boardId, subjectId, requestDto, userDetails.getUser());
+//    }
+
+    @Operation(summary = "제출한 과제 파일 수정", description = "피드백을 받고 수정한 후 업로드 하는 경우")
+    @PutMapping(value = "/{boardId}/updateSubjects", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Message> updateHomeworkSubject(@PathVariable Long groupId, @PathVariable Long boardId,
+                                                         @ModelAttribute HomeworkFileRequestDto requestDto,
+                                                         @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return homeworkService.updateHomeworkSubject(groupId, boardId, requestDto, userDetails.getUser());
+    }
+
     @Operation(summary = "과제 피드백 남기기", description = "완료된 과제에 대한 피드백, submitCheck가 true로 넘어오면 최종제출 완료, false로 넘어오면 수정해서 제출")
     @PostMapping("/{boardId}/{subjectId}/feedbacks")
     public ResponseEntity<Message> homeworkFeedback(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable Long subjectId,
