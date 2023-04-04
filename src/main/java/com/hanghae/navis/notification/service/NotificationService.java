@@ -32,6 +32,7 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final UserRepository userRepository;
     private Long DEFAULT_TIMEOUT = 60L * 1000L * 60L;
+
     public SseEmitter subscribe(User user, String lastEventId) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
@@ -112,12 +113,13 @@ public class NotificationService {
         List<NotificationResponseDto> notificationResponseDtoList = new ArrayList<>();
         List<Notification> notificationList = notificationRepository.findByUserOrderByCreatedAt(user);
 
-        for(Notification notification : notificationList){
-            notificationResponseDtoList.add(NotificationResponseDto.of(notification));
+        if (!notificationList.isEmpty()) {
+            for (Notification notification : notificationList) {
+                notificationResponseDtoList.add(NotificationResponseDto.of(notification));
+            }
+
+            notificationRepository.updateIsReadByUserId(user.getId());
         }
-
-        notificationRepository.updateIsReadByUserId(user.getId());
-
         return Message.toResponseEntity(NOTIFICATION_GET_SUCCESS, notificationResponseDtoList);
     }
 
