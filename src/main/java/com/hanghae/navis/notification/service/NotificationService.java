@@ -62,6 +62,8 @@ public class NotificationService {
                     .reconnectTime(0));
 
             emitter.complete();
+
+            emitterRepository.deleteById(emitterId);
         } catch (IOException exception) {
             emitterRepository.deleteById(emitterId);
         }
