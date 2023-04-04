@@ -54,7 +54,7 @@ public class UserController {
     @ResponseBody
     @PostMapping("/signup")
     @ApiRateLimiter(key = "signup" + "#{request.remoteAddr}", limit = 1, seconds = 1)
-    public ResponseEntity<Message> signup(@RequestBody @Valid SignupRequestDto signupRequestDto) {
+    public ResponseEntity<Message> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
         return userService.signup(signupRequestDto);
     }
 

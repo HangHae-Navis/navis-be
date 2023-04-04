@@ -26,7 +26,6 @@ public class BoardRequestDto {
 
     private Long important;
 
-    @Size(min = 1, max = 5)
     private String hashtagList;
 
     private List<MultipartFile> multipartFiles;

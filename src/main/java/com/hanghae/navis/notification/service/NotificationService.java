@@ -1,6 +1,7 @@
 package com.hanghae.navis.notification.service;
 
 import com.hanghae.navis.common.dto.CustomException;
+import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.notification.dto.NotificationResponseDto;
 import com.hanghae.navis.notification.entity.Notification;
 import com.hanghae.navis.notification.entity.NotificationType;
@@ -9,7 +10,9 @@ import com.hanghae.navis.notification.repository.NotificationRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.MEMBER_NOT_FOUND;
+import static com.hanghae.navis.common.entity.SuccessMessage.*;
 
 @RequiredArgsConstructor
 @Service
@@ -98,5 +102,52 @@ public class NotificationService {
                 .url(url)
                 .isRead(false)
                 .build();
+    }
+
+    public ResponseEntity<Message> getNotification(User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        List<NotificationResponseDto> notificationResponseDtoList = new ArrayList<>();
+        List<Notification> notificationList = notificationRepository.findByUserIdOrderByCreatedAt(user);
+
+        for(Notification notification : notificationList){
+            notificationResponseDtoList.add(NotificationResponseDto.of(notification));
+        }
+
+        notificationRepository.updateIsReadByUserId(user.getId());
+
+        return Message.toResponseEntity(NOTIFICATION_GET_SUCCESS, notificationResponseDtoList);
+    }
+
+    public ResponseEntity<Message> deleteNotification(String notificationId, User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        notificationRepository.deleteById(Long.parseLong(notificationId));
+
+//        List<NotificationResponseDto> notificationResponseDtoList = new ArrayList<>();
+//        for(Notification notification : notificationRepository.findByUserOrderByCreatedAt(user)){
+//            notificationResponseDtoList.add(NotificationResponseDto.of(notification));
+//        }
+
+        return Message.toResponseEntity(NOTIFICATION_DELETE_SUCCESS);
+    }
+
+    public ResponseEntity<Message> deleteAllNotification(User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        notificationRepository.deleteByUser(user);
+
+//        List<NotificationResponseDto> notificationResponseDtoList = new ArrayList<>();
+//        for(Notification notification : notificationRepository.findByUserOrderByCreatedAt(user)){
+//            notificationResponseDtoList.add(NotificationResponseDto.of(notification));
+//        }
+
+        return Message.toResponseEntity(NOTIFICATION_DELETE_SUCCESS);
     }
 }
