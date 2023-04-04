@@ -8,7 +8,6 @@ import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
-import com.hanghae.navis.common.service.PubSubService;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
@@ -20,10 +19,14 @@ import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.entity.HomeworkSubject;
 import com.hanghae.navis.homework.entity.HomeworkSubjectFile;
 import com.hanghae.navis.homework.repository.*;
+import com.hanghae.navis.notification.entity.Notification;
+import com.hanghae.navis.notification.entity.NotificationType;
+import com.hanghae.navis.notification.service.NotificationService;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -58,7 +61,7 @@ public class HomeworkService {
     private final FeedbackRepository feedbackRepository;
     private final S3Uploader s3Uploader;
     private final S3Service s3Service;
-    private final PubSubService pubSubService;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> homeworkList(Long groupId, int page, int size, User user) {
@@ -114,8 +117,8 @@ public class HomeworkService {
             List<SubmitMemberResponseDto> submitMember = new ArrayList<>();
 
             for (HomeworkSubmitListResponseDto member : memberList) {
-                if(member.getRole().equals("USER")) {
-                    if(member.getSubmit() != null) {
+                if (member.getRole().equals("USER")) {
+                    if (member.getSubmit() != null) {
                         submitMember.add(SubmitMemberResponseDto.of(member));
                     } else {
                         notSubmit.add(NotSubmitMemberResponseDto.of(member));
@@ -203,6 +206,9 @@ public class HomeworkService {
                 fileResponseDto = null;
             }
             HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
+
+            List<GroupMember> groupMemberList = groupMemberRepository.findAllByGroupId(groupId);
+            notifyHomework(user, NotificationType.HOMEWORK_POST, "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + homework.getId() + "&dtype=homework");
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
@@ -566,7 +572,7 @@ public class HomeworkService {
         Feedback feedback = new Feedback(requestDto.getFeedback(), subject);
         feedbackRepository.save(feedback);
 
-        if(requestDto.isSubmitCheck() == true) {
+        if (requestDto.isSubmitCheck() == true) {
             subject.submitCheck(true);
             return Message.toResponseEntity(HOMEWORK_SUBMIT_CHECK_SUCCESS);
         } else {
@@ -586,5 +592,9 @@ public class HomeworkService {
 
     public boolean expirationCheck(LocalDateTime dbTime) {
         return LocalDateTime.now().isAfter(dbTime);
+    }
+
+    private void notifyHomework(User receiver, NotificationType accept, String url) {
+        notificationService.send(receiver, accept, accept.getContent(), url);
     }
 }
