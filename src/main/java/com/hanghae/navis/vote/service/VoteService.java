@@ -36,7 +36,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
@@ -410,7 +412,7 @@ public class VoteService {
     }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {
-        return LocalDateTime.ofEpochSecond(unixTime, 6, ZoneOffset.UTC);
+        return LocalDateTime.ofEpochSecond(unixTime, 6, ZoneId.of("Asia/Seoul").getRules().getOffset(Instant.now()));
     }
 
     public boolean expirationCheck(LocalDateTime dbTime) {
