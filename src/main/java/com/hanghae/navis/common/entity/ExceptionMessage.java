@@ -71,7 +71,11 @@ public enum ExceptionMessage {
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다"),
     DUPLICATE_EMAIL(CONFLICT,"중복된 이메일이 존재합니다."),
     DUPLICATE_NICKNAME(CONFLICT,"중복된 닉네임이 존재합니다."),
-    DUPLICATE_HOMEWORK(CONFLICT, "이미 과제를 제출했습니다.");
+    DUPLICATE_HOMEWORK(CONFLICT, "이미 과제를 제출했습니다."),
+
+
+    /* 429 TOO_MANY_REQUESTS : 너무 많은 요청 */
+    TOO_MANY_REQUEST(TOO_MANY_REQUESTS, "너무 많은 요청을 보냈습니다.");
 
     private final HttpStatus httpStatus;
     private final String detail;
