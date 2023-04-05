@@ -210,6 +210,7 @@ public class HomeworkService {
             HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
 
             List<GroupMember> groupMemberList = groupMemberRepository.findAllByGroupId(groupId);
+
             notifyHomework(user, NotificationType.HOMEWORK_POST, "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + homework.getId() + "&dtype=homework");
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);

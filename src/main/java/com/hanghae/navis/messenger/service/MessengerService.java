@@ -10,6 +10,8 @@ import com.hanghae.navis.messenger.entity.Messenger;
 import com.hanghae.navis.messenger.entity.MessengerChat;
 import com.hanghae.navis.messenger.repository.MessengerChatRepository;
 import com.hanghae.navis.messenger.repository.MessengerRepository;
+import com.hanghae.navis.notification.entity.NotificationType;
+import com.hanghae.navis.notification.service.NotificationService;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -41,10 +43,12 @@ public class MessengerService {
     private final UserRepository userRepository;
     private final MessengerRepository messengerRepository;
     private final MessengerChatRepository messengerChatRepository;
+    private final NotificationService notificationService;
     private EntityManager entityManager;
 
     private final SimpMessageSendingOperations sendingOperations;
     private final JwtUtil jwtUtil;
+
 
     public static LinkedList<ChatingRoom> chatingRoomList = new LinkedList<>();
     @Transactional(readOnly = true)
@@ -137,6 +141,7 @@ public class MessengerService {
             MessengerChat messengerChat = new MessengerChat(message, false, me, room);
             messengerChatRepository.save(messengerChat);
             sendingOperations.convertAndSend("/chats/room/" + room.getId(), MessengerResponseDto.of(messengerChat, me));
+            notifyChat(toUser, NotificationType.CHAT_POST, me.getNickname());
         }
         return Message.toResponseEntity(CHAT_POST_SUCCESS);
     }
@@ -155,5 +160,9 @@ public class MessengerService {
         messengerChatRepository.updateRead(room.getId(), me.getId());
 
          return Message.toResponseEntity(CHAT_READ_SUCCESS);
+    }
+
+    private void notifyChat(User receiver, NotificationType accept, String url) {
+        notificationService.send(receiver, accept, accept.getContent(), url);
     }
 }
