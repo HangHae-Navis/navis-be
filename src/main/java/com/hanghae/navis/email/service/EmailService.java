@@ -32,6 +32,7 @@ public class EmailService {
     public static String ePw = createKey();
 
 
+    @Transactional
     private MimeMessage createMessage(String to) throws Exception {
         ePw = createKey();
         System.out.println("보내는 대상 : " + to);
