@@ -302,6 +302,7 @@ public class VoteService {
     }
 
 
+    @Transactional
     public ResponseEntity<Message> forceExpired(Long groupId, Long voteId, User user) {
         //유저의 권한을 체크
         UserGroup userGroup = authCheck(groupId, user);
@@ -328,6 +329,7 @@ public class VoteService {
         return Message.toResponseEntity(VOTE_FORCE_EXPIRED_SUCCESS);
     }
 
+    @Transactional
     public ResponseEntity<Message> pickVote(Long groupId, Long voteId, Long voteOptionId, User user) {
         //유저의 권한을 체크
         UserGroup userGroup = authCheck(groupId, user);

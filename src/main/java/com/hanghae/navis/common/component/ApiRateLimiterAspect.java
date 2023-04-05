@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +25,7 @@ public class ApiRateLimiterAspect {
     private RedisTemplate<String, Integer> redisTemplate;
 
     @Around("@annotation(apiRateLimiter)")
+    @Transactional
     public Object processRequest(ProceedingJoinPoint joinPoint, ApiRateLimiter apiRateLimiter) throws Throwable {
         String key = apiRateLimiter.key();
         int limit = apiRateLimiter.limit();

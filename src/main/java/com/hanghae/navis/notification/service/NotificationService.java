@@ -60,7 +60,9 @@ public class NotificationService {
         return memberId + "_" + System.currentTimeMillis();
     }
 
-    private void sendNotification(SseEmitter emitter, String eventId, String emitterId, Object data) {
+
+    @Transactional
+    public void sendNotification(SseEmitter emitter, String eventId, String emitterId, Object data) {
         try {
             emitter.send(SseEmitter.event()
                     .id(eventId)
@@ -75,7 +77,9 @@ public class NotificationService {
         return !lastEventId.isEmpty();
     }
 
-    private void sendLostData(String lastEventId, Long userId, String emitterId, SseEmitter emitter) {
+
+    @Transactional
+    public void sendLostData(String lastEventId, Long userId, String emitterId, SseEmitter emitter) {
         Map<String, Object> eventCaches = emitterRepository.findAllEventCacheStartWithByUserId(String.valueOf(userId));
         eventCaches.entrySet().stream()
                 .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
