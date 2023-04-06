@@ -21,8 +21,10 @@ public abstract class BasicBoard extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
+
     @Column(nullable = false)
     protected String title;
+
     @Column(nullable = true)
     protected String subtitle;
 
@@ -37,6 +39,7 @@ public abstract class BasicBoard extends TimeStamped {
 
     @ManyToOne
     protected Group group;
+
     @Column(insertable = false, updatable = false)
     private String dtype;
 
