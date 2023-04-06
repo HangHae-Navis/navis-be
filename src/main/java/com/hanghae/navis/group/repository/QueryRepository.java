@@ -58,7 +58,6 @@ public class QueryRepository {
                 .leftJoin(group).on(gm.group.id.eq(group.id))
                 .leftJoin(user).on(gm.user.id.eq(user.id))
                 .where(gm.user.id.eq(userId), builder)
-                .groupBy(group.id)
                 .fetch();
 
         return responseDtos;
@@ -81,7 +80,6 @@ public class QueryRepository {
                 .where(rv.groupMember.id.eq(groupMemberId))
                 .orderBy(rv.id.desc())
                 .limit(5)
-                .groupBy(rv.id)
                 .fetch();
 
         return responseDtos;
