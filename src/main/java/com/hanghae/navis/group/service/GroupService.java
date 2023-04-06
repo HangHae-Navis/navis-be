@@ -9,18 +9,12 @@ import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.group.dto.*;
-import com.hanghae.navis.group.entity.BannedGroupMember;
-import com.hanghae.navis.group.entity.Group;
-import com.hanghae.navis.group.entity.GroupMember;
-import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
-import com.hanghae.navis.group.repository.BannedGroupMemberRepository;
-import com.hanghae.navis.group.repository.GroupRepository;
-import com.hanghae.navis.group.repository.QueryRepository;
+import com.hanghae.navis.group.entity.*;
+import com.hanghae.navis.group.repository.*;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.repository.HomeworkRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
-import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.vote.repository.VoteRepository;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +53,7 @@ public class GroupService {
     private final S3Uploader s3Uploader;
 
     private final QueryRepository queryRepository;
+    private final RecentlyViewedRepository recentlyViewedRepository;
 
     @Transactional
     public ResponseEntity<Message> createGroup(@RequestBody GroupRequestDto requestDto, User user) {
@@ -224,11 +219,13 @@ public class GroupService {
             throw new CustomException(ExceptionMessage.INVALID_SORTING);
         }
 
+        //최근 본 글 목록
+        List<RecentlyViewedDto> recentlyViewed = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
         //Admin일 경우 관리자 페이지 버튼을 띄우기 위한 Admin 정보
         boolean isAdmin = groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN);
 
-        GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, homeworkList, basicBoardPage);
+        GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, homeworkList, basicBoardPage, recentlyViewed);
         for(MainPageBasicBoardDto m : responseDto.getBasicBoards()) {
             if(m.getDtype().equals("homework")) {
                 m.setExpirationDate(homeworkRepository.findById(m.getId()).get().getExpirationDate());
@@ -237,6 +234,7 @@ public class GroupService {
                 m.setExpirationDate(voteRepository.findById(m.getId()).get().getExpirationDate());
             }
         }
+
 
         return Message.toResponseEntity(SuccessMessage.GROUP_MAIN_PAGE_GET_SUCCESS, responseDto);
     }

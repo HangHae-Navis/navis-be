@@ -1,14 +1,16 @@
 package com.hanghae.navis.group.repository;
 
 import com.hanghae.navis.common.dto.CustomException;
+import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.ExceptionMessage;
+import com.hanghae.navis.common.entity.QBasicBoard;
 import com.hanghae.navis.group.dto.GroupResponseDto;
-import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
-import com.hanghae.navis.group.entity.QGroup;
-import com.hanghae.navis.group.entity.QGroupMember;
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
+import com.hanghae.navis.group.entity.*;
 import com.hanghae.navis.user.entity.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -61,4 +63,28 @@ public class QueryRepository {
 
         return responseDtos;
     }
+
+    public List<RecentlyViewedDto> findRecentlyViewedsByGroupMemeber(Long groupMemberId) {
+        QGroupMember gm = QGroupMember.groupMember;
+        QBasicBoard bb = QBasicBoard.basicBoard;
+        QRecentlyViewed rv = QRecentlyViewed.recentlyViewed;
+
+        List<RecentlyViewedDto> responseDtos = jpaQueryFactory
+                .select(Projections.bean(RecentlyViewedDto.class,
+                        bb.id.as("id"),
+                        bb.title.as("title"),
+                        bb.dtype.as("dtype")))
+                .distinct()
+                .from(rv)
+                .leftJoin(bb).on(rv.basicBoard.id.eq(bb.id))
+                .leftJoin(gm).on(rv.groupMember.id.eq(gm.id))
+                .where(rv.groupMember.id.eq(groupMemberId))
+                .orderBy(rv.id.desc())
+                .limit(5)
+                .groupBy(rv.id)
+                .fetch();
+
+        return responseDtos;
+    }
+
 }

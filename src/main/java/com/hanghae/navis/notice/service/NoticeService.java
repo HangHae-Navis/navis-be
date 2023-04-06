@@ -6,11 +6,15 @@ import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
+import com.hanghae.navis.group.repository.QueryRepository;
+import com.hanghae.navis.group.repository.RecentlyViewedRepository;
 import com.hanghae.navis.notice.dto.NoticeListResponseDto;
 import com.hanghae.navis.notice.dto.NoticeRequestDto;
 import com.hanghae.navis.notice.dto.NoticeResponseDto;
@@ -47,6 +51,8 @@ public class NoticeService {
     private final GroupMemberRepository groupMemberRepository;
     private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
+    private final RecentlyViewedRepository recentlyViewedRepository;
+    private final QueryRepository queryRepository;
 
 
     @Transactional(readOnly = true)
@@ -71,7 +77,7 @@ public class NoticeService {
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, responseList);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<Message> getNotice(Long groupId, Long noticeId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
@@ -99,7 +105,13 @@ public class NoticeService {
 
         notice.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
 
-        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagList, role);
+
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
+        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagList, role, rv);
+
+        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, notice);
+        recentlyViewedRepository.save(recentlyViewed);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, noticeResponseDto);
     }
 
@@ -137,7 +149,13 @@ public class NoticeService {
                     fileResponseDto.add(FileResponseDto.of(noticeFile));
                 }
             }
-            NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList, role);
+
+            List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
+            NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList, role, rv);
+
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, notice);
+            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, noticeResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -159,7 +177,9 @@ public class NoticeService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, null, null, role);
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
+        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, null, null, role, rv);
 
         if (!user.getUsername().equals(notice.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
@@ -195,11 +215,12 @@ public class NoticeService {
                     fileRepository.save(noticeFile);
                     fileResponseDto.add(new FileResponseDto(noticeFile.getFileTitle(), noticeFile.getFileUrl()));
                 }
-                noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, null, role);
+                noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, null, role, rv);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         return Message.toResponseEntity(BOARD_PUT_SUCCESS, noticeResponseDto);
     }
 
