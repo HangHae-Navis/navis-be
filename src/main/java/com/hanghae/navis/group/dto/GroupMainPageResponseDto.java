@@ -2,6 +2,7 @@ package com.hanghae.navis.group.dto;
 
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.homework.entity.Homework;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,8 +23,9 @@ public class GroupMainPageResponseDto {
     private boolean isAdmin;
     private List<MainPageDeadlineResponseDto> deadlines;
     private Page<MainPageBasicBoardDto> basicBoards;
+    private List<RecentlyViewedDto> recentlyViewed;
 
-    public static GroupMainPageResponseDto of(Group group, boolean isAdmin, List<Homework> homeworkList, Page<BasicBoard> basicBoardPage) {
+    public static GroupMainPageResponseDto of(Group group, boolean isAdmin, List<Homework> homeworkList, Page<BasicBoard> basicBoardPage, List<RecentlyViewedDto> rvList) {
         return GroupMainPageResponseDto.builder()
                 .groupName(group.getGroupName())
                 .groupInfo(group.getGroupInfo())
@@ -31,6 +33,7 @@ public class GroupMainPageResponseDto {
                 .isAdmin(isAdmin)
                 .deadlines(MainPageDeadlineResponseDto.toDtoList(homeworkList))
                 .basicBoards(MainPageBasicBoardDto.toDtoPage(basicBoardPage))
+                .recentlyViewed(rvList)
                 .build();
     }
 

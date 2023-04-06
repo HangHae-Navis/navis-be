@@ -1,7 +1,9 @@
 package com.hanghae.navis.homework.dto;
 
 import com.hanghae.navis.common.dto.FileResponseDto;
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.homework.entity.Homework;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,8 +30,9 @@ public class AdminHomeworkResponseDto {
     private List<FileResponseDto> boardFileList;
     private List<NotSubmitMemberResponseDto> notSubmitMember;
     private List<SubmitMemberResponseDto> submitMember;
+    private List<RecentlyViewedDto> recentlyViewed;
 
-    public static AdminHomeworkResponseDto of(Homework homework, List<String> hashtagList, List<FileResponseDto> fileList, List<NotSubmitMemberResponseDto> notSubmitMember, List<SubmitMemberResponseDto> submitMember, GroupMemberRoleEnum role) {
+    public static AdminHomeworkResponseDto of(Homework homework, List<String> hashtagList, List<FileResponseDto> fileList, List<NotSubmitMemberResponseDto> notSubmitMember, List<SubmitMemberResponseDto> submitMember, GroupMemberRoleEnum role, List<RecentlyViewedDto> rv) {
         return AdminHomeworkResponseDto.builder()
                 .id(homework.getId())
                 .role(role)
@@ -45,6 +48,7 @@ public class AdminHomeworkResponseDto {
                 .boardFileList(fileList)
                 .notSubmitMember(notSubmitMember)
                 .submitMember(submitMember)
+                .recentlyViewed(rv)
                 .build();
     }
 }

@@ -10,11 +10,15 @@ import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.repository.HashtagRepository;
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
+import com.hanghae.navis.group.repository.QueryRepository;
+import com.hanghae.navis.group.repository.RecentlyViewedRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -48,6 +52,8 @@ public class BoardService {
     private final GroupRepository groupRepository;
     private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
+    private final RecentlyViewedRepository recentlyViewedRepository;
+    private final QueryRepository queryRepository;
 
 
 
@@ -70,7 +76,7 @@ public class BoardService {
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, boardListResponseDto);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<Message> getBoard(Long groupId, Long boardId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
@@ -90,11 +96,17 @@ public class BoardService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        //최근 본 글 목록 추가용
+        List<RecentlyViewedDto> rvList = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
         List<String> hashtagResponseDto = new ArrayList<>();
         board.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
         board.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
-        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role);
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rvList);
+
+        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, board);
+        recentlyViewedRepository.save(recentlyViewed);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, boardResponseDto);
     }
 
@@ -139,7 +151,13 @@ public class BoardService {
             } else {
                 fileResponseDto = null;
             }
-            BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role);
+
+            List<RecentlyViewedDto> rvList = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
+            BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rvList);
+
+            RecentlyViewed rv = new RecentlyViewed(groupMember, board);
+            recentlyViewedRepository.save(rv);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, boardResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -170,7 +188,9 @@ public class BoardService {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
-        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null, role);
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null, role, rv);
 
         board.update(requestDto);
 
@@ -219,10 +239,11 @@ public class BoardService {
             } else {
                 fileResponseDto = null;
             }
-            boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role);
+            boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rv);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         return Message.toResponseEntity(BOARD_PUT_SUCCESS, boardResponseDto);
     }
 

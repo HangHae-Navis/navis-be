@@ -3,6 +3,7 @@ package com.hanghae.navis.common.entity;
 import com.hanghae.navis.board.dto.BoardRequestDto;
 import com.hanghae.navis.board.dto.BoardUpdateRequestDto;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,6 +48,8 @@ public abstract class BasicBoard extends TimeStamped {
 
     @OneToMany(mappedBy = "basicBoard", cascade = {CascadeType.ALL})
     private List<Hashtag> hashtagList = new ArrayList<>();
+    @OneToMany(mappedBy = "basicBoard")
+    private List<RecentlyViewed> recentlyViewedList;
 
     public BasicBoard(BoardRequestDto requestDto, User user, Group group) {
         this.title = requestDto.getTitle();

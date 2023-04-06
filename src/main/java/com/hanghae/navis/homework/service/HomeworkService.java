@@ -8,11 +8,15 @@ import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.entity.SuccessMessage;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
+import com.hanghae.navis.group.repository.QueryRepository;
+import com.hanghae.navis.group.repository.RecentlyViewedRepository;
 import com.hanghae.navis.homework.dto.*;
 import com.hanghae.navis.homework.entity.Feedback;
 import com.hanghae.navis.homework.entity.Homework;
@@ -64,6 +68,8 @@ public class HomeworkService {
     private final S3Uploader s3Uploader;
     private final S3Service s3Service;
     private final NotificationService notificationService;
+    private final RecentlyViewedRepository recentlyViewedRepository;
+    private final QueryRepository queryRepository;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> homeworkList(Long groupId, int page, int size, User user) {
@@ -84,7 +90,7 @@ public class HomeworkService {
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, homeworkListResponseDto);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<Message> getHomework(Long groupId, Long boardId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
@@ -107,6 +113,8 @@ public class HomeworkService {
         List<String> hashtagResponseDto = new ArrayList<>();
         homework.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
 
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
         //admin, support return
         if (role.equals(GroupMemberRoleEnum.ADMIN) || role.equals(GroupMemberRoleEnum.SUPPORT)) {
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
@@ -128,8 +136,10 @@ public class HomeworkService {
                 }
             }
 
-            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, hashtagResponseDto, fileResponseDto, notSubmit, submitMember, role);
+            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, hashtagResponseDto, fileResponseDto, notSubmit, submitMember, role, rv);
 
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
+            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
 
@@ -148,15 +158,19 @@ public class HomeworkService {
 
 
         if (homeworkSubject == null) { //미제출 유저
-            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
+            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv);
 
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
+            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
         } else {    //제출한 유저
             homeworkSubject.getHomeworkSubjectFileList().forEach(value -> fileResponseDto.add(HomeworkFileResponseDto.of(value)));
             homeworkSubject.getFeedbackList().forEach(value -> feedbackResponse.add(value.getFeedback()));
             SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto, feedbackResponse);
-            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto);
+            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto, rv);
 
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
+            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
         }
     }
@@ -207,12 +221,17 @@ public class HomeworkService {
             } else {
                 fileResponseDto = null;
             }
-            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role);
+
+            List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
+            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role, rv);
 
             List<GroupMember> groupMemberList = groupMemberRepository.findAllByGroupId(groupId);
 
             notifyHomework(user, NotificationType.HOMEWORK_POST, "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + homework.getId() + "&dtype=homework");
 
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
+            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
         } catch (IOException e) {
@@ -244,7 +263,7 @@ public class HomeworkService {
             throw new CustomException(ADMIN_ONLY);
         }
 
-        HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());        HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv);
 
         homework.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(homework.getExpirationDate()));
 
@@ -292,10 +311,11 @@ public class HomeworkService {
             } else {
                 fileResponseDto = null;
             }
-            responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role);
+            responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         return Message.toResponseEntity(BOARD_PUT_SUCCESS, responseDto);
     }
 

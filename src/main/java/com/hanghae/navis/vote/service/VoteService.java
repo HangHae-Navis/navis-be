@@ -9,11 +9,15 @@ import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.repository.FileRepository;
 import com.hanghae.navis.common.repository.HashtagRepository;
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
+import com.hanghae.navis.group.repository.QueryRepository;
+import com.hanghae.navis.group.repository.RecentlyViewedRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -61,6 +65,8 @@ public class VoteService {
     private final FileRepository fileRepository;
     private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
+    private final RecentlyViewedRepository recentlyViewedRepository;
+    private final QueryRepository queryRepository;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> getVoteList(Long groupId, User user, int page, int size) {
@@ -76,7 +82,7 @@ public class VoteService {
         return Message.toResponseEntity(BOARD_LIST_GET_SUCCESS, voteListResponseDto);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<Message> getVote(Long groupId, Long voteId, User user) {
         //권한체크
         UserGroup userGroup = authCheck(groupId, user);
@@ -110,6 +116,8 @@ public class VoteService {
              myPick = myPickCheck.get().getVoteOption().getId();
         }
 
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
         if (!role.name().equals("USER")) {
             List<OptionAdminResponseDto> optionAdminResponseDto = new ArrayList<>();
             for (VoteOption voteOption : vote.getVoteOptionList()) {
@@ -122,13 +130,19 @@ public class VoteService {
             }
 
             VoteAdminResponseDto voteAdminResponseDto = VoteAdminResponseDto.of(vote, fileResponseDto, hashtagList, optionAdminResponseDto, expirationCheck(
-                    vote.getExpirationDate()), vote.getExpirationDate(), role, myPick);
+                    vote.getExpirationDate()), vote.getExpirationDate(), role, myPick, rv);
+
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, vote);
+            recentlyViewedRepository.save(recentlyViewed);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteAdminResponseDto);
         }
 
         VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, expirationCheck(
-                vote.getExpirationDate()), vote.getExpirationDate(), role, myPick);
+                vote.getExpirationDate()), vote.getExpirationDate(), role, myPick, rv);
+
+        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, vote);
+        recentlyViewedRepository.save(recentlyViewed);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
     }
 
@@ -179,9 +193,13 @@ public class VoteService {
                 optionResponseDto.add(OptionResponseDto.of(voteOption));
             }
 
-            //리턴으로 보내줄 dto생성
-            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role, null);
+            List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
+            //리턴으로 보내줄 dto생성
+            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role, null, rv);
+
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, vote);
+            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -351,6 +369,8 @@ public class VoteService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
         //투표시간 / 강제만료 체크 후 만료가 아니면 투표 가능하게설정
         if (!(expirationCheck(vote.getExpirationDate()) || vote.isForceExpiration())) {
             if (!voteRecordRepository.findByGroupMemberIdAndVoteOptionId(groupMember.getId(), voteOption.getId()).isPresent()) {
@@ -362,7 +382,7 @@ public class VoteService {
                                 null,
                                 parseOptionResponseDto(vote.getVoteOptionList()),
                                 vote.isForceExpiration(),
-                                vote.getExpirationDate(), role, -1L));
+                                vote.getExpirationDate(), role, -1L, rv));
             }
         }
         return Message.toExceptionResponseEntity(VOTE_EXPIRED);

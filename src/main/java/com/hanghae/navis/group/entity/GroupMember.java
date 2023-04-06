@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,6 +23,9 @@ public class GroupMember extends TimeStamped {
 
     @ManyToOne
     private Group group;
+
+    @OneToMany(mappedBy = "groupMember")
+    private List<RecentlyViewed> recentlyViewedList;
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)

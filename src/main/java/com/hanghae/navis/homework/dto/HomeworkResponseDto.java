@@ -3,7 +3,9 @@ package com.hanghae.navis.homework.dto;
 import com.hanghae.navis.common.dto.FileResponseDto;
 import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.dto.BasicBoardResponseDto;
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.entity.HomeworkSubject;
 import lombok.AllArgsConstructor;
@@ -24,7 +26,7 @@ public class HomeworkResponseDto extends BasicBoardResponseDto {
     private boolean submit;
     private SubmitResponseDto submitResponseDto;
 
-    public static HomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<String> hashtagList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role) {
+    public static HomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<String> hashtagList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role, List<RecentlyViewedDto> rv) {
         return HomeworkResponseDto.builder()
                 .id(homework.getId())
                 .nickname(homework.getUser().getNickname())
@@ -39,10 +41,11 @@ public class HomeworkResponseDto extends BasicBoardResponseDto {
                 .expirationTime(expirationTime)
                 .submit(false)
                 .role(role)
+                .recentlyViewed(rv)
                 .build();
     }
 
-    public static HomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<String> hashtagList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role, SubmitResponseDto submitResponseDto) {
+    public static HomeworkResponseDto of(Homework homework, List<FileResponseDto> fileList, List<String> hashtagList, boolean expiration, LocalDateTime expirationTime, GroupMemberRoleEnum role, SubmitResponseDto submitResponseDto, List<RecentlyViewedDto> rv) {
         return HomeworkResponseDto.builder()
                 .id(homework.getId())
                 .nickname(homework.getUser().getNickname())
@@ -57,6 +60,7 @@ public class HomeworkResponseDto extends BasicBoardResponseDto {
                 .expirationTime(expirationTime)
                 .role(role)
                 .submitResponseDto(submitResponseDto)
+                .recentlyViewed(rv)
                 .build();
     }
 }
