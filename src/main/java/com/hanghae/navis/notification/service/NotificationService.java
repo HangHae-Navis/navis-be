@@ -39,8 +39,15 @@ public class NotificationService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         Long memberId = user.getId();
-        String emitterId = makeTimeIncludeId(memberId);
-        SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
+        String emitterId = user.getUsername();
+        SseEmitter emitter;
+        if (emitterRepository.findAllEmitterStartWithByUserId(emitterId) != null){
+            emitterRepository.deleteAllEmitterStartWithId(emitterId);
+            emitter = emitterRepository.save(emitterId, new SseEmitter(Long.MAX_VALUE)); //id가 key, SseEmitter가 value
+        }
+        else {
+            emitter = emitterRepository.save(emitterId, new SseEmitter(Long.MAX_VALUE)); //id가 key, SseEmitter가 value
+        }
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
         emitter.onError((e) -> emitterRepository.deleteById(emitterId));
