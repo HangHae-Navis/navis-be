@@ -14,13 +14,15 @@ public class SurveyQuestion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long number;
+
     //질문
     private String question;
 
     //질문타입
     private String type;
 
-    //객관식, 주관식 옵션
+    //객관식, 체크박스 옵션
     @OneToMany(mappedBy = "surveyQuestion", cascade = {CascadeType.ALL})
     private List<SurveyOption> optionList;
 
@@ -31,7 +33,8 @@ public class SurveyQuestion {
     @ManyToOne
     private Survey survey;
 
-    public SurveyQuestion(String question, String type, Survey survey) {
+    public SurveyQuestion(Long number, String question, String type, Survey survey) {
+        this.number = number;
         this.question = question;
         this.type = type;
         this.survey = survey;
