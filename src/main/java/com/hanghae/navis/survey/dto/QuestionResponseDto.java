@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class QuestionResponseDto {
     private Long id;
     private String type;
+    private Long number;
     private String question;
     private List<String> optionList;
 
@@ -22,6 +23,7 @@ public class QuestionResponseDto {
         return QuestionResponseDto.builder()
                 .id(surveyQuestion.getId())
                 .type(surveyQuestion.getType())
+                .number(surveyQuestion.getNumber())
                 .question(surveyQuestion.getQuestion())
                 .optionList(optionList)
                 .build();
@@ -31,6 +33,7 @@ public class QuestionResponseDto {
         return QuestionResponseDto.builder()
                 .id(surveyQuestion.getId())
                 .type(surveyQuestion.getType())
+                .number(surveyQuestion.getNumber())
                 .question(surveyQuestion.getQuestion())
                 .optionList(surveyQuestion.getOptionList().stream()
                         .map(SurveyOption::getOption)

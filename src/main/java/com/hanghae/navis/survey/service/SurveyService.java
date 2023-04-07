@@ -51,6 +51,7 @@ public class SurveyService {
 
     @Transactional
     public ResponseEntity<Message> createSurvey(Long groupId, SurveyRequestDto requestDto, User user) {
+        Long number = 1L;
         UserGroup userGroup = authCheck(groupId, user);
 
         GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
@@ -63,8 +64,9 @@ public class SurveyService {
         surveyRepository.save(survey);
 
         for (QuestionRequestDto questionDto : requestDto.getQuestionList()) {
-            SurveyQuestion surveyQuestion = new SurveyQuestion(questionDto.getQuestion(), questionDto.getType(), survey);
+            SurveyQuestion surveyQuestion = new SurveyQuestion(number, questionDto.getQuestion(), questionDto.getType(), survey);
             surveyQuestionRepository.save(surveyQuestion);
+            number++;
 
             for (String option : questionDto.getOptions()) {
                 SurveyOption surveyOption = new SurveyOption(option, surveyQuestion);
