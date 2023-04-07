@@ -50,7 +50,6 @@ public class SurveyService {
         UserGroup userGroup = authCheck(groupId, user);
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
-        List<String> optionList = new ArrayList<>();
 
         Survey survey = new Survey(requestDto, user, userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
         surveyRepository.save(survey);
@@ -62,9 +61,8 @@ public class SurveyService {
             for (String option : questionDto.getOptions()) {
                 SurveyOption surveyOption = new SurveyOption(option, surveyQuestion);
                 surveyOptionRepository.save(surveyOption);
-                optionList.add(option);
             }
-            questionResponseDto.add(QuestionResponseDto.of(surveyQuestion, optionList));
+            questionResponseDto.add(QuestionResponseDto.of(surveyQuestion, questionDto.getOptions()));
         }
         SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto);
 
