@@ -1,8 +1,13 @@
 package com.hanghae.navis.survey.entity;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
 @Entity(name = "surveyOption")
+@Getter
+@NoArgsConstructor
 public class SurveyOption {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,4 +17,9 @@ public class SurveyOption {
 
     @ManyToOne
     private SurveyQuestion surveyQuestion;
+
+    public SurveyOption(String option, SurveyQuestion surveyQuestion) {
+        this.option = option;
+        this.surveyQuestion = surveyQuestion;
+    }
 }

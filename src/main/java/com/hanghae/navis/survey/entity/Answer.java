@@ -16,7 +16,7 @@ public class Answer {
 
     private String answer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "groupmember_id")
     private GroupMember groupMember;
 

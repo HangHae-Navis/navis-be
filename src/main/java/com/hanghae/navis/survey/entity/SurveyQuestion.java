@@ -14,14 +14,26 @@ public class SurveyQuestion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //질문
     private String question;
 
-    @Enumerated(value = EnumType.STRING)
-    private QuestionTypeEnum type;
+    //질문타입
+    private String type;
+
+    //객관식, 주관식 옵션
+    @OneToMany(mappedBy = "surveyQuestion", cascade = {CascadeType.ALL})
+    private List<SurveyOption> optionList;
+
+    //응답
+    @OneToMany(mappedBy = "surveyQuestion", cascade = {CascadeType.ALL})
+    private List<Answer> answerList;
 
     @ManyToOne
     private Survey survey;
 
-    @OneToMany(mappedBy = "surveyQuestion", cascade = {CascadeType.ALL})
-    private List<Answer> answerList;
+    public SurveyQuestion(String question, String type, Survey survey) {
+        this.question = question;
+        this.type = type;
+        this.survey = survey;
+    }
 }
