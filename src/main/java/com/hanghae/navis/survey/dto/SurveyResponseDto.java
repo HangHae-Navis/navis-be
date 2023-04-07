@@ -15,6 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class SurveyResponseDto {
     private long id;
+    private String nickname;
+    private LocalDateTime createAt;
     private LocalDateTime expirationDate;
     private boolean forceExpiration;
     private String title;
@@ -24,6 +26,8 @@ public class SurveyResponseDto {
     public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv) {
         return SurveyResponseDto.builder()
                 .id(survey.getId())
+                .nickname(survey.getUser().getNickname())
+                .createAt(survey.getCreatedAt())
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())
                 .title(survey.getTitle())
