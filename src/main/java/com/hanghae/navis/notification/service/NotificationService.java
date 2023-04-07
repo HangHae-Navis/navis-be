@@ -32,7 +32,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final EmitterRepository emitterRepository;
     private final UserRepository userRepository;
-    private Long DEFAULT_TIMEOUT = 60L * 1000L;
+    private Long DEFAULT_TIMEOUT = 60L * 60L * 1000L;
     @Transactional
     public SseEmitter subscribe(User user, String lastEventId) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
@@ -43,6 +43,7 @@ public class NotificationService {
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
+        emitter.onError((e) -> emitterRepository.deleteById(emitterId));
 
         // 503 에러를 방지하기 위한 더미 이벤트 전송
         String eventId = makeTimeIncludeId(memberId);
