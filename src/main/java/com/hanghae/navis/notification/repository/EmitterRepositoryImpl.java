@@ -26,6 +26,12 @@ public class EmitterRepositoryImpl implements EmitterRepository {
     }
 
     @Override
+    public Map<String, SseEmitter> findAll() {
+        return emitters;
+    }
+
+
+    @Override
     public Map<String, SseEmitter> findAllEmitterStartWithByUserId(String userId) {
         return emitters.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(userId))
