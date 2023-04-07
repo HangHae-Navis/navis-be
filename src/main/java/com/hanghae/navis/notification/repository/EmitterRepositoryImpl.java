@@ -1,6 +1,8 @@
 package com.hanghae.navis.notification.repository;
 
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -11,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @NoArgsConstructor
+@Slf4j
 public class EmitterRepositoryImpl implements EmitterRepository {
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
     private final Map<String, Object> eventCache = new ConcurrentHashMap<>();
@@ -72,8 +75,10 @@ public class EmitterRepositoryImpl implements EmitterRepository {
                 }
         );
     }
-    @Scheduled(fixedDelay = 30000)
+
+    @Override
     public void closeAllEmitters() {
+        log.warn("Current emitters: " + emitters);
         emitters.values().forEach(SseEmitter::complete);
         emitters.clear();
     }
