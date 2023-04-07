@@ -59,7 +59,8 @@ public enum SuccessMessage {
     HOMEWORK_SUBMIT_CHECK_RETURN_SUCCESS(HttpStatus.OK, "과제 최종제출 반려 성공"),
     NOTIFICATION_GET_SUCCESS(HttpStatus.OK, "알림 가져오기 성공"),
     NOTIFICATION_DELETE_SUCCESS(HttpStatus.OK, "알림 삭제 성공"),
-    SURVEY_POST_SUCCESS(HttpStatus.CREATED, "설문 등록 성공");
+    SURVEY_POST_SUCCESS(HttpStatus.CREATED, "설문 등록 성공"),
+    SURVEY_FORCE_EXPIRED_SUCCESS(HttpStatus.OK,"투표 강제 만료 성공");
     private final HttpStatus httpStatus;
     private final String detail;
 }

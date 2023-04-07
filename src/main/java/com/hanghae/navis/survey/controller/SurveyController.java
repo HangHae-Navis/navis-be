@@ -1,5 +1,6 @@
 package com.hanghae.navis.survey.controller;
 
+import com.amazonaws.Response;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.survey.dto.FillRequestDto;
@@ -43,6 +44,13 @@ public class SurveyController {
         return surveyService.deleteSurvey(groupId, surveyId, userDetails.getUser());
     }
 
+    @GetMapping("/{surveyId}/force-expired")
+    @Operation(summary = "설문 강제 종료", description = "설문 강제 종료")
+    public ResponseEntity<Message> forceExpiredSurvey(@PathVariable Long groupId, @PathVariable Long surveyId,
+                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return surveyService.forceExpiredSurvey(groupId, surveyId, userDetails.getUser());
+    }
+
     @PostMapping("/{surveyId}/fillForm")
     @Operation(summary = "설문 작성", description = "설문 작성")
     public ResponseEntity<Message> fillForm(@PathVariable Long groupId, @PathVariable Long surveyId,
@@ -51,7 +59,7 @@ public class SurveyController {
         return surveyService.fillForm(groupId, surveyId, requestDto, userDetails.getUser());
     }
 
-    @PostMapping("/{surveyId}/updateForm")
+    @PutMapping("/{surveyId}/updateForm")
     @Operation(summary = "설문 답변 수정", description = "유저가 작성한 설문 답변을 수정")
     public ResponseEntity<Message> updateForm(@PathVariable Long groupId, @PathVariable Long surveyId,
                                               @RequestBody FillRequestDto requestDto,
