@@ -10,9 +10,12 @@ import com.hanghae.navis.notification.repository.NotificationRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -27,6 +30,7 @@ import static com.hanghae.navis.common.entity.ExceptionMessage.MEMBER_NOT_FOUND;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
 
 @RequiredArgsConstructor
+@Slf4j
 @Service
 public class NotificationService {
     private final NotificationRepository notificationRepository;
