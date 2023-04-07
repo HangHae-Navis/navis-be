@@ -3,7 +3,7 @@ if [ $(id -u) -ne 0 ]; then exec sudo bash "$0" "$@"; exit; fi
 # switch.sh
 
 # Crawl current connected port of WAS
-CURRENT_PORT=$(cat /home/ubuntu/service_url.inc  | grep -Po '[0-9]+' | tail -1)
+CURRENT_PORT=$(cat /home/ubuntu/service.inc  | grep -Po '[0-9]+' | tail -1)
 TARGET_PORT=0
 
 echo "> Nginx currently proxies to ${CURRENT_PORT}."
