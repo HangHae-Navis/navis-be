@@ -23,9 +23,6 @@ public class QuestionResponseDto {
                 .id(surveyQuestion.getId())
                 .type(surveyQuestion.getType())
                 .question(surveyQuestion.getQuestion())
-//                .optionList(surveyQuestion.getOptionList().stream()
-//                        .map(SurveyOption::getOption)
-//                        .collect(Collectors.toList()))
                 .optionList(optionList)
                 .build();
     }
