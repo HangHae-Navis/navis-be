@@ -1,5 +1,6 @@
 package com.hanghae.navis.survey.dto;
 
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.survey.entity.Survey;
 import com.hanghae.navis.survey.entity.SurveyQuestion;
 import lombok.AllArgsConstructor;
@@ -18,14 +19,16 @@ public class SurveyResponseDto {
     private boolean forceExpiration;
     private String title;
     private List<QuestionResponseDto> questionResponseDto;
+    private List<RecentlyViewedDto> recentlyViewed;
 
-    public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto) {
+    public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv) {
         return SurveyResponseDto.builder()
                 .id(survey.getId())
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())
                 .title(survey.getTitle())
                 .questionResponseDto(questionResponseDto)
+                .recentlyViewed(rv)
                 .build();
     }
 }

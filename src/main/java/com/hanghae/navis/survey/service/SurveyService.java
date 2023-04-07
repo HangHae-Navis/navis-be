@@ -3,11 +3,15 @@ package com.hanghae.navis.survey.service;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.dto.UserGroup;
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
+import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
+import com.hanghae.navis.group.repository.QueryRepository;
+import com.hanghae.navis.group.repository.RecentlyViewedRepository;
 import com.hanghae.navis.survey.dto.*;
 import com.hanghae.navis.survey.entity.Survey;
 import com.hanghae.navis.survey.entity.SurveyOption;
@@ -42,6 +46,8 @@ public class SurveyService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final GroupMemberRepository groupMemberRepository;
+    private final RecentlyViewedRepository recentlyViewedRepository;
+    private final QueryRepository queryRepository;
 
     @Transactional
     public ResponseEntity<Message> createSurvey(Long groupId, SurveyRequestDto requestDto, User user) {
@@ -66,7 +72,12 @@ public class SurveyService {
             }
             questionResponseDto.add(QuestionResponseDto.of(surveyQuestion, questionDto.getOptions()));
         }
-        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto);
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
+        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv);
+
+        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+        recentlyViewedRepository.save(recentlyViewed);
 
         return Message.toResponseEntity(SURVEY_POST_SUCCESS, responseDto);
     }
@@ -91,8 +102,13 @@ public class SurveyService {
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
         survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto);
+        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv);
+
+        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+        recentlyViewedRepository.save(recentlyViewed);
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
     }
