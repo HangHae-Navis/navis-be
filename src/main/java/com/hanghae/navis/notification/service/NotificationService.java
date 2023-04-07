@@ -10,6 +10,7 @@ import com.hanghae.navis.notification.repository.NotificationRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import static com.hanghae.navis.common.entity.SuccessMessage.*;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final EmitterRepository emitterRepository;
@@ -41,6 +43,7 @@ public class NotificationService {
         Long memberId = user.getId();
         String emitterId = user.getUsername();
         SseEmitter emitter;
+        log.warn(emitterRepository.findAll().toString());
         if (emitterRepository.findAllEmitterStartWithByUserId(emitterId) != null){
             emitterRepository.deleteAllEmitterStartWithId(emitterId);
             emitter = emitterRepository.save(emitterId, new SseEmitter(Long.MAX_VALUE)); //id가 key, SseEmitter가 value
