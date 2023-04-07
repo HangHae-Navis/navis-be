@@ -7,10 +7,7 @@ import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
-import com.hanghae.navis.survey.dto.QuestionRequestDto;
-import com.hanghae.navis.survey.dto.QuestionResponseDto;
-import com.hanghae.navis.survey.dto.SurveyRequestDto;
-import com.hanghae.navis.survey.dto.SurveyResponseDto;
+import com.hanghae.navis.survey.dto.*;
 import com.hanghae.navis.survey.entity.Survey;
 import com.hanghae.navis.survey.entity.SurveyOption;
 import com.hanghae.navis.survey.entity.SurveyQuestion;
@@ -95,6 +92,22 @@ public class SurveyService {
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
     }
 
+    @Transactional
+    public ResponseEntity<Message> deleteSurvey(Long groupId, Long surveyId, User user) {
+        UserGroup userGroup = authCheck(groupId, user);
+
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        if (!survey.getUser().getId().equals(user.getId())) {
+            throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+        }
+
+        surveyRepository.deleteById(surveyId);
+        return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
+    }
+
     public UserGroup authCheck(Long groupId, User user) {
 
         Group group = groupRepository.findById(groupId).orElseThrow(
@@ -110,6 +123,11 @@ public class SurveyService {
         }
 
         return new UserGroup(me, group);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> fillForm(Long groupId, Long surveyId, FillRequestDto requestDto, User user) {
+        return null;
     }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {

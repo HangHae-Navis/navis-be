@@ -40,7 +40,7 @@ public class SurveyController {
     @Operation(summary = "등록한 설문 게시글 삭제", description = "등록한 설문 게시글 삭제")
     public ResponseEntity<Message> deleteSurvey(@PathVariable Long groupId, @PathVariable Long surveyId,
                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return null;
+        return surveyService.deleteSurvey(groupId, surveyId, userDetails.getUser());
     }
 
     @PostMapping("/{surveyId}/fillForm")
@@ -48,7 +48,7 @@ public class SurveyController {
     public ResponseEntity<Message> fillForm(@PathVariable Long groupId, @PathVariable Long surveyId,
                                             @RequestBody FillRequestDto requestDto,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return null;
+        return surveyService.fillForm(groupId, surveyId, requestDto, userDetails.getUser());
     }
 
     @PostMapping("/{surveyId}/updateForm")
