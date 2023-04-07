@@ -66,10 +66,6 @@ public class SurveyService {
             }
             questionResponseDto.add(QuestionResponseDto.of(surveyQuestion, optionList));
         }
-
-//        survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.of(value)));
-//        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto);
-
         SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto);
 
         return Message.toResponseEntity(SURVEY_POST_SUCCESS, responseDto);
@@ -95,7 +91,7 @@ public class SurveyService {
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
-        survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.of(value, null)));
+        survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
         SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto);
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
