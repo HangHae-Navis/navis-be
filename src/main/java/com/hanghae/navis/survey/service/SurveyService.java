@@ -5,6 +5,7 @@ import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.dto.UserGroup;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.survey.dto.*;
@@ -46,9 +47,13 @@ public class SurveyService {
     public ResponseEntity<Message> createSurvey(Long groupId, SurveyRequestDto requestDto, User user) {
         UserGroup userGroup = authCheck(groupId, user);
 
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
-        Survey survey = new Survey(requestDto, user, userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
+        Survey survey = new Survey(requestDto, user, userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())));
         surveyRepository.save(survey);
 
         for (QuestionRequestDto questionDto : requestDto.getQuestionList()) {
@@ -100,6 +105,10 @@ public class SurveyService {
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
         if (!survey.getUser().getId().equals(user.getId())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
@@ -108,8 +117,51 @@ public class SurveyService {
         return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
     }
 
-    public UserGroup authCheck(Long groupId, User user) {
+    @Transactional
+    public ResponseEntity<Message> forceExpiredSurvey(Long groupId, Long surveyId, User user) {
+        UserGroup userGroup = authCheck(groupId, user);
 
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
+        if (role != GroupMemberRoleEnum.USER) {
+            survey.forceExpiration();
+        } else {
+            throw new CustomException(ADMIN_ONLY);
+        }
+
+        return Message.toResponseEntity(SURVEY_FORCE_EXPIRED_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> fillForm(Long groupId, Long surveyId, FillRequestDto requestDto, User user) {
+        UserGroup userGroup = authCheck(groupId, user);
+
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        if (survey.isForceExpiration() == true) {
+            throw new CustomException(VOTE_EXPIRED);
+        }
+
+
+
+        return null;
+    }
+
+    public UserGroup authCheck(Long groupId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
@@ -123,11 +175,6 @@ public class SurveyService {
         }
 
         return new UserGroup(me, group);
-    }
-
-    @Transactional
-    public ResponseEntity<Message> fillForm(Long groupId, Long surveyId, FillRequestDto requestDto, User user) {
-        return null;
     }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {
