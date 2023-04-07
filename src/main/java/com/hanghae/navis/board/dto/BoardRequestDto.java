@@ -38,4 +38,8 @@ public class BoardRequestDto {
         this.important = Long.parseLong(important);
         this.multipartFiles = multipartFiles;
     }
+
+    public BoardRequestDto(String title) {
+        this.title = title;
+    }
 }
