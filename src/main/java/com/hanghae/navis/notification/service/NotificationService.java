@@ -10,7 +10,6 @@ import com.hanghae.navis.notification.repository.NotificationRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,31 +28,21 @@ import static com.hanghae.navis.common.entity.SuccessMessage.*;
 
 @RequiredArgsConstructor
 @Service
-@Slf4j
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final EmitterRepository emitterRepository;
     private final UserRepository userRepository;
-    private Long DEFAULT_TIMEOUT =  30L * 1000L;
+    private Long DEFAULT_TIMEOUT = 60L * 1000L * 60L;
     @Transactional
     public SseEmitter subscribe(User user, String lastEventId) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         Long memberId = user.getId();
-        String emitterId = user.getUsername();
-        SseEmitter emitter;
-        log.warn(emitterRepository.findAll().toString());
-        if (emitterRepository.findAllEmitterStartWithByUserId(emitterId) != null){
-            emitterRepository.deleteAllEmitterStartWithId(emitterId);
-            emitter = emitterRepository.save(emitterId, new SseEmitter(Long.MAX_VALUE)); //id가 key, SseEmitter가 value
-        }
-        else {
-            emitter = emitterRepository.save(emitterId, new SseEmitter(Long.MAX_VALUE)); //id가 key, SseEmitter가 value
-        }
+        String emitterId = makeTimeIncludeId(memberId);
+        SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
-        emitter.onError((e) -> emitterRepository.deleteById(emitterId));
 
         // 503 에러를 방지하기 위한 더미 이벤트 전송
         String eventId = makeTimeIncludeId(memberId);

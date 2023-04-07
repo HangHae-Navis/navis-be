@@ -1,6 +1,7 @@
 package com.hanghae.navis.notification.repository;
 
 import lombok.NoArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -70,5 +71,10 @@ public class EmitterRepositoryImpl implements EmitterRepository {
                     }
                 }
         );
+    }
+    @Scheduled(fixedDelay = 30000)
+    public void closeAllEmitters() {
+        emitters.values().forEach(SseEmitter::complete);
+        emitters.clear();
     }
 }
