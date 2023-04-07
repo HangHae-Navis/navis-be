@@ -2,7 +2,7 @@
 # run_new_was.sh
 
 if [ $(id -u) -ne 0 ]; then exec sudo bash "$0" "$@"; exit; fi
-CURRENT_PORT=$(cat /home/ubuntu/service_url.inc | grep -Po '[0-9]+' | tail -1)
+CURRENT_PORT=$(cat /home/ubuntu/service.inc | grep -Po '[0-9]+' | tail -1)
 TARGET_PORT=0
 
 echo "> Current port of running WAS is ${CURRENT_PORT}."
