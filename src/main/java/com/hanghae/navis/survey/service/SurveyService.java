@@ -213,6 +213,13 @@ public class SurveyService {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
             SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
+            if(answerDto.getAnswerList().isEmpty())
+            {
+                Answer answer = new Answer("", user, surveyQuestion, survey, surveyOption);
+                answerRepository.save(answer);
+                continue;
+            }
+
             for (String answers : answerDto.getAnswerList()) {
                 Answer answer = new Answer(answers, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(answer);
