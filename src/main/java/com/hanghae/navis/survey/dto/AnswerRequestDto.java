@@ -9,10 +9,12 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class FillRequestDto {
-    List<String> answerList;
+public class AnswerRequestDto {
+    private Long questionId;
+    private List<String> answerList;
 
-    public FillRequestDto(List<String> answerList) {
+    public AnswerRequestDto(Long questionId, List<String> answerList) {
+        this.questionId = questionId;
         this.answerList = answerList;
     }
 }

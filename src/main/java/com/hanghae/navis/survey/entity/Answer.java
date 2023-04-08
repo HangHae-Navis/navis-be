@@ -1,6 +1,6 @@
 package com.hanghae.navis.survey.entity;
 
-import com.hanghae.navis.group.entity.GroupMember;
+import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,15 +17,14 @@ public class Answer {
     private String answer;
 
     @ManyToOne
-    @JoinColumn(name = "groupmember_id")
-    private GroupMember groupMember;
+    private User user;
 
     @ManyToOne
     private SurveyQuestion surveyQuestion;
 
-    public Answer(String answer, GroupMember groupMember, SurveyQuestion surveyQuestion) {
+    public Answer(String answer, User user, SurveyQuestion surveyQuestion) {
         this.answer = answer;
-        this.groupMember = groupMember;
+        this.user = user;
         this.surveyQuestion = surveyQuestion;
     }
 }
