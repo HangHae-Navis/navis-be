@@ -12,6 +12,7 @@ import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.group.repository.QueryRepository;
 import com.hanghae.navis.group.repository.RecentlyViewedRepository;
+import com.hanghae.navis.messenger.entity.Messenger;
 import com.hanghae.navis.survey.dto.*;
 import com.hanghae.navis.survey.entity.Answer;
 import com.hanghae.navis.survey.entity.Survey;
@@ -59,6 +60,12 @@ public class SurveyService {
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
+        if(role.equals(GroupMemberRoleEnum.USER)) {
+            throw new CustomException(ADMIN_ONLY);
+        }
+
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
         Survey survey = new Survey(requestDto, user, userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())));
@@ -77,7 +84,7 @@ public class SurveyService {
         }
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        SurveyResponseDto responseDto = SurveyResponseDto.submitFalseOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
 
         RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
         recentlyViewedRepository.save(recentlyViewed);
@@ -103,32 +110,43 @@ public class SurveyService {
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
-        List<Answer> answerList = answerRepository.findByUserId(user.getId());
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
+        List<Answer> answerList = answerRepository.findBySurveyId(surveyId);
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        //설문 제출한 유저 return / submit = true
-        if (!answerList.isEmpty()) {
-            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
+        if(role.equals(GroupMemberRoleEnum.USER)) {
+            //설문 제출한 유저 return / submit = true
+            if (!answerList.isEmpty()) {
+                survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
 
-            SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true);
+                SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true);
 
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
-            recentlyViewedRepository.save(recentlyViewed);
+                RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+                recentlyViewedRepository.save(recentlyViewed);
 
-            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+                return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
 
-        //미제출 유저 return / submit = false
+                //미제출 유저 return / submit = false
+            } else {
+                survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
+                SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+
+                RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+                recentlyViewedRepository.save(recentlyViewed);
+
+                return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+            }
+
+            //ADMIN, SUPPORT return
         } else {
             survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-            SurveyResponseDto responseDto = SurveyResponseDto.submitFalseOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+            SurveyResponseDto responseDto = SurveyResponseDto.adminOf(survey, questionResponseDto, rv, groupMember.getGroupRole());
 
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
-            recentlyViewedRepository.save(recentlyViewed);
-
-            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+            return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, responseDto);
         }
     }
 
@@ -193,9 +211,10 @@ public class SurveyService {
 
         for (AnswerRequestDto answerDto : requestDto.getAnswerRequestDto()) {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
+            SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
             for (String answers : answerDto.getAnswerList()) {
-                Answer answer = new Answer(answers, user, surveyQuestion, survey);
+                Answer answer = new Answer(answers, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(answer);
             }
 
@@ -227,9 +246,10 @@ public class SurveyService {
 
         for (AnswerRequestDto answerDto : requestDto.getAnswerRequestDto()) {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
+            SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
             for (String answers : answerDto.getAnswerList()) {
-                userAnswer = new Answer(answers, user, surveyQuestion, survey);
+                userAnswer = new Answer(answers, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(userAnswer);
                 answerList.add(answers);
             }

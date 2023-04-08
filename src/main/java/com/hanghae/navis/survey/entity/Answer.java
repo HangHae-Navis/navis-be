@@ -16,7 +16,6 @@ public class Answer extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String answer;
 
     @ManyToOne
@@ -28,13 +27,14 @@ public class Answer extends TimeStamped {
     @ManyToOne
     private SurveyQuestion surveyQuestion;
 
-    @OneToMany(mappedBy = "answer", cascade = {CascadeType.ALL})
-    private List<SurveyOption> optionList;
+    @ManyToOne
+    private SurveyOption surveyOption;
 
-    public Answer(String answer, User user, SurveyQuestion surveyQuestion, Survey survey) {
+    public Answer(String answer, User user, SurveyQuestion surveyQuestion, Survey survey, SurveyOption surveyOption) {
         this.answer = answer;
         this.user = user;
         this.surveyQuestion = surveyQuestion;
         this.survey = survey;
+        this.surveyOption = surveyOption;
     }
 }

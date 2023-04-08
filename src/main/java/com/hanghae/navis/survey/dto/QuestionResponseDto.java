@@ -52,7 +52,19 @@ public class QuestionResponseDto {
                 .optionList(surveyQuestion.getOptionList().stream()
                         .map(SurveyOption::getOption)
                         .collect(Collectors.toList()))
-//                .answerList(answerList)
+                .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
+                .build();
+    }
+
+    public static QuestionResponseDto andminOf(SurveyQuestion surveyQuestion) {
+        return QuestionResponseDto.builder()
+                .id(surveyQuestion.getId())
+                .type(surveyQuestion.getType())
+                .number(surveyQuestion.getNumber())
+                .question(surveyQuestion.getQuestion())
+                .optionList(surveyQuestion.getOptionList().stream()
+                        .map(SurveyOption::getOption)
+                        .collect(Collectors.toList()))
                 .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
                 .build();
     }
