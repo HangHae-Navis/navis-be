@@ -34,7 +34,7 @@ public class Message<T> {
                 );
     }
 
-    public static <T> ResponseEntity<Message> toAllExceptionResponseEntity(HttpStatus httpStatus,String message, T data) {
+    public static ResponseEntity<Message> toAllExceptionResponseEntity(HttpStatus httpStatus,String message, Object data) {
         return ResponseEntity
                 .status(httpStatus)
                 .body(Message.builder()

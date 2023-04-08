@@ -78,7 +78,6 @@ public class EmitterRepositoryImpl implements EmitterRepository {
 
     @Override
     public void closeAllEmitters() {
-        log.warn("Current emitters: " + emitters);
         emitters.values().forEach(SseEmitter::complete);
         emitters.clear();
     }
