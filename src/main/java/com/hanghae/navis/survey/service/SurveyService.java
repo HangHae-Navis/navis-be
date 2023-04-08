@@ -77,7 +77,7 @@ public class SurveyService {
         }
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+        SurveyResponseDto responseDto = SurveyResponseDto.submitFalseOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
 
         RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
         recentlyViewedRepository.save(recentlyViewed);
@@ -104,20 +104,13 @@ public class SurveyService {
         );
 
         List<Answer> answerList = answerRepository.findByUserId(user.getId());
-//        List<String> answerResponse = new ArrayList<>();
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        //설문 제출한 유저 return
+        //설문 제출한 유저 return / submit = true
         if (!answerList.isEmpty()) {
-//            for (Answer answer : answerList) {
-//                if (answer.getUser().getId().equals(user.getId())) {
-//                    String userAnswer = answer.getAnswer();
-//                    answerResponse.add(userAnswer);
-//                }
-//            }
             survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
 
             SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true);
@@ -127,9 +120,10 @@ public class SurveyService {
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
 
+        //미제출 유저 return / submit = false
         } else {
             survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-            SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+            SurveyResponseDto responseDto = SurveyResponseDto.submitFalseOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
 
             RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
             recentlyViewedRepository.save(recentlyViewed);
