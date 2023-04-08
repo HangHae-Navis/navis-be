@@ -43,7 +43,7 @@ public class QuestionResponseDto {
                 .build();
     }
 
-    public static QuestionResponseDto submitTrueOf(SurveyQuestion surveyQuestion, List<String> answerList) {
+    public static QuestionResponseDto submitTrueOf(SurveyQuestion surveyQuestion) {
         return QuestionResponseDto.builder()
                 .id(surveyQuestion.getId())
                 .type(surveyQuestion.getType())
@@ -52,8 +52,8 @@ public class QuestionResponseDto {
                 .optionList(surveyQuestion.getOptionList().stream()
                         .map(SurveyOption::getOption)
                         .collect(Collectors.toList()))
-                .answerList(answerList)
-//                .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
+//                .answerList(answerList)
+                .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
                 .build();
     }
 }

@@ -20,11 +20,15 @@ public class Answer {
     private User user;
 
     @ManyToOne
+    private Survey survey;
+
+    @ManyToOne
     private SurveyQuestion surveyQuestion;
 
-    public Answer(String answer, User user, SurveyQuestion surveyQuestion) {
+    public Answer(String answer, User user, SurveyQuestion surveyQuestion, Survey survey) {
         this.answer = answer;
         this.user = user;
         this.surveyQuestion = surveyQuestion;
+        this.survey = survey;
     }
 }

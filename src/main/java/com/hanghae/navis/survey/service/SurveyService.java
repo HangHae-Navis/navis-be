@@ -104,23 +104,21 @@ public class SurveyService {
         );
 
         List<Answer> answerList = answerRepository.findByUserId(user.getId());
-        List<String> answerResponse = new ArrayList<>();
+//        List<String> answerResponse = new ArrayList<>();
+
+        List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
+
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
         //설문 제출한 유저 return
         if (!answerList.isEmpty()) {
-            List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
-
-            List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
-
-            for (Answer answer : answerList) {
-                if (answer.getUser().getId().equals(user.getId())) {
-                    String userAnswer = answer.getAnswer();
-                    answerResponse.add(userAnswer);
-                }
-            }
-
-            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value, answerResponse)));
-//            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
+//            for (Answer answer : answerList) {
+//                if (answer.getUser().getId().equals(user.getId())) {
+//                    String userAnswer = answer.getAnswer();
+//                    answerResponse.add(userAnswer);
+//                }
+//            }
+            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
 
             SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true);
 
@@ -128,19 +126,16 @@ public class SurveyService {
             recentlyViewedRepository.save(recentlyViewed);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+
+        } else {
+            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
+            SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+            recentlyViewedRepository.save(recentlyViewed);
+
+            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
         }
-
-        List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
-
-        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
-
-        survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
-
-        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
-        recentlyViewedRepository.save(recentlyViewed);
-
-        return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
     }
 
     @Transactional
@@ -206,7 +201,7 @@ public class SurveyService {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
 
             for (String answers : answerDto.getAnswerList()) {
-                Answer answer = new Answer(answers, user, surveyQuestion);
+                Answer answer = new Answer(answers, user, surveyQuestion, survey);
                 answerRepository.save(answer);
             }
 
@@ -240,7 +235,7 @@ public class SurveyService {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
 
             for (String answers : answerDto.getAnswerList()) {
-                userAnswer = new Answer(answers, user, surveyQuestion);
+                userAnswer = new Answer(answers, user, surveyQuestion, survey);
                 answerRepository.save(userAnswer);
                 answerList.add(answers);
             }

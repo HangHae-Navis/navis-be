@@ -24,7 +24,6 @@ public class SurveyResponseDto {
     private boolean forceExpiration;
     private String title;
     private List<QuestionResponseDto> questionResponseDto;
-    private List<AnswerResponseDto> answerResponseDto;
     private List<RecentlyViewedDto> recentlyViewed;
 
     public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit) {
