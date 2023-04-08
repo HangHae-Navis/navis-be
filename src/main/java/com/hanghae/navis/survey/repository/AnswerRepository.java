@@ -8,6 +8,5 @@ import java.util.List;
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
     void deleteAllByUserId(Long userId);
 
-    List<Answer> findByUserId(Long id);
-    List<Answer> findBySurveyId(Long id);
+    List<Answer> findBySurveyIdAndUserId(Long surveyId, Long userId);
 }
