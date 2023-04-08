@@ -213,8 +213,7 @@ public class SurveyService {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
             SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
-            if(answerDto.getAnswerList().isEmpty())
-            {
+            if(answerDto.getAnswerList().isEmpty()) {
                 Answer answer = new Answer("", user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(answer);
                 continue;
@@ -254,12 +253,17 @@ public class SurveyService {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
             SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
+            if(answerDto.getAnswerList().isEmpty()) {
+                Answer answer = new Answer("", user, surveyQuestion, survey, surveyOption);
+                answerRepository.save(answer);
+                continue;
+            }
+
             for (String answers : answerDto.getAnswerList()) {
                 userAnswer = new Answer(answers, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(userAnswer);
                 answerList.add(answers);
             }
-
         }
         AnswerResponseDto responseDto = AnswerResponseDto.of(userAnswer, answerList);
         return Message.toResponseEntity(SURVEY_UPDATE_SUCCESS, responseDto);
