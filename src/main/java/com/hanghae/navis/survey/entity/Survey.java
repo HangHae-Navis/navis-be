@@ -24,6 +24,9 @@ public class Survey extends BasicBoard {
     @OneToMany(mappedBy = "survey", cascade = {CascadeType.ALL})
     private List<SurveyQuestion> questionList;
 
+    @OneToMany(mappedBy = "survey", cascade = {CascadeType.ALL})
+    private List<Answer> answerList;
+
     public Survey(SurveyRequestDto requestDto, User user, Group group, LocalDateTime expirationDate, boolean forceExpiration) {
         super(requestDto, user, group);
         this.expirationDate = expirationDate;

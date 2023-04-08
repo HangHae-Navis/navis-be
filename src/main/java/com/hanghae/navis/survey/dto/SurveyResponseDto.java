@@ -1,6 +1,7 @@
 package com.hanghae.navis.survey.dto;
 
 import com.hanghae.navis.group.dto.RecentlyViewedDto;
+import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.survey.entity.Survey;
 import com.hanghae.navis.survey.entity.SurveyQuestion;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,9 @@ import java.util.List;
 @AllArgsConstructor
 public class SurveyResponseDto {
     private long id;
+    private GroupMemberRoleEnum role;
     private String nickname;
+    private boolean submit;
     private LocalDateTime createAt;
     private LocalDateTime expirationDate;
     private boolean forceExpiration;
@@ -23,10 +26,27 @@ public class SurveyResponseDto {
     private List<QuestionResponseDto> questionResponseDto;
     private List<RecentlyViewedDto> recentlyViewed;
 
-    public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv) {
+    public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit) {
         return SurveyResponseDto.builder()
                 .id(survey.getId())
+                .role(role)
                 .nickname(survey.getUser().getNickname())
+                .submit(submit)
+                .createAt(survey.getCreatedAt())
+                .expirationDate(survey.getExpirationDate())
+                .forceExpiration(survey.isForceExpiration())
+                .title(survey.getTitle())
+                .questionResponseDto(questionResponseDto)
+                .recentlyViewed(rv)
+                .build();
+    }
+
+    public static SurveyResponseDto submitTrueOf(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit) {
+        return SurveyResponseDto.builder()
+                .id(survey.getId())
+                .role(role)
+                .nickname(survey.getUser().getNickname())
+                .submit(submit)
                 .createAt(survey.getCreatedAt())
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())

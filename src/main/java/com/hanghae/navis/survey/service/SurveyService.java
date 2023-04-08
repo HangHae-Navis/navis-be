@@ -13,6 +13,7 @@ import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.group.repository.QueryRepository;
 import com.hanghae.navis.group.repository.RecentlyViewedRepository;
 import com.hanghae.navis.survey.dto.*;
+import com.hanghae.navis.survey.entity.Answer;
 import com.hanghae.navis.survey.entity.Survey;
 import com.hanghae.navis.survey.entity.SurveyOption;
 import com.hanghae.navis.survey.entity.SurveyQuestion;
@@ -76,7 +77,7 @@ public class SurveyService {
         }
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv);
+        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
 
         RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
         recentlyViewedRepository.save(recentlyViewed);
@@ -102,17 +103,39 @@ public class SurveyService {
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
+        List<Answer> answerList = answerRepository.findByUserId(user.getId());
+//        List<String> answerResponse = new ArrayList<>();
+
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv);
+        //설문 제출한 유저 return
+        if (!answerList.isEmpty()) {
+//            for (Answer answer : answerList) {
+//                if (answer.getUser().getId().equals(user.getId())) {
+//                    String userAnswer = answer.getAnswer();
+//                    answerResponse.add(userAnswer);
+//                }
+//            }
+            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
 
-        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
-        recentlyViewedRepository.save(recentlyViewed);
+            SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true);
 
-        return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+            recentlyViewedRepository.save(recentlyViewed);
+
+            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+
+        } else {
+            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
+            SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+            recentlyViewedRepository.save(recentlyViewed);
+
+            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+        }
     }
 
     @Transactional
@@ -159,7 +182,7 @@ public class SurveyService {
     }
 
     @Transactional
-    public ResponseEntity<Message> fillForm(Long groupId, Long surveyId, FillRequestDto requestDto, User user) {
+    public ResponseEntity<Message> fillForm(Long groupId, Long surveyId, FormRequestDto requestDto, User user) {
         UserGroup userGroup = authCheck(groupId, user);
 
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(
@@ -174,9 +197,52 @@ public class SurveyService {
             throw new CustomException(VOTE_EXPIRED);
         }
 
+        for (AnswerRequestDto answerDto : requestDto.getAnswerRequestDto()) {
+            SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
 
+            for (String answers : answerDto.getAnswerList()) {
+                Answer answer = new Answer(answers, user, surveyQuestion, survey);
+                answerRepository.save(answer);
+            }
 
-        return null;
+        }
+        return Message.toResponseEntity(SURVEY_WRITE_SUCCESS);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> updateForm(Long groupId, Long surveyId, FormRequestDto requestDto, User user) {
+        UserGroup userGroup = authCheck(groupId, user);
+
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        if (survey.isForceExpiration() == true) {
+            throw new CustomException(VOTE_EXPIRED);
+        }
+
+        List<String> answerList = new ArrayList<>();
+
+        answerRepository.deleteAllByUserId(user.getId());
+
+        Answer userAnswer = null;
+
+        for (AnswerRequestDto answerDto : requestDto.getAnswerRequestDto()) {
+            SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
+
+            for (String answers : answerDto.getAnswerList()) {
+                userAnswer = new Answer(answers, user, surveyQuestion, survey);
+                answerRepository.save(userAnswer);
+                answerList.add(answers);
+            }
+
+        }
+        AnswerResponseDto responseDto = AnswerResponseDto.of(userAnswer, answerList);
+        return Message.toResponseEntity(SURVEY_UPDATE_SUCCESS, responseDto);
     }
 
     public UserGroup authCheck(Long groupId, User user) {
