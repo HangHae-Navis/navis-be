@@ -2,7 +2,6 @@ package com.hanghae.navis.survey.controller;
 
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
-import com.hanghae.navis.survey.dto.AnswerRequestDto;
 import com.hanghae.navis.survey.dto.FormRequestDto;
 import com.hanghae.navis.survey.dto.SurveyRequestDto;
 import com.hanghae.navis.survey.service.SurveyService;
@@ -30,7 +29,7 @@ public class SurveyController {
     }
 
     @GetMapping("/{surveyId}")
-    @Operation(summary = "설문 상세 조회", description = "설문 상세 조회")
+    @Operation(summary = "설문 상세 조회", description = "ADMIN, SUPPORT : 투표 통계 조회 / USER : 본인이 작성한 설문 내용 조회")
     public ResponseEntity<Message> getSurvey(@PathVariable Long groupId, @PathVariable Long surveyId,
                                              @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return surveyService.getSurvey(groupId, surveyId, userDetails.getUser());

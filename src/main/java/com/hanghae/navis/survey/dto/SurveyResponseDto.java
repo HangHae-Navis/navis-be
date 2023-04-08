@@ -26,7 +26,7 @@ public class SurveyResponseDto {
     private List<QuestionResponseDto> questionResponseDto;
     private List<RecentlyViewedDto> recentlyViewed;
 
-    public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit) {
+    public static SurveyResponseDto submitFalseOf(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit) {
         return SurveyResponseDto.builder()
                 .id(survey.getId())
                 .role(role)

@@ -18,6 +18,9 @@ public class SurveyOption {
     @ManyToOne
     private SurveyQuestion surveyQuestion;
 
+    @ManyToOne
+    private Answer answer;
+
     public SurveyOption(String option, SurveyQuestion surveyQuestion) {
         this.option = option;
         this.surveyQuestion = surveyQuestion;
