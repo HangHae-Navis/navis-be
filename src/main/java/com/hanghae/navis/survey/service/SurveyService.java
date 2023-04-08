@@ -112,7 +112,7 @@ public class SurveyService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        List<Answer> answerList = answerRepository.findBySurveyId(surveyId);
+        List<Answer> answerList = answerRepository.findBySurveyIdAndUserId(surveyId, user.getId());
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
@@ -120,7 +120,7 @@ public class SurveyService {
 
         if (role.equals(GroupMemberRoleEnum.USER)) {
             //설문 제출한 유저 return / submit = true
-            if (!answerList.isEmpty()) {
+            if (answerList.size() != 0) {
                 survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
 
                 SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true);

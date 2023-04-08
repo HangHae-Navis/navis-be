@@ -1,5 +1,6 @@
 package com.hanghae.navis.survey.controller;
 
+import com.hanghae.navis.common.annotation.ApiRateLimiter;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.survey.dto.FormRequestDto;
@@ -22,6 +23,7 @@ public class SurveyController {
 
     @PostMapping("")
     @Operation(summary = "설문 게시글 등록", description = "설문 등록, 텍스트 형식만 작성 가능 / subtitle, content, important, hashtagList, multipartFiles는 지우고 테스트해주세요 / option은 체크박스랑 객관식에만 사용, 서술식은 null")
+    @ApiRateLimiter(key = "createSurvey" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> createSurvey(@PathVariable Long groupId,
                                                 @RequestBody SurveyRequestDto requestDto,
                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -51,6 +53,7 @@ public class SurveyController {
 
     @PostMapping("/{surveyId}/fillForm")
     @Operation(summary = "설문 작성", description = "설문 작성")
+    @ApiRateLimiter(key = "fillForm" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> fillForm(@PathVariable Long groupId, @PathVariable Long surveyId,
                                             @RequestBody FormRequestDto requestDto,
                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -59,6 +62,7 @@ public class SurveyController {
 
     @PutMapping("/{surveyId}/updateForm")
     @Operation(summary = "설문 답변 수정", description = "유저가 작성한 설문 답변을 수정")
+    @ApiRateLimiter(key = "updateForm" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> updateForm(@PathVariable Long groupId, @PathVariable Long surveyId,
                                               @RequestBody FormRequestDto requestDto,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
