@@ -59,6 +59,12 @@ public class SurveyService {
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
+        if(role.equals(GroupMemberRoleEnum.USER)) {
+            throw new CustomException(ADMIN_ONLY);
+        }
+
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
         Survey survey = new Survey(requestDto, user, userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())));
@@ -103,32 +109,40 @@ public class SurveyService {
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
         List<Answer> answerList = answerRepository.findByUserId(user.getId());
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        //설문 제출한 유저 return / submit = true
-        if (!answerList.isEmpty()) {
-            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
+        if(role.equals(GroupMemberRoleEnum.USER)) {
+            //설문 제출한 유저 return / submit = true
+            if (!answerList.isEmpty()) {
+                survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
 
-            SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true);
+                SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true);
 
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
-            recentlyViewedRepository.save(recentlyViewed);
+                RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+                recentlyViewedRepository.save(recentlyViewed);
 
-            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+                return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
 
-        //미제출 유저 return / submit = false
+                //미제출 유저 return / submit = false
+            } else {
+                survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
+                SurveyResponseDto responseDto = SurveyResponseDto.submitFalseOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+
+                RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+                recentlyViewedRepository.save(recentlyViewed);
+
+                return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+            }
+
+            //ADMIN, SUPPORT return
         } else {
-            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-            SurveyResponseDto responseDto = SurveyResponseDto.submitFalseOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
-
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
-            recentlyViewedRepository.save(recentlyViewed);
-
-            return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+            return null;
         }
     }
 

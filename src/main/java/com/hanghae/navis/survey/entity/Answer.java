@@ -16,7 +16,6 @@ public class Answer extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String answer;
 
     @ManyToOne
