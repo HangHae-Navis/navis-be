@@ -26,7 +26,7 @@ public class SurveyResponseDto {
     private List<QuestionResponseDto> questionResponseDto;
     private List<RecentlyViewedDto> recentlyViewed;
 
-    public static SurveyResponseDto submitFalseOf(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit) {
+    public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit) {
         return SurveyResponseDto.builder()
                 .id(survey.getId())
                 .role(role)
@@ -47,6 +47,20 @@ public class SurveyResponseDto {
                 .role(role)
                 .nickname(survey.getUser().getNickname())
                 .submit(submit)
+                .createAt(survey.getCreatedAt())
+                .expirationDate(survey.getExpirationDate())
+                .forceExpiration(survey.isForceExpiration())
+                .title(survey.getTitle())
+                .questionResponseDto(questionResponseDto)
+                .recentlyViewed(rv)
+                .build();
+    }
+
+    public static SurveyResponseDto adminOf(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role) {
+        return SurveyResponseDto.builder()
+                .id(survey.getId())
+                .role(role)
+                .nickname(survey.getUser().getNickname())
                 .createAt(survey.getCreatedAt())
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())

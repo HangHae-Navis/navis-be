@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity(name = "surveyOption")
 @Getter
@@ -18,8 +19,8 @@ public class SurveyOption {
     @ManyToOne
     private SurveyQuestion surveyQuestion;
 
-    @ManyToOne
-    private Answer answer;
+    @OneToMany(mappedBy = "surveyOption", cascade = {CascadeType.ALL})
+    private List<Answer> answerList;
 
     public SurveyOption(String option, SurveyQuestion surveyQuestion) {
         this.option = option;

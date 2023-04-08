@@ -2,7 +2,6 @@ package com.hanghae.navis.homework.repository;
 
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.homework.dto.HomeworkSubmitListResponseDto;
-import com.hanghae.navis.survey.dto.SubmitAnswerResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -12,6 +12,7 @@ import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.group.repository.QueryRepository;
 import com.hanghae.navis.group.repository.RecentlyViewedRepository;
+import com.hanghae.navis.messenger.entity.Messenger;
 import com.hanghae.navis.survey.dto.*;
 import com.hanghae.navis.survey.entity.Answer;
 import com.hanghae.navis.survey.entity.Survey;
@@ -83,7 +84,7 @@ public class SurveyService {
         }
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        SurveyResponseDto responseDto = SurveyResponseDto.submitFalseOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
 
         RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
         recentlyViewedRepository.save(recentlyViewed);
@@ -111,7 +112,7 @@ public class SurveyService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        List<Answer> answerList = answerRepository.findByUserId(user.getId());
+        List<Answer> answerList = answerRepository.findBySurveyId(surveyId);
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
@@ -132,7 +133,7 @@ public class SurveyService {
                 //미제출 유저 return / submit = false
             } else {
                 survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-                SurveyResponseDto responseDto = SurveyResponseDto.submitFalseOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+                SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
 
                 RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
                 recentlyViewedRepository.save(recentlyViewed);
@@ -142,7 +143,10 @@ public class SurveyService {
 
             //ADMIN, SUPPORT return
         } else {
-            return null;
+            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
+            SurveyResponseDto responseDto = SurveyResponseDto.adminOf(survey, questionResponseDto, rv, groupMember.getGroupRole());
+
+            return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, responseDto);
         }
     }
 
@@ -207,9 +211,10 @@ public class SurveyService {
 
         for (AnswerRequestDto answerDto : requestDto.getAnswerRequestDto()) {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
+            SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
             for (String answers : answerDto.getAnswerList()) {
-                Answer answer = new Answer(answers, user, surveyQuestion, survey);
+                Answer answer = new Answer(answers, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(answer);
             }
 
@@ -241,9 +246,10 @@ public class SurveyService {
 
         for (AnswerRequestDto answerDto : requestDto.getAnswerRequestDto()) {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
+            SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
             for (String answers : answerDto.getAnswerList()) {
-                userAnswer = new Answer(answers, user, surveyQuestion, survey);
+                userAnswer = new Answer(answers, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(userAnswer);
                 answerList.add(answers);
             }
