@@ -20,6 +20,7 @@ public class QuestionResponseDto {
     private String question;
     private List<String> optionList;
     private List<String> answerList;
+    private Long size;
 
     public static QuestionResponseDto of(SurveyQuestion surveyQuestion, List<String> optionList) {
         return QuestionResponseDto.builder()
@@ -56,7 +57,7 @@ public class QuestionResponseDto {
                 .build();
     }
 
-    public static QuestionResponseDto andminOf(SurveyQuestion surveyQuestion) {
+    public static QuestionResponseDto adminOf(SurveyQuestion surveyQuestion) {
         return QuestionResponseDto.builder()
                 .id(surveyQuestion.getId())
                 .type(surveyQuestion.getType())
@@ -66,6 +67,7 @@ public class QuestionResponseDto {
                         .map(SurveyOption::getOption)
                         .collect(Collectors.toList()))
                 .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
+                .size(surveyQuestion.getAnswerList() == null ? 0L : (long) surveyQuestion.getAnswerList().size())
                 .build();
     }
 }

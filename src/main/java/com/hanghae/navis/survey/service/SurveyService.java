@@ -118,7 +118,7 @@ public class SurveyService {
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        if(role.equals(GroupMemberRoleEnum.USER)) {
+        if (role.equals(GroupMemberRoleEnum.USER)) {
             //설문 제출한 유저 return / submit = true
             if (!answerList.isEmpty()) {
                 survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
@@ -143,7 +143,7 @@ public class SurveyService {
 
             //ADMIN, SUPPORT return
         } else {
-            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
+            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.adminOf(value)));
             SurveyResponseDto responseDto = SurveyResponseDto.adminOf(survey, questionResponseDto, rv, groupMember.getGroupRole());
 
             return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, responseDto);
@@ -213,11 +213,17 @@ public class SurveyService {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
             SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
+            if(answerDto.getAnswerList().isEmpty())
+            {
+                Answer answer = new Answer("", user, surveyQuestion, survey, surveyOption);
+                answerRepository.save(answer);
+                continue;
+            }
+
             for (String answers : answerDto.getAnswerList()) {
                 Answer answer = new Answer(answers, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(answer);
             }
-
         }
         return Message.toResponseEntity(SURVEY_WRITE_SUCCESS);
     }
