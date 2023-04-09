@@ -3,10 +3,12 @@ package com.hanghae.navis.survey.dto;
 import com.hanghae.navis.survey.entity.Answer;
 import com.hanghae.navis.survey.entity.SurveyOption;
 import com.hanghae.navis.survey.entity.SurveyQuestion;
+import com.mysema.commons.lang.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +20,8 @@ public class QuestionResponseDto {
     private String type;
     private Long number;
     private String question;
-    private List<String> optionList;
+    private List<String> createOptionList;
+    private List<HashMap<String, String>> optionsList;
     private List<String> answerList;
     private Long size;
 
@@ -28,7 +31,7 @@ public class QuestionResponseDto {
                 .type(surveyQuestion.getType())
                 .number(surveyQuestion.getNumber())
                 .question(surveyQuestion.getQuestion())
-                .optionList(optionList)
+                .createOptionList(optionList)
                 .build();
     }
 
@@ -38,8 +41,13 @@ public class QuestionResponseDto {
                 .type(surveyQuestion.getType())
                 .number(surveyQuestion.getNumber())
                 .question(surveyQuestion.getQuestion())
-                .optionList(surveyQuestion.getOptionList().stream()
-                        .map(SurveyOption::getOption)
+                .optionsList(surveyQuestion.getOptionList().stream()
+                        .map(q -> {
+                            HashMap<String, String> newOptionMap = new HashMap<>();
+                            newOptionMap.put("optionId", String.valueOf(q.getId()));
+                            newOptionMap.put("optionName", String.valueOf(q.getOption()));
+                            return newOptionMap;
+                        })
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -50,8 +58,13 @@ public class QuestionResponseDto {
                 .type(surveyQuestion.getType())
                 .number(surveyQuestion.getNumber())
                 .question(surveyQuestion.getQuestion())
-                .optionList(surveyQuestion.getOptionList().stream()
-                        .map(SurveyOption::getOption)
+                .optionsList(surveyQuestion.getOptionList().stream()
+                        .map(q -> {
+                            HashMap<String, String> newOptionMap = new HashMap<>();
+                            newOptionMap.put("optionId", String.valueOf(q.getId()));
+                            newOptionMap.put("optionName", String.valueOf(q.getOption()));
+                            return newOptionMap;
+                        })
                         .collect(Collectors.toList()))
                 .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
                 .build();
@@ -63,8 +76,13 @@ public class QuestionResponseDto {
                 .type(surveyQuestion.getType())
                 .number(surveyQuestion.getNumber())
                 .question(surveyQuestion.getQuestion())
-                .optionList(surveyQuestion.getOptionList().stream()
-                        .map(SurveyOption::getOption)
+                .optionsList(surveyQuestion.getOptionList().stream()
+                        .map(q -> {
+                            HashMap<String, String> newOptionMap = new HashMap<>();
+                            newOptionMap.put("optionId", String.valueOf(q.getId()));
+                            newOptionMap.put("optionName", String.valueOf(q.getOption()));
+                            return newOptionMap;
+                        })
                         .collect(Collectors.toList()))
                 .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
                 .size(surveyQuestion.getAnswerList() == null ? 0L : (long) surveyQuestion.getAnswerList().size())
