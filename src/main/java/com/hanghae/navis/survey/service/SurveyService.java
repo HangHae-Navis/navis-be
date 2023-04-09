@@ -54,6 +54,7 @@ public class SurveyService {
     @Transactional
     public ResponseEntity<Message> createSurvey(Long groupId, SurveyRequestDto requestDto, User user) {
         Long number = 1L;
+
         UserGroup userGroup = authCheck(groupId, user);
 
         GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
@@ -143,8 +144,14 @@ public class SurveyService {
 
             //ADMIN, SUPPORT return
         } else {
+            List<SurveyQuestion> questionList = survey.getQuestionList();
+            List<Answer> answers = new ArrayList<>();
+
             survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.adminOf(value)));
+
             SurveyResponseDto responseDto = SurveyResponseDto.adminOf(survey, questionResponseDto, rv, groupMember.getGroupRole());
+
+//            AdminSurveyResponseDto adminResponseDto = AdminSurveyResponseDto.builder().build();
 
             return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, responseDto);
         }

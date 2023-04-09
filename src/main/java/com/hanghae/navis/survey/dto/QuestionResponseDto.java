@@ -3,6 +3,7 @@ package com.hanghae.navis.survey.dto;
 import com.hanghae.navis.survey.entity.Answer;
 import com.hanghae.navis.survey.entity.SurveyOption;
 import com.hanghae.navis.survey.entity.SurveyQuestion;
+import com.mysema.commons.lang.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class QuestionResponseDto {
     private Long number;
     private String question;
     private List<String> optionList;
+    private List<Pair<Long, String>> optionsList;
     private List<String> answerList;
     private Long size;
 
@@ -38,8 +40,8 @@ public class QuestionResponseDto {
                 .type(surveyQuestion.getType())
                 .number(surveyQuestion.getNumber())
                 .question(surveyQuestion.getQuestion())
-                .optionList(surveyQuestion.getOptionList().stream()
-                        .map(SurveyOption::getOption)
+                .optionsList(surveyQuestion.getOptionList().stream()
+                        .map(q -> new Pair<>(q.getId(), q.getOption()))
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -50,8 +52,8 @@ public class QuestionResponseDto {
                 .type(surveyQuestion.getType())
                 .number(surveyQuestion.getNumber())
                 .question(surveyQuestion.getQuestion())
-                .optionList(surveyQuestion.getOptionList().stream()
-                        .map(SurveyOption::getOption)
+                .optionsList(surveyQuestion.getOptionList().stream()
+                        .map(q -> new Pair<>(q.getId(), q.getOption()))
                         .collect(Collectors.toList()))
                 .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
                 .build();
@@ -63,8 +65,8 @@ public class QuestionResponseDto {
                 .type(surveyQuestion.getType())
                 .number(surveyQuestion.getNumber())
                 .question(surveyQuestion.getQuestion())
-                .optionList(surveyQuestion.getOptionList().stream()
-                        .map(SurveyOption::getOption)
+                .optionsList(surveyQuestion.getOptionList().stream()
+                        .map(q -> new Pair<>(q.getId(), q.getOption()))
                         .collect(Collectors.toList()))
                 .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
                 .size(surveyQuestion.getAnswerList() == null ? 0L : (long) surveyQuestion.getAnswerList().size())

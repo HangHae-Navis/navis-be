@@ -9,4 +9,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     void deleteAllByUserId(Long userId);
 
     List<Answer> findBySurveyIdAndUserId(Long surveyId, Long userId);
+
+    List<Answer> findAllBySurveyQuestionId(Long questionId);
 }
