@@ -68,4 +68,6 @@ public class SurveyController {
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return surveyService.updateForm(groupId, surveyId, requestDto, userDetails.getUser());
     }
+
+//    @GetMapping
 }

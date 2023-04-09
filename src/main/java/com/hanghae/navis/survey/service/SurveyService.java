@@ -12,7 +12,6 @@ import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.group.repository.QueryRepository;
 import com.hanghae.navis.group.repository.RecentlyViewedRepository;
-import com.hanghae.navis.messenger.entity.Messenger;
 import com.hanghae.navis.survey.dto.*;
 import com.hanghae.navis.survey.entity.Answer;
 import com.hanghae.navis.survey.entity.Survey;
