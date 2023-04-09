@@ -150,8 +150,6 @@ public class SurveyService {
 
             SurveyResponseDto responseDto = SurveyResponseDto.adminOf(survey, questionResponseDto, rv, groupMember.getGroupRole());
 
-//            AdminSurveyResponseDto adminResponseDto = AdminSurveyResponseDto.builder().build();
-
             return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, responseDto);
         }
     }
@@ -217,15 +215,18 @@ public class SurveyService {
 
         for (AnswerRequestDto answerDto : requestDto.getAnswerRequestDto()) {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
-            SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
             if(answerDto.getAnswerList().isEmpty()) {
+                SurveyOption surveyOption = surveyOptionRepository.findByOptionAndSurveyQuestionId("None", surveyQuestion.getId());
                 Answer answer = new Answer("", user, surveyQuestion, survey, surveyOption);
+
                 answerRepository.save(answer);
                 continue;
             }
 
             for (String answers : answerDto.getAnswerList()) {
+                SurveyOption surveyOption = surveyOptionRepository.findByOptionAndSurveyQuestionId(answers, surveyQuestion.getId());
+
                 Answer answer = new Answer(answers, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(answer);
             }
@@ -257,18 +258,21 @@ public class SurveyService {
 
         for (AnswerRequestDto answerDto : requestDto.getAnswerRequestDto()) {
             SurveyQuestion surveyQuestion = surveyQuestionRepository.findById(answerDto.getQuestionId()).orElseThrow();
-            SurveyOption surveyOption = surveyOptionRepository.findById(surveyQuestion.getId()).orElseThrow();
 
             if(answerDto.getAnswerList().isEmpty()) {
+                SurveyOption surveyOption = surveyOptionRepository.findByOptionAndSurveyQuestionId("None", surveyQuestion.getId());
+
                 Answer answer = new Answer("", user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(answer);
                 continue;
             }
 
-            for (String answers : answerDto.getAnswerList()) {
-                userAnswer = new Answer(answers, user, surveyQuestion, survey, surveyOption);
+            for (String answer : answerDto.getAnswerList()) {
+                SurveyOption surveyOption = surveyOptionRepository.findByOptionAndSurveyQuestionId("None", surveyQuestion.getId());
+
+                userAnswer = new Answer(answer, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(userAnswer);
-                answerList.add(answers);
+                answerList.add(answer);
             }
         }
         AnswerResponseDto responseDto = AnswerResponseDto.of(userAnswer, answerList);
