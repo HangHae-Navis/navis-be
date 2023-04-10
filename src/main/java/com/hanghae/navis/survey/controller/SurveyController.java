@@ -69,10 +69,10 @@ public class SurveyController {
         return surveyService.updateForm(groupId, surveyId, requestDto, userDetails.getUser());
     }
 
-    @GetMapping("/{surveyId}/surveyStatDetails")
+    @GetMapping("/{surveyId}/surveyStatDetails/{userId}")
     @Operation(summary = "설문 답변 상세 보기", description = "응답한 답변 상세보기")
-    public ResponseEntity<Message> answerDetails (@PathVariable Long groupId, @PathVariable Long surveyId,
+    public ResponseEntity<Message> answerDetails (@PathVariable Long groupId, @PathVariable Long surveyId, @PathVariable Long userId,
                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return surveyService.answerDetails(groupId, surveyId, userDetails.getUser());
+        return surveyService.answerDetails(groupId, surveyId, userId, userDetails.getUser());
     }
 }

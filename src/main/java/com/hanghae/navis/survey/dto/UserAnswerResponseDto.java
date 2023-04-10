@@ -11,13 +11,14 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class UserAnswerResponseDto {
-    private Long id;
-    private String answers;
+//    private Long id;
+    private Long userId;
+    private List<String> answerList;
 
-    public static UserAnswerResponseDto of(Answer answer) {
+    public static UserAnswerResponseDto of(Long userId, List<String> answerList) {
         return UserAnswerResponseDto.builder()
-                .id(answer.getId())
-                .answers(answer.getAnswer())
+                .userId(userId)
+                .answerList(answerList)
                 .build();
     }
 }

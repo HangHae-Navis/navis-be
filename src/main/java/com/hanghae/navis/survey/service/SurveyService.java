@@ -32,7 +32,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
@@ -145,11 +144,12 @@ public class SurveyService {
             //ADMIN, SUPPORT return
         } else {
             List<AdminSurveyGetDto> adminSurveyDto = surveyRepository.findAnswerListByBasicBoardId(surveyId);
+            List<SubmitResponseDto> submitResponse = answerRepository.findByUserNickname(surveyId);
 
             RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
             recentlyViewedRepository.save(recentlyViewed);
 
-            AdminSurveyResponseDto adminResponse = AdminSurveyResponseDto.of(survey, role, adminSurveyDto, rv);
+            AdminSurveyResponseDto adminResponse = AdminSurveyResponseDto.of(survey, role, adminSurveyDto, rv, submitResponse);
 
             return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
@@ -281,7 +281,7 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Message> answerDetails(Long groupId, Long surveyId, User user) {
+    public ResponseEntity<Message> answerDetails(Long groupId, Long surveyId, Long userId, User user) {
         UserGroup userGroup = authCheck(groupId, user);
 
         GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
@@ -292,34 +292,23 @@ public class SurveyService {
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
+        List<Answer> answerList = answerRepository.findBySurveyIdAndUserId(surveyId, userId);
+
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         if (role.equals(GroupMemberRoleEnum.USER)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
-        List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
-//        List<String> userAnswerList = new ArrayList<>();
-        List<UserAnswerResponseDto> userAnswerDto = new ArrayList<>();
+        List<String> answerResponseList = new ArrayList<>();
 
-//        {
-//            유저1
-//            1. 질문 답(체크박스) : 1, 2, 3,
-//            2. 질문 답(장문형) : 장문형? ,
-//            3. 질문 답(선택형) : 3
-//        },
-//        {
-//            유저1
-//            1. 질문 답(체크박스) : 1, 2, 3,
-//            2. 질문 답(장문형) : 장문형? ,
-//            3. 질문 답(선택형) : 3
-//        }
+        for (Answer answers : answerList) {
+            String answer = answers.getAnswer();
 
+            answerResponseList.add(answer);
+        }
 
-        survey.getAnswerList().forEach(value -> userAnswerDto.add(UserAnswerResponseDto.of(value)));
-
-        survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-        SurveyDetailResponseDto responseDto = SurveyDetailResponseDto.of(survey, groupMember.getGroupRole(), questionResponseDto, userAnswerDto);
+        UserAnswerResponseDto responseDto = UserAnswerResponseDto.of(userId, answerResponseList);
 
         return Message.toResponseEntity(SURVEY_DETAIL_GET_SUCCESS, responseDto);
     }

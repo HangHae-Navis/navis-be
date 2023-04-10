@@ -20,10 +20,9 @@ public class SurveyDetailResponseDto {
     private LocalDateTime createAt;
     private LocalDateTime expirationDate;
     private boolean forceExpiration;
-    private List<QuestionResponseDto> questionList;
     private List<UserAnswerResponseDto> userAnswerList;
 
-    public static SurveyDetailResponseDto of(Survey survey, GroupMemberRoleEnum role, List<QuestionResponseDto> questionList, List<UserAnswerResponseDto> userAnswerList) {
+    public static SurveyDetailResponseDto of(Survey survey, GroupMemberRoleEnum role, List<UserAnswerResponseDto> userAnswerList) {
         return SurveyDetailResponseDto.builder()
                 .id(survey.getId())
                 .title(survey.getTitle())
@@ -32,7 +31,6 @@ public class SurveyDetailResponseDto {
                 .createAt(survey.getCreatedAt())
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())
-                .questionList(questionList)
                 .userAnswerList(userAnswerList)
                 .build();
     }
