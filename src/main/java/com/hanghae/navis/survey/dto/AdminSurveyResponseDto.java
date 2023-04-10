@@ -1,5 +1,6 @@
 package com.hanghae.navis.survey.dto;
 
+import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import com.hanghae.navis.survey.entity.Survey;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,9 @@ public class AdminSurveyResponseDto {
     private LocalDateTime expirationDate;
     private boolean forceExpiration;
     private List<AdminSurveyGetDto> answerList;
+    private List<RecentlyViewedDto> recentlyViewed;
 
-    public static AdminSurveyResponseDto of(Survey survey, GroupMemberRoleEnum role, List<AdminSurveyGetDto> answerList) {
+    public static AdminSurveyResponseDto of(Survey survey, GroupMemberRoleEnum role, List<AdminSurveyGetDto> answerList, List<RecentlyViewedDto> rv) {
         return AdminSurveyResponseDto.builder()
                 .id(survey.getId())
                 .role(role)
@@ -32,6 +34,7 @@ public class AdminSurveyResponseDto {
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())
                 .answerList(answerList)
+                .recentlyViewed(rv)
                 .build();
     }
 }

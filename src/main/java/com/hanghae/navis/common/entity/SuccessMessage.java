@@ -31,6 +31,7 @@ public enum SuccessMessage {
     BOARD_DELETE_SUCCESS(HttpStatus.CREATED,"게시물 삭제 완료"),
     BOARD_MY_LIST_GET_SUCCESS(HttpStatus.OK,"나의 게시물 보기 완료"),
     BOARD_DETAIL_GET_SUCCESS(HttpStatus.OK,"상세 게시물 보기 완료"),
+    SURVEY_DETAIL_GET_SUCCESS(HttpStatus.OK,"설문 상세 게시물 보기 완료"),
     ADMIN_BOARD_DETAIL_GET_SUCCESS(HttpStatus.OK,"관리자 상세 게시물 보기 완료"),
     COMMENT_POST_SUCCESS(HttpStatus.CREATED,"댓글 작성 완료"),
     COMMENT_UPDATE_SUCCESS(HttpStatus.CREATED,"댓글 작성 완료"),

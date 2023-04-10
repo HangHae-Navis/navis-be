@@ -56,17 +56,17 @@ public class SurveyResponseDto {
                 .build();
     }
 
-    public static SurveyResponseDto adminOf(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role) {
+    public static SurveyResponseDto detailOf(Survey survey, List<QuestionResponseDto> questionResponseDto, GroupMemberRoleEnum role, boolean submit) {
         return SurveyResponseDto.builder()
                 .id(survey.getId())
                 .role(role)
                 .nickname(survey.getUser().getNickname())
+                .submit(submit)
                 .createAt(survey.getCreatedAt())
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())
                 .title(survey.getTitle())
                 .questionResponseDto(questionResponseDto)
-                .recentlyViewed(rv)
                 .build();
     }
 }
