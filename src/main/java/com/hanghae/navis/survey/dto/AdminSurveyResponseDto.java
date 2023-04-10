@@ -22,9 +22,25 @@ public class AdminSurveyResponseDto {
     private LocalDateTime expirationDate;
     private boolean forceExpiration;
     private List<AdminSurveyGetDto> answerList;
+    private List<SubmitResponseDto> submitResponseDto;
     private List<RecentlyViewedDto> recentlyViewed;
 
-    public static AdminSurveyResponseDto of(Survey survey, GroupMemberRoleEnum role, List<AdminSurveyGetDto> answerList, List<RecentlyViewedDto> rv) {
+    public static AdminSurveyResponseDto of(Survey survey, GroupMemberRoleEnum role, List<AdminSurveyGetDto> answerList, List<RecentlyViewedDto> rv, List<SubmitResponseDto> submitResponseDto) {
+        return AdminSurveyResponseDto.builder()
+                .id(survey.getId())
+                .role(role)
+                .nickname(survey.getUser().getNickname())
+                .title(survey.getTitle())
+                .createAt(survey.getCreatedAt())
+                .expirationDate(survey.getExpirationDate())
+                .forceExpiration(survey.isForceExpiration())
+                .submitResponseDto(submitResponseDto)
+                .answerList(answerList)
+                .recentlyViewed(rv)
+                .build();
+    }
+
+    public static AdminSurveyResponseDto detailOf(Survey survey, GroupMemberRoleEnum role, List<AdminSurveyGetDto> answerList, List<RecentlyViewedDto> rv) {
         return AdminSurveyResponseDto.builder()
                 .id(survey.getId())
                 .role(role)
