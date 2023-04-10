@@ -32,6 +32,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
@@ -143,14 +144,14 @@ public class SurveyService {
 
             //ADMIN, SUPPORT return
         } else {
-            List<SurveyQuestion> questionList = survey.getQuestionList();
-            List<Answer> answers = new ArrayList<>();
+            List<AdminSurveyGetDto> adminSurveyDto = surveyRepository.findAnswerListByBasicBoardId(surveyId);
+            List<String> descAnswerList = new ArrayList<>();
 
-            survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.adminOf(value)));
+//            survey.getQuestionList().get(0).getType().equals("DESCRIPTION") 일 때 answer를 list로 가져오기
 
-            SurveyResponseDto responseDto = SurveyResponseDto.adminOf(survey, questionResponseDto, rv, groupMember.getGroupRole());
+            AdminSurveyResponseDto adminResponse = AdminSurveyResponseDto.of(survey, role, adminSurveyDto);
 
-            return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, responseDto);
+            return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
     }
 
@@ -277,6 +278,37 @@ public class SurveyService {
         }
         AnswerResponseDto responseDto = AnswerResponseDto.of(userAnswer, answerList);
         return Message.toResponseEntity(SURVEY_UPDATE_SUCCESS, responseDto);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> answerDetails(Long groupId, Long surveyId, User user) {
+        UserGroup userGroup = authCheck(groupId, user);
+
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        );
+
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow(
+                () -> new CustomException(BOARD_NOT_FOUND)
+        );
+
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
+
+        if(role.equals(GroupMemberRoleEnum.USER)) {
+            throw new CustomException(ADMIN_ONLY);
+        }
+
+//        List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
+//
+//        survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
+//        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, groupMember.getGroupRole(), false);
+//
+//        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+//        recentlyViewedRepository.save(recentlyViewed);
+//
+//        return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+
+        return null;
     }
 
     public UserGroup authCheck(Long groupId, User user) {
