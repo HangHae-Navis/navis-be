@@ -57,17 +57,4 @@ public class QuestionResponseDto {
                 .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
                 .build();
     }
-
-    public static QuestionResponseDto adminOf(SurveyQuestion surveyQuestion) {
-        return QuestionResponseDto.builder()
-                .id(surveyQuestion.getId())
-                .type(surveyQuestion.getType())
-                .number(surveyQuestion.getNumber())
-                .question(surveyQuestion.getQuestion())
-                .optionList(surveyQuestion.getOptionList().stream()
-                        .map(SurveyOption::getOption)
-                        .collect(Collectors.toList()))
-                .answerList(surveyQuestion.getAnswerList().stream().map(Answer::getAnswer).collect(Collectors.toList()))
-                .build();
-    }
 }

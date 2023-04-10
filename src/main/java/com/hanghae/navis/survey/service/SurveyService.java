@@ -145,11 +145,11 @@ public class SurveyService {
             //ADMIN, SUPPORT return
         } else {
             List<AdminSurveyGetDto> adminSurveyDto = surveyRepository.findAnswerListByBasicBoardId(surveyId);
-            List<String> descAnswerList = new ArrayList<>();
 
-//            survey.getQuestionList().get(0).getType().equals("DESCRIPTION") 일 때 answer를 list로 가져오기
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
+            recentlyViewedRepository.save(recentlyViewed);
 
-            AdminSurveyResponseDto adminResponse = AdminSurveyResponseDto.of(survey, role, adminSurveyDto);
+            AdminSurveyResponseDto adminResponse = AdminSurveyResponseDto.of(survey, role, adminSurveyDto, rv);
 
             return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
@@ -294,21 +294,34 @@ public class SurveyService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        if(role.equals(GroupMemberRoleEnum.USER)) {
+        if (role.equals(GroupMemberRoleEnum.USER)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
-//        List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
-//
-//        survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-//        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, groupMember.getGroupRole(), false);
-//
-//        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
-//        recentlyViewedRepository.save(recentlyViewed);
-//
-//        return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
+        List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
+//        List<String> userAnswerList = new ArrayList<>();
+        List<UserAnswerResponseDto> userAnswerDto = new ArrayList<>();
 
-        return null;
+//        {
+//            유저1
+//            1. 질문 답(체크박스) : 1, 2, 3,
+//            2. 질문 답(장문형) : 장문형? ,
+//            3. 질문 답(선택형) : 3
+//        },
+//        {
+//            유저1
+//            1. 질문 답(체크박스) : 1, 2, 3,
+//            2. 질문 답(장문형) : 장문형? ,
+//            3. 질문 답(선택형) : 3
+//        }
+
+
+        survey.getAnswerList().forEach(value -> userAnswerDto.add(UserAnswerResponseDto.of(value)));
+
+        survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
+        SurveyDetailResponseDto responseDto = SurveyDetailResponseDto.of(survey, groupMember.getGroupRole(), questionResponseDto, userAnswerDto);
+
+        return Message.toResponseEntity(SURVEY_DETAIL_GET_SUCCESS, responseDto);
     }
 
     public UserGroup authCheck(Long groupId, User user) {
