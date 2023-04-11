@@ -37,8 +37,10 @@ public class User extends TimeStamped {
     private String password;
     @Column
     private String profileImage;
-
+    @Column
     private Long kakaoId;
+    @Column
+    private String token;
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
@@ -75,16 +77,21 @@ public class User extends TimeStamped {
         this.role = userRoleEnum;
     }
 
-    public User(String username, String nickname, Long kakaoId, String password, UserRoleEnum role) {
+    public User(String username, String nickname, Long kakaoId, String password, UserRoleEnum role, String token) {
         this.username = username;
         this.nickname = nickname;
         this.kakaoId = kakaoId;
         this.password = password;
         this.role = role;
+        this.token = token;
     }
 
     public User updateKakaoId(Long kakaoId) {
         this.kakaoId = kakaoId;
+        return this;
+    }
+    public User updateKakaoToken(String token) {
+        this.token = token;
         return this;
     }
     public User updateProfileImage(String profileImage) {
