@@ -24,7 +24,7 @@ public class GroupMember extends TimeStamped {
     @ManyToOne
     private Group group;
 
-    @OneToMany(mappedBy = "groupMember")
+    @OneToMany(mappedBy = "groupMember", cascade = {CascadeType.ALL})
     private List<RecentlyViewed> recentlyViewedList;
 
     @Column(nullable = false)

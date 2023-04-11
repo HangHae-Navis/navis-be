@@ -108,13 +108,13 @@ public class NoticeService {
 
         notice.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
 
+        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, notice);
+        recentlyViewedRepository.save(recentlyViewed);
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
         NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagList, role, rv);
 
-        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, notice);
-        recentlyViewedRepository.save(recentlyViewed);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, noticeResponseDto);
     }
 
@@ -152,14 +152,14 @@ public class NoticeService {
                     fileResponseDto.add(FileResponseDto.of(noticeFile));
                 }
             }
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, notice);
+
+            recentlyViewedRepository.save(recentlyViewed);
 
             List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
             NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList, role, rv);
 
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, notice);
-
-            recentlyViewedRepository.save(recentlyViewed);
 
             notificationService.send(user, NotificationType.NOTICE_POST,  userGroup.getGroup().getGroupName() + "에서 " + NotificationType.NOTICE_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + notice.getId() + "&dtype=notice", userGroup.getGroup());
 

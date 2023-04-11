@@ -113,6 +113,9 @@ public class HomeworkService {
         List<String> hashtagResponseDto = new ArrayList<>();
         homework.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
 
+        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
+        recentlyViewedRepository.save(recentlyViewed);
+
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
         //admin, support return
@@ -138,8 +141,6 @@ public class HomeworkService {
 
             AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, hashtagResponseDto, fileResponseDto, notSubmit, submitMember, role, rv);
 
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
-            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
 
@@ -160,8 +161,6 @@ public class HomeworkService {
         if (homeworkSubject == null) { //미제출 유저
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv);
 
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
-            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
         } else {    //제출한 유저
             homeworkSubject.getHomeworkSubjectFileList().forEach(value -> fileResponseDto.add(HomeworkFileResponseDto.of(value)));
@@ -169,8 +168,6 @@ public class HomeworkService {
             SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto, feedbackResponse);
             HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto, rv);
 
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
-            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
         }
     }
@@ -222,6 +219,9 @@ public class HomeworkService {
                 fileResponseDto = null;
             }
 
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
+            recentlyViewedRepository.save(recentlyViewed);
+
             List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
             HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role, rv);
@@ -230,8 +230,7 @@ public class HomeworkService {
 
 
             notificationService.send(user, NotificationType.HOMEWORK_POST,  group.getGroupName() + "에서 " + NotificationType.HOMEWORK_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + homework.getId() + "&dtype=homework", group);
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
-            recentlyViewedRepository.save(recentlyViewed);
+
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
 
         } catch (IOException e) {
