@@ -95,6 +95,8 @@ public class NotificationService {
 
     @Transactional
     public void send(User receiver, NotificationType notificationType, String content, String url, Group group) {
+        Map<String, SseEmitter> emitters = new HashMap<>() {
+        };
         Notification notification = notificationRepository.save(createNotification(receiver, notificationType, content, url));
 
         if (notificationType == NotificationType.CHAT_POST) {
@@ -103,15 +105,16 @@ public class NotificationService {
         } else {
             List<GroupMember> groupMemberList = group.getGroupMember();
             for (GroupMember groupMember : groupMemberList) {
-                if (!receiver.equals(groupMember.getUser()))
+                if (!receiver.equals(groupMember.getUser())) {
                     notificationRepository.save(createNotification(groupMember.getUser(), notificationType, content, url));
+                }
+                emitters.putAll(emitterRepository.findAllEmitterStartWithByUserId(String.valueOf(groupMember.getUser().getId())));
             }
         }
 
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
         emitters.forEach(
                 (key, emitter) -> {
                     emitterRepository.saveEventCache(key, notification);
@@ -137,7 +140,7 @@ public class NotificationService {
         );
 
         List<NotificationResponseDto> notificationResponseDtoList = new ArrayList<>();
-        List<Notification> notificationList = notificationRepository.findByUserOrderByCreatedAt(user);
+        List<Notification> notificationList = notificationRepository.findByUserOrderByCreatedAtDesc(user);
 
         if (!notificationList.isEmpty()) {
             for (Notification notification : notificationList) {

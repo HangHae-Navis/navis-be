@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findByUserOrderByCreatedAt(User user);
+    List<Notification> findByUserOrderByCreatedAtDesc(User user);
     void deleteByUser(User user);
     void deleteByUserAndUrl(User user, String url);
     @Modifying
