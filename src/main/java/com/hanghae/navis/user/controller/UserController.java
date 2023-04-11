@@ -83,8 +83,7 @@ public class UserController {
     @DeleteMapping("/kakao/unlink")
     @ApiRateLimiter(key = "kakaoUnlink" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     @Operation(summary = "카카오톡 회원탈퇴", description ="카카오톡 회원 탈퇴")
-    public  ResponseEntity<Message> unlink(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+    public  ResponseEntity<Message> unlink(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return kakaoService.unlink(userDetails.getUser());
     }
 
