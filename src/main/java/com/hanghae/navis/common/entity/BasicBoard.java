@@ -51,7 +51,7 @@ public abstract class BasicBoard extends TimeStamped {
 
     @OneToMany(mappedBy = "basicBoard", cascade = {CascadeType.ALL})
     private List<Hashtag> hashtagList = new ArrayList<>();
-    @OneToMany(mappedBy = "basicBoard")
+    @OneToMany(mappedBy = "basicBoard", cascade = {CascadeType.ALL})
     private List<RecentlyViewed> recentlyViewedList;
 
     public BasicBoard(BoardRequestDto requestDto, User user, Group group) {

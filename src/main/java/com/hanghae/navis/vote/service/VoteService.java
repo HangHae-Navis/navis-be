@@ -116,6 +116,9 @@ public class VoteService {
              myPick = myPickCheck.get().getVoteOption().getId();
         }
 
+        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, vote);
+        recentlyViewedRepository.save(recentlyViewed);
+
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
         if (!role.name().equals("USER")) {
@@ -132,17 +135,12 @@ public class VoteService {
             VoteAdminResponseDto voteAdminResponseDto = VoteAdminResponseDto.of(vote, fileResponseDto, hashtagList, optionAdminResponseDto, expirationCheck(
                     vote.getExpirationDate()), vote.getExpirationDate(), role, myPick, rv);
 
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, vote);
-            recentlyViewedRepository.save(recentlyViewed);
-
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteAdminResponseDto);
         }
 
         VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, expirationCheck(
                 vote.getExpirationDate()), vote.getExpirationDate(), role, myPick, rv);
 
-        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, vote);
-        recentlyViewedRepository.save(recentlyViewed);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
     }
 
@@ -193,13 +191,14 @@ public class VoteService {
                 optionResponseDto.add(OptionResponseDto.of(voteOption));
             }
 
+            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, vote);
+            recentlyViewedRepository.save(recentlyViewed);
+
             List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
             //리턴으로 보내줄 dto생성
             VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role, null, rv);
 
-            RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, vote);
-            recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {
             throw new RuntimeException(e);

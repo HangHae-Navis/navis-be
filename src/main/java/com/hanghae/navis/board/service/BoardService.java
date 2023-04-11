@@ -97,6 +97,9 @@ public class BoardService {
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         //최근 본 글 목록 추가용
+        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, board);
+        recentlyViewedRepository.save(recentlyViewed);
+
         List<RecentlyViewedDto> rvList = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
@@ -105,8 +108,6 @@ public class BoardService {
         board.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
         BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rvList);
 
-        RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, board);
-        recentlyViewedRepository.save(recentlyViewed);
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, boardResponseDto);
     }
 
@@ -152,12 +153,13 @@ public class BoardService {
                 fileResponseDto = null;
             }
 
+            RecentlyViewed rv = new RecentlyViewed(groupMember, board);
+            recentlyViewedRepository.save(rv);
+
             List<RecentlyViewedDto> rvList = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
             BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rvList);
 
-            RecentlyViewed rv = new RecentlyViewed(groupMember, board);
-            recentlyViewedRepository.save(rv);
             return Message.toResponseEntity(BOARD_POST_SUCCESS, boardResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);
