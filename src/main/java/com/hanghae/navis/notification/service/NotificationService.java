@@ -2,6 +2,8 @@ package com.hanghae.navis.notification.service;
 
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.notification.dto.NotificationResponseDto;
 import com.hanghae.navis.notification.entity.Notification;
 import com.hanghae.navis.notification.entity.NotificationType;
@@ -37,6 +39,7 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final UserRepository userRepository;
     private Long DEFAULT_TIMEOUT = 60L * 1000L * 60L;
+
     @Transactional
     public SseEmitter subscribe(User user, String lastEventId) {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
@@ -91,12 +94,20 @@ public class NotificationService {
     }
 
     @Transactional
-    public void send(User receiver, NotificationType notificationType, String content, String url) {
-        if(notificationType == NotificationType.CHAT_POST){
+    public void send(User receiver, NotificationType notificationType, String content, String url, Group group) {
+        Notification notification = notificationRepository.save(createNotification(receiver, notificationType, content, url));
+
+        if (notificationType == NotificationType.CHAT_POST) {
             notificationRepository.deleteByUserAndUrl(receiver, url);
+            notificationRepository.save(createNotification(receiver, notificationType, content, url));
+        } else {
+            List<GroupMember> groupMemberList = group.getGroupMember();
+            for (GroupMember groupMember : groupMemberList) {
+                if (!receiver.equals(groupMember.getUser()))
+                    notificationRepository.save(createNotification(groupMember.getUser(), notificationType, content, url));
+            }
         }
 
-        Notification notification = notificationRepository.save(createNotification(receiver, notificationType, content, url));
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
