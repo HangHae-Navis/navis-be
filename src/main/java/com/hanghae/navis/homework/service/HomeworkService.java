@@ -228,8 +228,8 @@ public class HomeworkService {
 
             List<GroupMember> groupMemberList = groupMemberRepository.findAllByGroupId(groupId);
 
-            notifyHomework(user, NotificationType.HOMEWORK_POST, "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + homework.getId() + "&dtype=homework");
 
+            notificationService.send(user, NotificationType.HOMEWORK_POST,  group.getGroupName() + "에서 " + NotificationType.HOMEWORK_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + homework.getId() + "&dtype=homework");
             RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
             recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);

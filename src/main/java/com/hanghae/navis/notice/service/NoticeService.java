@@ -21,6 +21,8 @@ import com.hanghae.navis.notice.dto.NoticeResponseDto;
 import com.hanghae.navis.notice.dto.NoticeUpdateRequestDto;
 import com.hanghae.navis.notice.entity.Notice;
 import com.hanghae.navis.notice.repository.NoticeRepository;
+import com.hanghae.navis.notification.entity.NotificationType;
+import com.hanghae.navis.notification.service.NotificationService;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -51,6 +53,7 @@ public class NoticeService {
     private final GroupMemberRepository groupMemberRepository;
     private final HashtagRepository hashtagRepository;
     private final S3Uploader s3Uploader;
+    private final NotificationService notificationService;
     private final RecentlyViewedRepository recentlyViewedRepository;
     private final QueryRepository queryRepository;
 
@@ -155,7 +158,11 @@ public class NoticeService {
             NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList, role, rv);
 
             RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, notice);
+
             recentlyViewedRepository.save(recentlyViewed);
+
+            notificationService.send(user, NotificationType.NOTICE_POST,  userGroup.getGroup().getGroupName() + "에서 " + NotificationType.NOTICE_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + notice.getId() + "&dtype=notice");
+
             return Message.toResponseEntity(BOARD_POST_SUCCESS, noticeResponseDto);
         } catch (IOException e) {
             throw new RuntimeException(e);

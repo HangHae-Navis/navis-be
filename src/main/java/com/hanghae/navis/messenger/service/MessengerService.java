@@ -141,7 +141,8 @@ public class MessengerService {
             MessengerChat messengerChat = new MessengerChat(message, false, me, room);
             messengerChatRepository.save(messengerChat);
             sendingOperations.convertAndSend("/chats/room/" + room.getId(), MessengerResponseDto.of(messengerChat, me));
-            notifyChat(toUser, NotificationType.CHAT_POST, me.getNickname());
+
+            notificationService.send(toUser, NotificationType.CHAT_POST, me.getNickname() + "님 에게 " + NotificationType.CHAT_POST.getContent(), me.getNickname());
         }
         return Message.toResponseEntity(CHAT_POST_SUCCESS);
     }
@@ -160,9 +161,5 @@ public class MessengerService {
         messengerChatRepository.updateRead(room.getId(), me.getId());
 
          return Message.toResponseEntity(CHAT_READ_SUCCESS);
-    }
-
-    private void notifyChat(User receiver, NotificationType accept, String url) {
-        notificationService.send(receiver, accept, accept.getContent(), url);
     }
 }

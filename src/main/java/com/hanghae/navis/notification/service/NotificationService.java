@@ -92,6 +92,10 @@ public class NotificationService {
 
     @Transactional
     public void send(User receiver, NotificationType notificationType, String content, String url) {
+        if(notificationType == NotificationType.CHAT_POST){
+            notificationRepository.deleteByUserAndUrl(receiver, url);
+        }
+
         Notification notification = notificationRepository.save(createNotification(receiver, notificationType, content, url));
 
         String receiverId = String.valueOf(receiver.getId());
