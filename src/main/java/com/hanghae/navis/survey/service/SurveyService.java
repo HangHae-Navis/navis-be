@@ -211,7 +211,13 @@ public class SurveyService {
         );
 
         if (survey.isForceExpiration() == true) {
-            throw new CustomException(VOTE_EXPIRED);
+            throw new CustomException(SURVEY_EXPIRED);
+        }
+
+        List<Answer> answerList = answerRepository.findBySurveyIdAndUserId(surveyId, user.getId());
+
+        if (!answerList.isEmpty()) {
+            throw new CustomException(ALREADY_SUBMITTED_SURVEY);
         }
 
         for (AnswerRequestDto answerDto : requestDto.getAnswerRequestDto()) {
