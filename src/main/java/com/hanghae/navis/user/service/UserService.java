@@ -4,9 +4,11 @@ import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.jwt.JwtUtil;
+import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.common.util.RedisUtil;
 import com.hanghae.navis.email.service.EmailService;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.homework.service.HomeworkService;
 import com.hanghae.navis.messenger.service.MessengerService;
 import com.hanghae.navis.user.dto.*;
 import com.hanghae.navis.user.entity.User;
@@ -36,6 +38,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final MessengerService messengerService;
+
+    private final BasicBoardRepository basicBoardRepository;
+    private final HomeworkService homeworkService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final RedisUtil redisUtil;
@@ -153,10 +158,14 @@ public class UserService {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-        messengerService.deleteLeaveMessenger(user);
-        userRepository.delete(user);
 
-        return Message.toResponseEntity(USER_DELETE_SUCCESS);
+        if (messengerService.deleteLeaveMessenger(user) && homeworkService.userLeaveDeleteSubject(user)) {
+            basicBoardRepository.deleteByUser(user);
+            userRepository.delete(user);
+            return Message.toResponseEntity(USER_DELETE_SUCCESS);
+        }else {
+            return Message.toExceptionResponseEntity(USER_DELETE_FAIL);
+        }
     }
 
     @Transactional(readOnly = true)

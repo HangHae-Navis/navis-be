@@ -60,7 +60,6 @@ public class KakaoService {
 
         // 3. 필요시에 회원가입
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
-
         // 4. JWT 토큰 반환
         String createToken = jwtUtil.createToken(kakaoUser.getUsername(), kakaoUser.getRole());
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createToken);
@@ -131,7 +130,7 @@ public class KakaoService {
             email = UUID.randomUUID().toString();
         }
 
-        return new KakaoUserInfoDto(id, nickname, email);
+        return new KakaoUserInfoDto(id, nickname, email, accessToken);
     }
 
     // 3. 필요시에 회원가입
@@ -157,10 +156,12 @@ public class KakaoService {
                 // email: kakao email
                 String email = kakaoUserInfo.getEmail();
 
-                kakaoUser = new User(email, kakaoUserInfo.getNickname(), kakaoId, encodedPassword, UserRoleEnum.USER);
+                kakaoUser = new User(email, kakaoUserInfo.getNickname(), kakaoId, encodedPassword, UserRoleEnum.USER, kakaoUserInfo.getToken());
             }
 
             userRepository.save(kakaoUser);
+        } else {
+            kakaoUser.updateKakaoToken(kakaoUserInfo.getToken());
         }
         return kakaoUser;
     }
@@ -175,15 +176,19 @@ public class KakaoService {
         URL url = new URL(reqURL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
-        conn.setRequestProperty("Authorization", "Bearer " + token);
+        conn.setRequestProperty("Authorization", user.getToken());
 
         conn.getResponseCode();
 
-        if (messengerService.deleteLeaveMessenger(user) && homeworkService.userLeaveDeleteSubject(user)) {
-            basicBoardRepository.deleteByUser(user);
-            userRepository.delete(user);
-            return Message.toResponseEntity(USER_DELETE_SUCCESS);
-        }else {
+        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            if (messengerService.deleteLeaveMessenger(user) && homeworkService.userLeaveDeleteSubject(user)) {
+                basicBoardRepository.deleteByUser(user);
+                userRepository.delete(user);
+                return Message.toResponseEntity(USER_DELETE_SUCCESS);
+            } else {
+                return Message.toExceptionResponseEntity(USER_DELETE_FAIL);
+            }
+        } else {
             return Message.toExceptionResponseEntity(USER_DELETE_FAIL);
         }
     }
