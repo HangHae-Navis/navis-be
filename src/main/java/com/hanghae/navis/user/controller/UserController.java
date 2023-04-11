@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -78,6 +79,20 @@ public class UserController {
     @ApiRateLimiter(key = "kakaoLogin" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         return kakaoService.kakaoLogin(code, response);
+    }
+    @DeleteMapping("/kakao/unlink")
+    @ApiRateLimiter(key = "kakaoUnlink" + "#{request.remoteAddr}", limit = 1, seconds = 1)
+    @Operation(summary = "카카오톡 회원탈퇴", description ="카카오톡 회원 탈퇴")
+    public  ResponseEntity<Message> unlink(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+                                           @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        return kakaoService.unlink(token, userDetails.getUser());
+    }
+
+    @DeleteMapping(value = "/leave", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiRateLimiter(key = "kakaoUnlink" + "#{request.remoteAddr}", limit = 1, seconds = 1)
+    @Operation(summary = "일반 회원탈퇴", description ="일반 회원 탈퇴")
+    public ResponseEntity<Message> leaveUser(@Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return userService.leaveUser(userDetails.getUser());
     }
 
     @RequestMapping("/forbidden")

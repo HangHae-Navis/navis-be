@@ -35,4 +35,6 @@ public interface MessengerRepository extends JpaRepository<Messenger, Long> {
             "OR (user1_id = :user2 AND user2_id = :user1) "
             , nativeQuery = true)
     Optional<Messenger> findByMessenger(User user1, User user2);
+
+    List<Messenger> findByUser1OrUser2(User user1, User user2);
 }

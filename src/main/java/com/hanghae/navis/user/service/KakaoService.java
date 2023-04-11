@@ -4,8 +4,11 @@ package com.hanghae.navis.user.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.jwt.JwtUtil;
+import com.hanghae.navis.homework.service.HomeworkService;
+import com.hanghae.navis.messenger.service.MessengerService;
 import com.hanghae.navis.user.dto.KakaoUserInfoDto;
 import com.hanghae.navis.user.dto.LoginResponseDto;
 import com.hanghae.navis.user.entity.User;
@@ -25,9 +28,15 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.UUID;
 
+import static com.hanghae.navis.common.entity.ExceptionMessage.MEMBER_NOT_FOUND;
+import static com.hanghae.navis.common.entity.ExceptionMessage.USER_DELETE_FAIL;
 import static com.hanghae.navis.common.entity.SuccessMessage.LOGIN_SUCCESS;
+import static com.hanghae.navis.common.entity.SuccessMessage.USER_DELETE_SUCCESS;
 
 @Slf4j
 @Service
@@ -35,6 +44,8 @@ import static com.hanghae.navis.common.entity.SuccessMessage.LOGIN_SUCCESS;
 public class KakaoService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final MessengerService messengerService;
+    private final HomeworkService homeworkService;
     private final JwtUtil jwtUtil;
 
     @Transactional
@@ -109,7 +120,7 @@ public class KakaoService {
                 .get("nickname").asText();
 
         String email = "";
-        if(jsonNode.get("kakao_account").get("email") != null) {
+        if (jsonNode.get("kakao_account").get("email") != null) {
             email = jsonNode.get("kakao_account").get("email").asText();
         }
 
@@ -149,5 +160,27 @@ public class KakaoService {
             userRepository.save(kakaoUser);
         }
         return kakaoUser;
+    }
+
+    @Transactional
+    public ResponseEntity<Message> unlink(String token, User user) throws IOException {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        String reqURL = "https://kapi.kakao.com/v1/user/unlink";
+        URL url = new URL(reqURL);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Authorization", "Bearer " + token);
+
+        conn.getResponseCode();
+
+        if (messengerService.deleteLeaveMessenger(user) && homeworkService.userLeaveDeleteSubject(user)) {
+            userRepository.delete(user);
+            return Message.toResponseEntity(USER_DELETE_SUCCESS);
+        }else {
+            return Message.toExceptionResponseEntity(USER_DELETE_FAIL);
+        }
     }
 }

@@ -17,7 +17,7 @@ public interface MessengerChatRepository extends JpaRepository<MessengerChat, Lo
 
     Page<MessengerChat> findByMessengerIdOrderByCreatedAt(Long messengerId, Pageable pageable);
 
-
+    void deleteByMessengerId(Long messengerId);
     @Query(value = "UPDATE messenger_chat " +
             "SET read = 'true' " +
             "WHERE messenger_id = :roomId AND author_id != :userId "

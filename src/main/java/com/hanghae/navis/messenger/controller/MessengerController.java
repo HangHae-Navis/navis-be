@@ -65,11 +65,20 @@ public class MessengerController {
         return messengerService.readChat(requestDto, userDetails.getUser());
     }
 
+    @Operation(summary = "채팅 삭제", description = "채팅 삭제")
+    @DeleteMapping("/room/{roomId}")
+    @ResponseBody
+    public ResponseEntity<Message> deleteMessenger(@PathVariable(value = "roomId") String roomId, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return messengerService.deleteMessenger(roomId, userDetails.getUser());
+    }
+
     @Operation(summary = "채팅하기", description = "채팅하기")
     @MessageMapping("/message")
     public void enter(MessengerChatRequestDto message, @Header("Authorization") String token) {
         messengerService.sendMessage(message, message.getMessage(), token);
     }
+
+
 
 
 }
