@@ -17,18 +17,20 @@ import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.persistence.Column;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -42,6 +44,7 @@ import static com.hanghae.navis.common.entity.SuccessMessage.USER_DELETE_SUCCESS
 
 @Slf4j
 @Service
+@Component
 @RequiredArgsConstructor
 public class KakaoService {
     private final PasswordEncoder passwordEncoder;
@@ -50,6 +53,8 @@ public class KakaoService {
     private final MessengerService messengerService;
     private final HomeworkService homeworkService;
     private final JwtUtil jwtUtil;
+    @Autowired
+    private final Environment env;
 
     @Transactional
     public ResponseEntity<Message> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
@@ -156,31 +161,43 @@ public class KakaoService {
                 // email: kakao email
                 String email = kakaoUserInfo.getEmail();
 
-                kakaoUser = new User(email, kakaoUserInfo.getNickname(), kakaoId, encodedPassword, UserRoleEnum.USER, kakaoUserInfo.getToken());
+                kakaoUser = new User(email, kakaoUserInfo.getNickname(), kakaoId, encodedPassword, UserRoleEnum.USER);
             }
 
             userRepository.save(kakaoUser);
-        } else {
-            kakaoUser.updateKakaoToken(kakaoUserInfo.getToken());
         }
         return kakaoUser;
     }
 
     @Transactional
-    public ResponseEntity<Message> unlink(String token, User user) throws IOException {
+    public ResponseEntity<Message> unlink(User user) throws IOException {
         user = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        String reqURL = "https://kapi.kakao.com/v1/user/unlink";
-        URL url = new URL(reqURL);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Authorization", user.getToken());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "KakaoAK " + env.getProperty("admin.key"));
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        conn.getResponseCode();
+        // HTTP Body 생성
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("target_id_type", "user_id");
+        body.add("target_id", user.getKakaoId().toString());
 
-        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> kakaoUnlinkRequest =
+                new HttpEntity<>(body, headers);
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://kapi.kakao.com/v1/user/unlink",
+                HttpMethod.POST,
+                kakaoUnlinkRequest,
+                String.class
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK) {
             if (messengerService.deleteLeaveMessenger(user) && homeworkService.userLeaveDeleteSubject(user)) {
                 basicBoardRepository.deleteByUser(user);
                 userRepository.delete(user);
