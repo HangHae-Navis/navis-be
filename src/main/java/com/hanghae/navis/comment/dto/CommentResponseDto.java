@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentResponseDto {
     private Long id;
+    private String profileImage;
     private String content;
     private String nickname;
     private LocalDateTime createAt;
@@ -22,6 +23,7 @@ public class CommentResponseDto {
     public static CommentResponseDto of(Comment comment, User user) {
         return CommentResponseDto.builder()
                 .id(comment.getId())
+                .profileImage(comment.getUser().getProfileImage())
                 .content(comment.getContent())
                 .nickname(comment.getUser().getNickname())
                 .createAt(comment.getCreatedAt())
