@@ -1,11 +1,14 @@
 package com.hanghae.navis.user.entity;
 
 import com.hanghae.navis.board.entity.Board;
+import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.homework.entity.Homework;
+import com.hanghae.navis.survey.entity.Answer;
+import com.hanghae.navis.vote.entity.Vote;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,20 +44,27 @@ public class User extends TimeStamped {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Group> groupList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user" , fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     List<GroupMember> groupMemberList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Board> boardList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<BasicBoard> basicBoardList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Comment> commentList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Homework> homeworkList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<Vote> voteList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<Answer> answerList = new ArrayList<>();
 
 
 

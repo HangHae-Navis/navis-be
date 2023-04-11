@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
+import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.jwt.JwtUtil;
+import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.homework.service.HomeworkService;
 import com.hanghae.navis.messenger.service.MessengerService;
 import com.hanghae.navis.user.dto.KakaoUserInfoDto;
@@ -44,6 +46,7 @@ import static com.hanghae.navis.common.entity.SuccessMessage.USER_DELETE_SUCCESS
 public class KakaoService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final BasicBoardRepository basicBoardRepository;
     private final MessengerService messengerService;
     private final HomeworkService homeworkService;
     private final JwtUtil jwtUtil;
@@ -177,6 +180,7 @@ public class KakaoService {
         conn.getResponseCode();
 
         if (messengerService.deleteLeaveMessenger(user) && homeworkService.userLeaveDeleteSubject(user)) {
+            basicBoardRepository.deleteByUser(user);
             userRepository.delete(user);
             return Message.toResponseEntity(USER_DELETE_SUCCESS);
         }else {
