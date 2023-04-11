@@ -85,7 +85,7 @@ public class UserController {
     @Operation(summary = "카카오톡 회원탈퇴", description ="카카오톡 회원 탈퇴")
     public  ResponseEntity<Message> unlink(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
                                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-        return kakaoService.unlink(token, userDetails.getUser());
+        return kakaoService.unlink(userDetails.getUser());
     }
 
     @DeleteMapping(value = "/leave", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
