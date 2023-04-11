@@ -142,7 +142,7 @@ public class MessengerService {
             messengerChatRepository.save(messengerChat);
             sendingOperations.convertAndSend("/chats/room/" + room.getId(), MessengerResponseDto.of(messengerChat, me));
 
-            notificationService.send(toUser, NotificationType.CHAT_POST, me.getNickname() + "님 에게 " + NotificationType.CHAT_POST.getContent(), me.getNickname());
+            notificationService.send(toUser, NotificationType.CHAT_POST, me.getNickname() + "님 에게 " + NotificationType.CHAT_POST.getContent(), me.getNickname(), null);
         }
         return Message.toResponseEntity(CHAT_POST_SUCCESS);
     }

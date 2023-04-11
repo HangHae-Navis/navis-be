@@ -13,16 +13,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 public class NotificationListener {
-
-    private final NotificationService notificationService;
     private final EmitterRepository emitterRepository;
-
-    @TransactionalEventListener
-    @Async
-    public void handleNotification(NotificationRequestDto requestDto) {
-        notificationService.send(requestDto.getReceiver(), requestDto.getNotificationType(),
-                requestDto.getContent(), requestDto.getUrl());
-    }
 
     @Scheduled(fixedDelay = 30000)
     public void checkEmitters() {

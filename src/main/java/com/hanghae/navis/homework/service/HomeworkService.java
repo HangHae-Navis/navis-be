@@ -229,7 +229,7 @@ public class HomeworkService {
             List<GroupMember> groupMemberList = groupMemberRepository.findAllByGroupId(groupId);
 
 
-            notificationService.send(user, NotificationType.HOMEWORK_POST,  group.getGroupName() + "에서 " + NotificationType.HOMEWORK_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + homework.getId() + "&dtype=homework");
+            notificationService.send(user, NotificationType.HOMEWORK_POST,  group.getGroupName() + "에서 " + NotificationType.HOMEWORK_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + homework.getId() + "&dtype=homework", group);
             RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, homework);
             recentlyViewedRepository.save(recentlyViewed);
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
@@ -564,9 +564,5 @@ public class HomeworkService {
 
     public boolean expirationCheck(LocalDateTime dbTime) {
         return LocalDateTime.now().isAfter(dbTime);
-    }
-
-    private void notifyHomework(User receiver, NotificationType accept, String url) {
-        notificationService.send(receiver, accept, accept.getContent(), url);
     }
 }
