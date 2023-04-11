@@ -7,6 +7,7 @@ import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.util.RedisUtil;
 import com.hanghae.navis.email.service.EmailService;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.messenger.service.MessengerService;
 import com.hanghae.navis.user.dto.*;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
@@ -33,6 +34,8 @@ import static com.hanghae.navis.common.entity.SuccessMessage.*;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    private final MessengerService messengerService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final RedisUtil redisUtil;
@@ -145,6 +148,16 @@ public class UserService {
         return userInfo(user);
     }
 
+    @Transactional
+    public ResponseEntity<Message> leaveUser(User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        messengerService.deleteLeaveMessenger(user);
+        userRepository.delete(user);
+
+        return Message.toResponseEntity(USER_DELETE_SUCCESS);
+    }
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> findPassword(FindPasswordRequestDto findPasswordRequestDto) {

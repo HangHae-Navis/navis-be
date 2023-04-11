@@ -1,5 +1,6 @@
 package com.hanghae.navis.vote.repository;
 
+import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.vote.entity.Vote;
 import com.hanghae.navis.vote.entity.VoteRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,5 @@ public interface VoteRecordRepository extends JpaRepository<VoteRecord, Long> {
     Optional<VoteRecord> findByGroupMemberIdAndVoteId(Long groupMemberId, Long voteOptionId);
 
     void deleteByGroupMemberIdAndVoteId(Long groupMemberId, Long voteOptionId);
+    void deleteByGroupMember(User user);
 }

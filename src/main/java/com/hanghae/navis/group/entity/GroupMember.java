@@ -2,6 +2,7 @@ package com.hanghae.navis.group.entity;
 
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.user.entity.User;
+import com.hanghae.navis.vote.entity.VoteRecord;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,8 @@ public class GroupMember extends TimeStamped {
 
     @OneToMany(mappedBy = "groupMember", cascade = {CascadeType.ALL})
     private List<RecentlyViewed> recentlyViewedList;
+    @OneToMany(mappedBy = "groupMember", cascade = {CascadeType.ALL})
+    private List<VoteRecord> voteRecordList;
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)

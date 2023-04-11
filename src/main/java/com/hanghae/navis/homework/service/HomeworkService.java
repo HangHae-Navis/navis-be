@@ -564,4 +564,20 @@ public class HomeworkService {
     public boolean expirationCheck(LocalDateTime dbTime) {
         return LocalDateTime.now().isAfter(dbTime);
     }
+
+
+    //회원 탈퇴 전용
+    @Transactional
+    public boolean userLeaveDeleteSubject(User user) {
+        try {
+            user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                    () -> new CustomException(MEMBER_NOT_FOUND)
+            );
+            homeworkSubjectRepository.deleteByUser(user);
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
+    }
 }

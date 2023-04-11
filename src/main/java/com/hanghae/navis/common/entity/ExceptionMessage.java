@@ -75,7 +75,11 @@ public enum ExceptionMessage {
 
 
     /* 429 TOO_MANY_REQUESTS : 너무 많은 요청 */
-    TOO_MANY_REQUEST(TOO_MANY_REQUESTS, "너무 많은 요청을 보냈습니다.");
+    TOO_MANY_REQUEST(TOO_MANY_REQUESTS, "너무 많은 요청을 보냈습니다."),
+
+
+    /* 500 TOO_MANY_REQUESTS : 너무 많은 요청 */
+    USER_DELETE_FAIL(INTERNAL_SERVER_ERROR, "회원 탈퇴에 실패하였습니다.");
 
     private final HttpStatus httpStatus;
     private final String detail;

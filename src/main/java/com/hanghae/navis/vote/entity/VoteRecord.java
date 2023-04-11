@@ -4,6 +4,8 @@ import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.GroupMember;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -21,9 +23,7 @@ public class VoteRecord extends TimeStamped {
     @ManyToOne
     private VoteOption voteOption;
 
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "groupmember_id")
+    @ManyToOne
     private GroupMember groupMember;
 
     public VoteRecord(Vote vote, VoteOption voteOption, GroupMember groupMember) {

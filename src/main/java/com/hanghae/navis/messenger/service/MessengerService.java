@@ -51,6 +51,7 @@ public class MessengerService {
 
 
     public static LinkedList<ChatingRoom> chatingRoomList = new LinkedList<>();
+
     @Transactional(readOnly = true)
     //채팅방 불러오기
     public ResponseEntity<Message> getChatList(User user) {
@@ -160,6 +161,46 @@ public class MessengerService {
 
         messengerChatRepository.updateRead(room.getId(), me.getId());
 
-         return Message.toResponseEntity(CHAT_READ_SUCCESS);
+        return Message.toResponseEntity(CHAT_READ_SUCCESS);
     }
+
+    @Transactional
+    public ResponseEntity<Message> deleteMessenger(String roomId, User user) {
+        User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        //메신저에 대화방이 있는지 체크
+        Messenger room = messengerRepository.findById(Long.parseLong(roomId)).orElseThrow(
+                () -> new CustomException(CHAT_ROOM_NOT_FOUND)
+        );
+
+        messengerRepository.delete(room);
+
+        return Message.toResponseEntity(CHAT_ROOM_DELETE_SUCCESS);
+    }
+
+    //회원탈퇴 전용
+    @Transactional
+    public boolean deleteLeaveMessenger(User user) {
+        try {
+            User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                    () -> new CustomException(MEMBER_NOT_FOUND)
+            );
+
+            //메신저에 대화방이 있는지 체크
+            List<Messenger> messengerList = messengerRepository.findByUser1OrUser2(me, me);
+            if (!messengerList.isEmpty()) {
+                for (Messenger messenger : messengerList) {
+                    messengerRepository.delete(messenger);
+                }
+            }
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
+
+    }
+
 }
