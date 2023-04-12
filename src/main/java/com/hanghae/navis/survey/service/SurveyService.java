@@ -68,7 +68,9 @@ public class SurveyService {
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
-        Survey survey = new Survey(requestDto, user, userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())));
+        Survey survey = new Survey(requestDto.getTitle(), "", requestDto.getSubtitle(), requestDto.getImportant(),
+                                    unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())),
+                                    user, userGroup.getGroup());
         surveyRepository.save(survey);
 
         for (QuestionRequestDto questionDto : requestDto.getQuestionList()) {

@@ -27,10 +27,15 @@ public class Survey extends BasicBoard {
     @OneToMany(mappedBy = "survey", cascade = {CascadeType.ALL})
     private List<Answer> answerList;
 
-    public Survey(SurveyRequestDto requestDto, User user, Group group, LocalDateTime expirationDate, boolean forceExpiration) {
-        super(requestDto, user, group);
+    public Survey(String title, String content, String subtitle, Long important, LocalDateTime expirationDate, boolean forceExpiration, User user, Group group) {
+        this.title = title;
+        this.content = content;
+        this.subtitle = subtitle;
+        this.important = important;
         this.expirationDate = expirationDate;
         this.forceExpiration = forceExpiration;
+        this.user = user;
+        this.group = group;
     }
 
     public void forceExpiration() {
