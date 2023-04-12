@@ -1,5 +1,6 @@
 package com.hanghae.navis.group.entity;
 
+import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.dto.GroupRequestDto;
 import com.hanghae.navis.homework.entity.Homework;
@@ -41,11 +42,14 @@ public class Group extends TimeStamped {
     @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     List<BannedGroupMember> bannedMember = new ArrayList<>();
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     List<MeetRoom> meetRoomList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Homework> homeworkList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<BasicBoard> basicBoards = new ArrayList<>();
 
     public Group(String groupName, String groupInfo, User user) {
         this.groupName = groupName;
