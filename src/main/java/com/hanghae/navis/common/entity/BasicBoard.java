@@ -75,4 +75,13 @@ public abstract class BasicBoard extends TimeStamped {
     public void addFile(File boardFile) {
         fileList.add(boardFile);
     }
+
+    public BasicBoard(String title, String content, String subtitle, Long important, User user, Group group) {
+        this.title = title;
+        this.content = content;
+        this.subtitle = subtitle;
+        this.important = important;
+        this.user = user;
+        this.group = group;
+    }
 }
