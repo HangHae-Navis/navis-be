@@ -132,14 +132,7 @@ public class GroupService {
     public ResponseEntity<Message> getGroups(int page, int size, String category, User user) {
         Pageable pageable = PageRequest.of(page, size);
 
-        List<GroupResponseDto> groupMemberPage;
-
-        groupMemberPage = queryRepository.findAllGroupByUserId(user.getId(), category);
-
-
-        Long total = groupMemberRepository.countByUser(user);
-
-        Page<GroupResponseDto> groupResponseDtoPage = new PageImpl<>(groupMemberPage, pageable, total);
+        Page<GroupResponseDto> groupResponseDtoPage = queryRepository.findAllGroupByUserId(user.getId(), category, pageable);
 
         //24시간 이내 마감이 있는 그룹일 경우 마감 개수 및 가장 급한것 하나 시간, 제목 노출
         //todo 나중에 쿼리문으로 리팩토링 시도 예정

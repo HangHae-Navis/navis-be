@@ -14,6 +14,9 @@ import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,7 +29,7 @@ public class QueryRepository {
         this.jpaQueryFactory = jpaQueryFactory;
     }
 
-    public List<GroupResponseDto> findAllGroupByUserId(Long userId, String category) {
+    public Page<GroupResponseDto> findAllGroupByUserId(Long userId, String category, Pageable pageable) {
         QGroupMember gm = QGroupMember.groupMember;
         QGroup group = QGroup.group;
         QUser user = QUser.user;
@@ -58,9 +61,17 @@ public class QueryRepository {
                 .leftJoin(group).on(gm.group.id.eq(group.id))
                 .leftJoin(user).on(gm.user.id.eq(user.id))
                 .where(gm.user.id.eq(userId), builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
-        return responseDtos;
+        Long count = jpaQueryFactory
+                .select(gm.count())
+                .from(gm)
+                .where(gm.user.id.eq(userId))
+                .fetchOne();
+
+        return new PageImpl<GroupResponseDto>(responseDtos, pageable, count);
     }
 
     public List<RecentlyViewedDto> findRecentlyViewedsByGroupMemeber(Long groupMemberId) {
