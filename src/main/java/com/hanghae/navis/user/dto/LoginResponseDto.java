@@ -10,11 +10,13 @@ public class LoginResponseDto<T> {
 
     private String username;
     private String nickname;
+    private String profileImage;
     private T token;
 
     public LoginResponseDto(User user, T token) {
         this.username = user.getUsername();
         this.nickname = user.getNickname();
+        this.profileImage = user.getProfileImage();
         this.token = token;
     }
 }
