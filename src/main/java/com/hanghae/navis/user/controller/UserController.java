@@ -110,9 +110,10 @@ public class UserController {
     public ResponseEntity<Message> searchUser(@RequestBody SearchUserInfoRequestDto requestDto, @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.searchUser(requestDto.getUsername(), userDetails.getUser());
     }
-    @GetMapping("/forgetPassword")
-    @Operation(hidden = true)
-    public ResponseEntity<Message> forgetPassword(@RequestBody FindPasswordRequestDto findPasswordRequestDto) throws JsonProcessingException {
+    @PutMapping("/forgetPassword")
+    @ApiRateLimiter(key = "forgetPassword" + "#{request.remoteAddr}", limit = 1, seconds = 1)
+    @Operation(summary = "비밀번호 찾기", description ="비밀번호 찾기")
+    public ResponseEntity<Message> forgetPassword(@RequestBody FindPasswordRequestDto findPasswordRequestDto){
         return userService.findPassword(findPasswordRequestDto);
     }
 }
