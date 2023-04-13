@@ -21,11 +21,12 @@ public class AdminSurveyResponseDto {
     private LocalDateTime createAt;
     private LocalDateTime expirationDate;
     private boolean forceExpiration;
+    private List<String> hashtagList;
     private List<AdminSurveyGetDto> answerList;
     private List<SubmitResponseDto> submitResponseDto;
     private List<RecentlyViewedDto> recentlyViewed;
 
-    public static AdminSurveyResponseDto of(Survey survey, GroupMemberRoleEnum role, List<AdminSurveyGetDto> answerList, List<RecentlyViewedDto> rv, List<SubmitResponseDto> submitResponseDto) {
+    public static AdminSurveyResponseDto of(Survey survey, GroupMemberRoleEnum role, List<AdminSurveyGetDto> answerList, List<RecentlyViewedDto> rv, List<SubmitResponseDto> submitResponseDto, List<String> hashtagList) {
         return AdminSurveyResponseDto.builder()
                 .id(survey.getId())
                 .role(role)
@@ -37,6 +38,7 @@ public class AdminSurveyResponseDto {
                 .submitResponseDto(submitResponseDto)
                 .answerList(answerList)
                 .recentlyViewed(rv)
+                .hashtagList(hashtagList)
                 .build();
     }
 

@@ -24,10 +24,11 @@ public class SurveyResponseDto {
     private LocalDateTime expirationDate;
     private boolean forceExpiration;
     private String title;
+    private List<String> hashtagList;
     private List<QuestionResponseDto> questionResponseDto;
     private List<RecentlyViewedDto> recentlyViewed;
 
-    public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit) {
+    public static SurveyResponseDto of(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit, List<String> hashtagList) {
         return SurveyResponseDto.builder()
                 .id(survey.getId())
                 .role(role)
@@ -39,11 +40,12 @@ public class SurveyResponseDto {
                 .forceExpiration(survey.isForceExpiration())
                 .title(survey.getTitle())
                 .questionResponseDto(questionResponseDto)
+                .hashtagList(hashtagList)
                 .recentlyViewed(rv)
                 .build();
     }
 
-    public static SurveyResponseDto submitTrueOf(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit) {
+    public static SurveyResponseDto submitTrueOf(Survey survey, List<QuestionResponseDto> questionResponseDto, List<RecentlyViewedDto> rv, GroupMemberRoleEnum role, boolean submit, List<String> hashtagList) {
         return SurveyResponseDto.builder()
                 .id(survey.getId())
                 .role(role)
@@ -55,11 +57,12 @@ public class SurveyResponseDto {
                 .forceExpiration(survey.isForceExpiration())
                 .title(survey.getTitle())
                 .questionResponseDto(questionResponseDto)
+                .hashtagList(hashtagList)
                 .recentlyViewed(rv)
                 .build();
     }
 
-    public static SurveyResponseDto detailOf(Survey survey, List<QuestionResponseDto> questionResponseDto, GroupMemberRoleEnum role, boolean submit) {
+    public static SurveyResponseDto detailOf(Survey survey, List<QuestionResponseDto> questionResponseDto, GroupMemberRoleEnum role, boolean submit, List<String> hashtagList) {
         return SurveyResponseDto.builder()
                 .id(survey.getId())
                 .role(role)
@@ -71,6 +74,7 @@ public class SurveyResponseDto {
                 .forceExpiration(survey.isForceExpiration())
                 .title(survey.getTitle())
                 .questionResponseDto(questionResponseDto)
+                .hashtagList(hashtagList)
                 .build();
     }
 }
