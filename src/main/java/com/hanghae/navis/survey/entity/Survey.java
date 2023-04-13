@@ -1,11 +1,13 @@
 package com.hanghae.navis.survey.entity;
 
 import com.hanghae.navis.common.entity.BasicBoard;
+import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.survey.dto.SurveyRequestDto;
 import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import reactor.core.publisher.Sinks;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;

@@ -14,8 +14,8 @@ public class SurveyRequestDto extends BoardRequestDto {
     private Long expirationDate;
     private List<QuestionRequestDto> questionList;
 
-    public SurveyRequestDto(String title, Long expirationDate, List<QuestionRequestDto> questionList) {
-        super(title);
+    public SurveyRequestDto(String title, String hashtagList, Long expirationDate, List<QuestionRequestDto> questionList) {
+        super(title, hashtagList);
         this.expirationDate = expirationDate;
         this.questionList = questionList;
     }

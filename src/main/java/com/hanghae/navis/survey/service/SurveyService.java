@@ -3,6 +3,8 @@ package com.hanghae.navis.survey.service;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.dto.UserGroup;
+import com.hanghae.navis.common.entity.Hashtag;
+import com.hanghae.navis.common.repository.HashtagRepository;
 import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMember;
@@ -45,6 +47,7 @@ public class SurveyService {
     private final SurveyOptionRepository surveyOptionRepository;
     private final AnswerRepository answerRepository;
     private final GroupRepository groupRepository;
+    private final HashtagRepository hashtagRepository;
     private final UserRepository userRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final RecentlyViewedRepository recentlyViewedRepository;
@@ -84,12 +87,21 @@ public class SurveyService {
             }
             questionResponseDto.add(QuestionResponseDto.of(surveyQuestion, questionDto.getOptions()));
         }
+
+        List<String> hashtagResponseDto = new ArrayList<>();
+
+        for(String tag : requestDto.getHashtagList().split(" ")) {
+            Hashtag hashtag = new Hashtag(tag, survey);
+            hashtagRepository.save(hashtag);
+            hashtagResponseDto.add(tag);
+        }
+
         RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
         recentlyViewedRepository.save(recentlyViewed);
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false, hashtagResponseDto);
 
         return Message.toResponseEntity(SURVEY_POST_SUCCESS, responseDto);
     }
@@ -118,6 +130,9 @@ public class SurveyService {
 
         List<QuestionResponseDto> questionResponseDto = new ArrayList<>();
 
+        List<String> hashtagResponseDto = new ArrayList<>();
+        survey.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
+
         RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, survey);
         recentlyViewedRepository.save(recentlyViewed);
 
@@ -128,14 +143,14 @@ public class SurveyService {
             if (answerList.size() != 0) {
                 survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
 
-                SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true);
+                SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true, hashtagResponseDto);
 
                 return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
 
                 //미제출 유저 return / submit = false
             } else {
                 survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-                SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false);
+                SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false, hashtagResponseDto);
 
                 return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
             }
@@ -145,7 +160,7 @@ public class SurveyService {
             List<AdminSurveyGetDto> adminSurveyDto = surveyRepository.findAnswerListByBasicBoardId(surveyId);
             List<SubmitResponseDto> submitResponse = answerRepository.findByUserNickname(surveyId);
 
-            AdminSurveyResponseDto adminResponse = AdminSurveyResponseDto.of(survey, role, adminSurveyDto, rv, submitResponse);
+            AdminSurveyResponseDto adminResponse = AdminSurveyResponseDto.of(survey, role, adminSurveyDto, rv, submitResponse, hashtagResponseDto);
 
             return Message.toResponseEntity(ADMIN_BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
