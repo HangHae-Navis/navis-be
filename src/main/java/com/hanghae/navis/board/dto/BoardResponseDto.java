@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 public class BoardResponseDto extends BasicBoardResponseDto {
-    public static BoardResponseDto of(Board board, List<FileResponseDto> fileList, List<String> hashtagList, GroupMemberRoleEnum role, List<RecentlyViewedDto> rv) {
+    public static BoardResponseDto of(Board board, List<FileResponseDto> fileList, List<String> hashtagList, GroupMemberRoleEnum role, List<RecentlyViewedDto> rv, GroupMemberRoleEnum authorRole, boolean isAuthor) {
         return BoardResponseDto.builder()
                 .id(board.getId())
                 .nickname(board.getUser().getNickname())
@@ -31,6 +31,8 @@ public class BoardResponseDto extends BasicBoardResponseDto {
                 .hashtagList(hashtagList)
                 .role(role)
                 .recentlyViewed(rv)
+                .authorRole(authorRole)
+                .isAuthor(isAuthor)
                 .build();
     }
 }

@@ -24,5 +24,7 @@ public abstract class BasicBoardResponseDto {
     private LocalDateTime createAt;
     private List<String> hashtagList;
     private GroupMemberRoleEnum role;
+    private GroupMemberRoleEnum authorRole;
+    private boolean isAuthor;
     private List<RecentlyViewedDto> recentlyViewed;
 }

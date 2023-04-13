@@ -39,7 +39,8 @@ public class BoardRequestDto {
         this.multipartFiles = multipartFiles;
     }
 
-    public BoardRequestDto(String title) {
+    public BoardRequestDto(String title, String hashtagList) {
         this.title = title;
+        this.hashtagList = hashtagList;
     }
 }

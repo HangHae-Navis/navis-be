@@ -101,7 +101,7 @@ public class SurveyService {
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false, hashtagResponseDto);
+        SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false, hashtagResponseDto, groupMember.getGroupRole(), true);
 
         return Message.toResponseEntity(SURVEY_POST_SUCCESS, responseDto);
     }
@@ -124,6 +124,12 @@ public class SurveyService {
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(survey.getUser(), survey.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        boolean author = user.equals(survey.getUser());
+
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         List<Answer> answerList = answerRepository.findBySurveyIdAndUserId(surveyId, user.getId());
@@ -143,14 +149,14 @@ public class SurveyService {
             if (answerList.size() != 0) {
                 survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.submitTrueOf(value)));
 
-                SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true, hashtagResponseDto);
+                SurveyResponseDto responseDto = SurveyResponseDto.submitTrueOf(survey, questionResponseDto, rv, groupMember.getGroupRole(), true, hashtagResponseDto, authorRole, author);
 
                 return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
 
                 //미제출 유저 return / submit = false
             } else {
                 survey.getQuestionList().forEach(value -> questionResponseDto.add(QuestionResponseDto.getOf(value)));
-                SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false, hashtagResponseDto);
+                SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false, hashtagResponseDto, authorRole, author);
 
                 return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, responseDto);
             }

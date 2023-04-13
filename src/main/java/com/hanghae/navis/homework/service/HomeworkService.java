@@ -110,6 +110,12 @@ public class HomeworkService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(homework.getUser(), homework.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        boolean author = user.equals(homework.getUser());
+
         List<String> hashtagResponseDto = new ArrayList<>();
         homework.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
 
@@ -139,7 +145,7 @@ public class HomeworkService {
                 }
             }
 
-            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, hashtagResponseDto, fileResponseDto, notSubmit, submitMember, role, rv);
+            AdminHomeworkResponseDto adminResponse = AdminHomeworkResponseDto.of(homework, hashtagResponseDto, fileResponseDto, notSubmit, submitMember, role, rv, authorRole, author);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, adminResponse);
         }
@@ -159,14 +165,14 @@ public class HomeworkService {
 
 
         if (homeworkSubject == null) { //미제출 유저
-            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv);
+            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv, authorRole, author);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
         } else {    //제출한 유저
             homeworkSubject.getHomeworkSubjectFileList().forEach(value -> fileResponseDto.add(HomeworkFileResponseDto.of(value)));
             homeworkSubject.getFeedbackList().forEach(value -> feedbackResponse.add(value.getFeedback()));
             SubmitResponseDto submitResponseDto = SubmitResponseDto.of(homeworkSubject, fileResponseDto, feedbackResponse);
-            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto, rv);
+            HomeworkResponseDto homeworkResponseDto = HomeworkResponseDto.of(homework, responseList, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, submitResponseDto, rv, authorRole, author);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, homeworkResponseDto);
         }
@@ -224,7 +230,7 @@ public class HomeworkService {
 
             List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role, rv);
+            HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagList, expirationCheck(unixTimeToLocalDateTime(requestDto.getExpirationDate())), unixTimeToLocalDateTime(requestDto.getExpirationDate()), role, rv, groupMember.getGroupRole(), true);
 
             List<GroupMember> groupMemberList = groupMemberRepository.findAllByGroupId(groupId);
 
@@ -258,11 +264,18 @@ public class HomeworkService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(homework.getUser(), homework.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        boolean author = user.equals(homework.getUser());
+
         if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
-        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());        HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv);
+        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+        HomeworkResponseDto responseDto = HomeworkResponseDto.of(homework, null, null, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv, authorRole, author);
 
         homework.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(homework.getExpirationDate()));
 
@@ -310,7 +323,7 @@ public class HomeworkService {
             } else {
                 fileResponseDto = null;
             }
-            responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv);
+            responseDto = HomeworkResponseDto.of(homework, fileResponseDto, hashtagResponseDto, expirationCheck(homework.getExpirationDate()), homework.getExpirationDate(), role, rv, authorRole, author);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

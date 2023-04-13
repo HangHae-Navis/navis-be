@@ -96,6 +96,10 @@ public class VoteService {
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(vote.getUser(), vote.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         List<OptionResponseDto> optionResponseDto = new ArrayList<>();
@@ -110,16 +114,20 @@ public class VoteService {
         vote.getHashtagList().forEach(value -> hashtagList.add(value.getHashtagName()));
 
         Optional<VoteRecord> myPickCheck = voteRecordRepository.findByGroupMemberIdAndVoteId(groupMember.getId(), vote.getId());
+
         Long myPick = -1L;
 
-        if(myPickCheck.isPresent()) {
-             myPick = myPickCheck.get().getVoteOption().getId();
+        if (myPickCheck.isPresent()) {
+            myPick = myPickCheck.get().getVoteOption().getId();
         }
 
         RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, vote);
         recentlyViewedRepository.save(recentlyViewed);
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+
+        boolean author = user.equals(vote.getUser());
+
 
         if (!role.name().equals("USER")) {
             List<OptionAdminResponseDto> optionAdminResponseDto = new ArrayList<>();
@@ -133,13 +141,13 @@ public class VoteService {
             }
 
             VoteAdminResponseDto voteAdminResponseDto = VoteAdminResponseDto.of(vote, fileResponseDto, hashtagList, optionAdminResponseDto, expirationCheck(
-                    vote.getExpirationDate()), vote.getExpirationDate(), role, myPick, rv);
+                    vote.getExpirationDate()), vote.getExpirationDate(), role, myPick, rv, authorRole, author);
 
             return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteAdminResponseDto);
         }
 
         VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, expirationCheck(
-                vote.getExpirationDate()), vote.getExpirationDate(), role, myPick, rv);
+                vote.getExpirationDate()), vote.getExpirationDate(), role, myPick, rv, authorRole, author);
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, voteResponseDto);
     }
@@ -197,7 +205,9 @@ public class VoteService {
             List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
             //리턴으로 보내줄 dto생성
-            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList, optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role, null, rv);
+            VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList,
+                    optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role,
+                    null, rv, groupMember.getGroupRole(), true);
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {
@@ -366,6 +376,12 @@ public class VoteService {
                 () -> new CustomException(GROUP_MEMBER_NOT_FOUND)
         );
 
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(vote.getUser(), vote.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        boolean author = user.equals(vote.getUser());
+
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
@@ -381,7 +397,7 @@ public class VoteService {
                                 null,
                                 parseOptionResponseDto(vote.getVoteOptionList()),
                                 vote.isForceExpiration(),
-                                vote.getExpirationDate(), role, -1L, rv));
+                                vote.getExpirationDate(), role, -1L, rv, authorRole, author));
             }
         }
         return Message.toExceptionResponseEntity(VOTE_EXPIRED);

@@ -100,6 +100,12 @@ public class NoticeService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(notice.getUser(), notice.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        boolean author = user.equals(notice.getUser());
+
         List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
         List<String> hashtagList = new ArrayList<>();
@@ -113,7 +119,7 @@ public class NoticeService {
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagList, role, rv);
+        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashtagList, role, rv, authorRole, author);
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, noticeResponseDto);
     }
@@ -158,7 +164,7 @@ public class NoticeService {
 
             List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-            NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList, role, rv);
+            NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList, role, rv, groupMember.getGroupRole(), true);
 
 
             notificationService.send(user, NotificationType.NOTICE_POST,  userGroup.getGroup().getGroupName() + "에서 " + NotificationType.NOTICE_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + notice.getId() + "&dtype=notice", userGroup.getGroup());
@@ -184,9 +190,15 @@ public class NoticeService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(notice.getUser(), notice.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        boolean author = user.equals(notice.getUser());
+
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, null, null, role, rv);
+        NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, null, null, role, rv, authorRole, author);
 
         if (!user.getUsername().equals(notice.getUser().getUsername())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
@@ -222,7 +234,7 @@ public class NoticeService {
                     fileRepository.save(noticeFile);
                     fileResponseDto.add(new FileResponseDto(noticeFile.getFileTitle(), noticeFile.getFileUrl()));
                 }
-                noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, null, role, rv);
+                noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, null, role, rv, authorRole, author);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

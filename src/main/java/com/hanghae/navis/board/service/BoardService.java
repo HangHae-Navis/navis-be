@@ -96,6 +96,12 @@ public class BoardService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(board.getUser(), board.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        boolean author = user.equals(board.getUser());
+
         //최근 본 글 목록 추가용
         RecentlyViewed recentlyViewed = new RecentlyViewed(groupMember, board);
         recentlyViewedRepository.save(recentlyViewed);
@@ -106,7 +112,7 @@ public class BoardService {
         List<String> hashtagResponseDto = new ArrayList<>();
         board.getFileList().forEach(value -> fileResponseDto.add(FileResponseDto.of(value)));
         board.getHashtagList().forEach(value -> hashtagResponseDto.add(value.getHashtagName()));
-        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rvList);
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rvList, authorRole, author);
 
         return Message.toResponseEntity(BOARD_DETAIL_GET_SUCCESS, boardResponseDto);
     }
@@ -158,7 +164,7 @@ public class BoardService {
 
             List<RecentlyViewedDto> rvList = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-            BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rvList);
+            BoardResponseDto boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rvList, groupMember.getGroupRole(), true);
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, boardResponseDto);
         } catch (IOException e) {
@@ -186,13 +192,20 @@ public class BoardService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(board.getUser(), board.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        boolean author = user.equals(board.getUser());
+
+
         if(!user.getId().equals(board.getUser().getId())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
-        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null, role, rv);
+        BoardResponseDto boardResponseDto = BoardResponseDto.of(board, null, null, role, rv, authorRole, author);
 
         board.update(requestDto);
 
@@ -241,7 +254,7 @@ public class BoardService {
             } else {
                 fileResponseDto = null;
             }
-            boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rv);
+            boardResponseDto = BoardResponseDto.of(board, fileResponseDto, hashtagResponseDto, role, rv, authorRole, author);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
