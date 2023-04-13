@@ -19,6 +19,7 @@ public class SurveyResponseDto {
     private GroupMemberRoleEnum role;
     private String nickname;
     private boolean submit;
+    private Long important;
     private LocalDateTime createAt;
     private LocalDateTime expirationDate;
     private boolean forceExpiration;
@@ -32,6 +33,7 @@ public class SurveyResponseDto {
                 .role(role)
                 .nickname(survey.getUser().getNickname())
                 .submit(submit)
+                .important(survey.getImportant())
                 .createAt(survey.getCreatedAt())
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())
@@ -47,6 +49,7 @@ public class SurveyResponseDto {
                 .role(role)
                 .nickname(survey.getUser().getNickname())
                 .submit(submit)
+                .important(survey.getImportant())
                 .createAt(survey.getCreatedAt())
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())
@@ -62,6 +65,7 @@ public class SurveyResponseDto {
                 .role(role)
                 .nickname(survey.getUser().getNickname())
                 .submit(submit)
+                .important(survey.getImportant())
                 .createAt(survey.getCreatedAt())
                 .expirationDate(survey.getExpirationDate())
                 .forceExpiration(survey.isForceExpiration())
