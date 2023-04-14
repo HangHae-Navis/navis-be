@@ -7,7 +7,9 @@ import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.common.util.RedisUtil;
 import com.hanghae.navis.email.service.EmailService;
+import com.hanghae.navis.group.dto.ApplyRequestDto;
 import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.service.GroupService;
 import com.hanghae.navis.homework.service.HomeworkService;
 import com.hanghae.navis.messenger.service.MessengerService;
 import com.hanghae.navis.user.dto.*;
@@ -41,6 +43,7 @@ public class UserService {
 
     private final BasicBoardRepository basicBoardRepository;
     private final HomeworkService homeworkService;
+    private final GroupService groupService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final RedisUtil redisUtil;
@@ -79,6 +82,10 @@ public class UserService {
 
         User user = new User(username, nickname, password, role);
         userRepository.save(user);
+
+        ApplyRequestDto applyRequestDto = new ApplyRequestDto();
+        applyRequestDto.setGroupCode("jkljosgyvm");
+        groupService.applyGroup(applyRequestDto, user);
 
         return Message.toResponseEntity(SIGN_UP_SUCCESS);
     }
@@ -163,7 +170,7 @@ public class UserService {
             basicBoardRepository.deleteByUser(user);
             userRepository.delete(user);
             return Message.toResponseEntity(USER_DELETE_SUCCESS);
-        }else {
+        } else {
             return Message.toExceptionResponseEntity(USER_DELETE_FAIL);
         }
     }
@@ -190,6 +197,7 @@ public class UserService {
 
         return Message.toResponseEntity(PASSWORD_CHANGE_SUCCESS, password);
     }
+
     private String generatePassword() {
         StringBuilder password = new StringBuilder();
         for (int i = 0; i < 10; i++) {

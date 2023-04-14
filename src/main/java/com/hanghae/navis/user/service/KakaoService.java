@@ -9,6 +9,8 @@ import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.repository.BasicBoardRepository;
+import com.hanghae.navis.group.dto.ApplyRequestDto;
+import com.hanghae.navis.group.service.GroupService;
 import com.hanghae.navis.homework.service.HomeworkService;
 import com.hanghae.navis.messenger.service.MessengerService;
 import com.hanghae.navis.user.dto.KakaoUserInfoDto;
@@ -52,6 +54,7 @@ public class KakaoService {
     private final BasicBoardRepository basicBoardRepository;
     private final MessengerService messengerService;
     private final HomeworkService homeworkService;
+    private final GroupService groupService;
     private final JwtUtil jwtUtil;
     @Autowired
     private final Environment env;
@@ -162,6 +165,10 @@ public class KakaoService {
                 String email = kakaoUserInfo.getEmail();
 
                 kakaoUser = new User(email, kakaoUserInfo.getNickname(), kakaoId, encodedPassword, UserRoleEnum.USER);
+
+                ApplyRequestDto applyRequestDto = new ApplyRequestDto();
+                applyRequestDto.setGroupCode("jkljosgyvm");
+                groupService.applyGroup(applyRequestDto, kakaoUser);
             }
 
             userRepository.save(kakaoUser);

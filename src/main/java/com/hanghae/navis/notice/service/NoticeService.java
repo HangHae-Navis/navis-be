@@ -136,6 +136,10 @@ public class NoticeService {
 
             GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+            if (role.equals(GroupMemberRoleEnum.USER)) {
+                return Message.toExceptionResponseEntity(ADMIN_ONLY);
+            }
+
             Notice notice = new Notice(requestDto, user, userGroup.getGroup());
 
             noticeRepository.save(notice);
@@ -167,7 +171,7 @@ public class NoticeService {
             NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList, role, rv, groupMember.getGroupRole(), true);
 
 
-            notificationService.send(user, NotificationType.NOTICE_POST,  userGroup.getGroup().getGroupName() + "에서 " + NotificationType.NOTICE_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + notice.getId() + "&dtype=notice", userGroup.getGroup());
+            notificationService.send(user, NotificationType.NOTICE_POST, userGroup.getGroup().getGroupName() + "에서 " + NotificationType.NOTICE_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + notice.getId() + "&dtype=notice", userGroup.getGroup());
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, noticeResponseDto);
         } catch (IOException e) {

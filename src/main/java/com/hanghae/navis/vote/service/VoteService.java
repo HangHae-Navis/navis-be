@@ -165,6 +165,10 @@ public class VoteService {
 
             GroupMemberRoleEnum role = groupMember.getGroupRole();
 
+            if(role.equals(GroupMemberRoleEnum.USER)) {
+                return Message.toExceptionResponseEntity(ADMIN_ONLY);
+            }
+
             //권한이 있으면 투표를 생성
             Vote vote = new Vote(requestDto, userGroup.getUser(), userGroup.getGroup(), unixTimeToLocalDateTime(requestDto.getExpirationDate()), false);
             voteRepository.saveAndFlush(vote);

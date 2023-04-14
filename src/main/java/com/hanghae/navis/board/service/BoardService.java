@@ -120,6 +120,7 @@ public class BoardService {
     @Transactional
     public ResponseEntity<Message> createBoard(Long groupId, BoardRequestDto requestDto, User user) {
         try {
+
             Group group = groupRepository.findById(groupId).orElseThrow(
                     () -> new CustomException(GROUP_NOT_FOUND)
             );
@@ -133,6 +134,10 @@ public class BoardService {
             );
 
             GroupMemberRoleEnum role = groupMember.getGroupRole();
+            if(groupId == 20 && role.equals(GroupMemberRoleEnum.USER))
+            {
+                return Message.toExceptionResponseEntity(UNAUTHORIZED_ADMIN);
+            }
 
             Board board = new Board(requestDto, user, group);
             boardRepository.save(board);
