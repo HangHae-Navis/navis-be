@@ -32,7 +32,7 @@ public class JwtUtil {
     public static final String AUTHORIZATION_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
     //TODO : 실전테스트때는 고쳐야함
-    private static final long TOKEN_TIME = 60 * 60 * 1000L * 24 * 7;
+    private static final long TOKEN_TIME = 60 * 60 * 1000L * 2;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
