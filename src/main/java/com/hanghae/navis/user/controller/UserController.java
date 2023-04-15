@@ -69,7 +69,7 @@ public class UserController {
 
     @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로필 업데이트", description ="프로필 업데이트")
-    public ResponseEntity<Message> profileUpdate(@ModelAttribute ProfileUpdateRequestDto requestDto,
+    public ResponseEntity<Message> profileUpdate(@Valid @ModelAttribute ProfileUpdateRequestDto requestDto,
                                                      @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         return userService.profileUpdate(requestDto, userDetails.getUser());
     }
