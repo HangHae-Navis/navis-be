@@ -166,7 +166,7 @@ public class GroupService {
             throw new CustomException(ExceptionMessage.ADMIN_ONLY);
         }
 
-        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
+        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group, role);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_DETAILS_GET_SUCCESS, responseDto);
     }
@@ -422,7 +422,7 @@ public class GroupService {
             }
         }
 
-        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
+        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group, groupMember.getGroupRole());
 
         return Message.toResponseEntity(SuccessMessage.GROUP_UPDATE_SUCCESS, responseDto);
     }
