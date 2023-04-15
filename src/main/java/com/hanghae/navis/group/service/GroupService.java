@@ -191,7 +191,7 @@ public class GroupService {
         Page<BasicBoard> basicBoardPage;
 
         boolean categoryUsed = category.equals("board") || category.equals("vote")
-                || category.equals("homework") || category.equals("notice");
+                || category.equals("homework") || category.equals("notice") || category.equals("survey");
         if(sortBy.equals("createdAt")) {
             if (category.equals("all")) {
                 basicBoardPage = basicBoardRepository.findAllByGroupOrderByCreatedAtDesc(group, pageable);
