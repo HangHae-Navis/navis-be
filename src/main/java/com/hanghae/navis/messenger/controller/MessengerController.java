@@ -14,11 +14,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.validation.Valid;
 
 @Tag(name = "chats")
 @Controller
@@ -74,7 +77,7 @@ public class MessengerController {
 
     @Operation(summary = "채팅하기", description = "채팅하기")
     @MessageMapping("/message")
-    public void enter(MessengerChatRequestDto message, @Header("Authorization") String token) {
+    public void enter(@Payload @Valid MessengerChatRequestDto message, @Header("Authorization") String token) {
         messengerService.sendMessage(message, message.getMessage(), token);
     }
 

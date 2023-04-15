@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @Tag(name = "board")
 @RestController
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class BoardController {
     @Operation(summary = "게시글 등록", description = "게시글 등록, 파일 다중 업로드")
     @ApiRateLimiter(key = "createBoard" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> createBoard(@PathVariable Long groupId,
-                                               @ModelAttribute BoardRequestDto requestDto,
+                                               @Valid @ModelAttribute BoardRequestDto requestDto,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.createBoard(groupId, requestDto, userDetails.getUser());
     }
@@ -51,7 +53,7 @@ public class BoardController {
     @ApiRateLimiter(key = "updateBoard" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> updateBoard(@PathVariable Long groupId,
                                                @PathVariable Long boardId,
-                                               @ModelAttribute BoardRequestDto requestDto,
+                                               @Valid @ModelAttribute BoardRequestDto requestDto,
                                                @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return boardService.updateBoard(groupId, boardId, requestDto, userDetails.getUser());
     }

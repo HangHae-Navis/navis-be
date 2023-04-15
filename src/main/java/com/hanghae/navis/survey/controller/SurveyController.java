@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @Tag(name = "survey")
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class SurveyController {
     @Operation(summary = "설문 게시글 등록", description = "설문 등록, 텍스트 형식만 작성 가능 / subtitle, content, important, multipartFiles는 지우고 테스트해주세요 / option은 체크박스랑 객관식에만 사용, 서술식은 null")
     @ApiRateLimiter(key = "createSurvey" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> createSurvey(@PathVariable Long groupId,
-                                                @RequestBody SurveyRequestDto requestDto,
+                                                @Valid @RequestBody SurveyRequestDto requestDto,
                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return surveyService.createSurvey(groupId, requestDto, userDetails.getUser());
     }

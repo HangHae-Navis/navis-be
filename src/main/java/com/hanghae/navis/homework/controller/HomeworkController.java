@@ -18,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.IOException;
 
 @Tag(name = "homework")
@@ -50,7 +51,7 @@ public class HomeworkController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiRateLimiter(key = "createHomework" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> createHomework(@PathVariable Long groupId,
-                                                  @ModelAttribute HomeworkRequestDto requestDto,
+                                                  @Valid @ModelAttribute HomeworkRequestDto requestDto,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return homeworkService.createHomework(groupId, requestDto, userDetails.getUser());
     }
@@ -59,7 +60,7 @@ public class HomeworkController {
     @PutMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiRateLimiter(key = "updateHomework" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> updateHomework(@PathVariable Long groupId, @PathVariable Long boardId,
-                                                  @ModelAttribute HomeworkRequestDto requestDto,
+                                                  @Valid @ModelAttribute HomeworkRequestDto requestDto,
                                                   @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return homeworkService.updateHomework(groupId, boardId, requestDto, userDetails.getUser());
     }

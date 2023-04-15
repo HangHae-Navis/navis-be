@@ -21,7 +21,7 @@ public class BoardRequestDto {
     @Size(min = 1, max = 50)
     private String subtitle;
 
-    @Size(min = 1, max = 3000)
+    @Size(max = 3000)
     private String content;
 
     private Long important;

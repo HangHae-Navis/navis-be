@@ -2,6 +2,8 @@ package com.hanghae.navis.messenger.dto;
 
 import lombok.*;
 
+import javax.validation.constraints.Min;
+
 @Setter
 @Getter
 @Builder
@@ -14,6 +16,7 @@ public class MessengerChatRequestDto {
 
     private MessageType type;
     private String to;
+    @Min(value = 1)
     private String message;
     private int newMessageCount;
     private int page;
