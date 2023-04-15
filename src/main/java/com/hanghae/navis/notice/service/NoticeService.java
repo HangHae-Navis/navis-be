@@ -147,6 +147,9 @@ public class NoticeService {
             List<String> hashTagList = new ArrayList<>();
 
             for (String tag : requestDto.getHashtagList().split(" ")) {
+                if (tag.length() > 10) {
+                    throw new CustomException(HASHTAG_LENGTH_ERROR);
+                }
                 Hashtag hashtag = new Hashtag(tag, notice);
                 hashtagRepository.save(hashtag);
                 hashTagList.add(tag);

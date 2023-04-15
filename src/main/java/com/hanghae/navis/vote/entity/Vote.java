@@ -28,11 +28,12 @@ public class Vote extends BasicBoard {
         this.expirationDate = expirationDate;
         this.forceExpiration = forceExpiration;
     }
-//
-//    public void update(VoteRequestDto requestDto, LocalDateTime expirationDate) {
+
+//    public void update(VoteRequestDto requestDto, LocalDateTime expirationDate, boolean forceExpiration) {
 //        this.content = requestDto.getContent();
 //        this.subtitle = requestDto.getSubtitle();
 //        this.expirationDate = expirationDate;
+//        this.forceExpiration = forceExpiration;
 //    }
 
     public void forceExpiration(){

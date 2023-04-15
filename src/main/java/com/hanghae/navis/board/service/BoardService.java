@@ -56,7 +56,6 @@ public class BoardService {
     private final QueryRepository queryRepository;
 
 
-
     @Transactional(readOnly = true)
     public ResponseEntity<Message> boardList(Long groupId, int page, int size, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
@@ -134,8 +133,7 @@ public class BoardService {
             );
 
             GroupMemberRoleEnum role = groupMember.getGroupRole();
-            if(groupId == 20 && role.equals(GroupMemberRoleEnum.USER))
-            {
+            if (groupId == 20 && role.equals(GroupMemberRoleEnum.USER)) {
                 return Message.toExceptionResponseEntity(UNAUTHORIZED_ADMIN);
             }
 
@@ -144,7 +142,10 @@ public class BoardService {
 
             List<String> hashtagResponseDto = new ArrayList<>();
 
-            for(String tag : requestDto.getHashtagList().split(" ")) {
+            for (String tag : requestDto.getHashtagList().split(" ")) {
+                if (tag.length() > 10) {
+                    throw new CustomException(HASHTAG_LENGTH_ERROR);
+                }
                 Hashtag hashtag = new Hashtag(tag, board);
                 hashtagRepository.save(hashtag);
                 hashtagResponseDto.add(tag);
@@ -152,7 +153,7 @@ public class BoardService {
 
             List<FileResponseDto> fileResponseDto = new ArrayList<>();
 
-            if(requestDto.getMultipartFiles() != null) {
+            if (requestDto.getMultipartFiles() != null) {
                 for (MultipartFile file : requestDto.getMultipartFiles()) {
                     String fileTitle = file.getOriginalFilename();
                     String fileUrl = s3Uploader.upload(file);
@@ -204,7 +205,7 @@ public class BoardService {
         boolean author = user.equals(board.getUser());
 
 
-        if(!user.getId().equals(board.getUser().getId())) {
+        if (!user.getId().equals(board.getUser().getId())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
         }
 
@@ -223,7 +224,10 @@ public class BoardService {
 
         List<String> hashtagResponseDto = new ArrayList<>();
 
-        for(String tag : requestDto.getHashtagList().split(" ")) {
+        for (String tag : requestDto.getHashtagList().split(" ")) {
+            if (tag.length() > 10) {
+                throw new CustomException(HASHTAG_LENGTH_ERROR);
+            }
             Hashtag hashtag = new Hashtag(tag, board);
             hashtagRepository.save(hashtag);
             hashtagResponseDto.add(tag);
@@ -233,8 +237,8 @@ public class BoardService {
         List<File> files = fileRepository.findFileUrlByBasicBoardId(boardId);
 
         try {
-            for(File boardFile : files) {
-                if(!multipartFiles.contains(boardFile.getFileUrl())) {
+            for (File boardFile : files) {
+                if (!multipartFiles.contains(boardFile.getFileUrl())) {
                     board.getFileList().remove(boardFile);
                     String source = URLDecoder.decode(boardFile.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
                     s3Uploader.delete(source);
@@ -288,7 +292,7 @@ public class BoardService {
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         if (board.getUser().getId().equals(user.getId()) || (role.equals(GroupMemberRoleEnum.ADMIN) || role.equals(GroupMemberRoleEnum.SUPPORT))) {
-            if(board.getFileList().size() > 0) {
+            if (board.getFileList().size() > 0) {
                 try {
                     for (File file : board.getFileList()) {
                         String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
@@ -321,6 +325,7 @@ public class BoardService {
         hashtagRepository.deleteById(hashtagId);
         return Message.toResponseEntity(HASHTAG_DELETE_SUCCESS);
     }
+
     @Transactional(readOnly = true)
     public UserGroup authCheck(Long groupId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(

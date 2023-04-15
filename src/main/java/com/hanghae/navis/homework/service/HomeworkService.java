@@ -202,6 +202,9 @@ public class HomeworkService {
         List<String> hashtagList = new ArrayList<>();
 
         for (String tag : requestDto.getHashtagList().split(" ")) {
+            if (tag.length() > 10) {
+                throw new CustomException(HASHTAG_LENGTH_ERROR);
+            }
             Hashtag hashtag = new Hashtag(tag, homework);
             hashtagRepository.save(hashtag);
             hashtagList.add(tag);
@@ -286,6 +289,9 @@ public class HomeworkService {
         List<String> hashtagResponseDto = new ArrayList<>();
 
         for (String tag : requestDto.getHashtagList().split(" ")) {
+            if (tag.length() > 10) {
+                throw new CustomException(HASHTAG_LENGTH_ERROR);
+            }
             Hashtag hashtag = new Hashtag(tag, homework);
             hashtagRepository.save(hashtag);
             hashtagResponseDto.add(tag);

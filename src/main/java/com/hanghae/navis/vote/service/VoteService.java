@@ -18,6 +18,9 @@ import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.group.repository.QueryRepository;
 import com.hanghae.navis.group.repository.RecentlyViewedRepository;
+import com.hanghae.navis.homework.dto.HomeworkRequestDto;
+import com.hanghae.navis.homework.dto.HomeworkResponseDto;
+import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -38,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.time.Instant;
@@ -177,6 +181,9 @@ public class VoteService {
 
             //받아온 해시태그를 띄어쓰기로 구분 후 처리
             for (String tag : requestDto.getHashtagList().split(" ")) {
+                if (tag.length() > 10) {
+                    throw new CustomException(HASHTAG_LENGTH_ERROR);
+                }
                 Hashtag hashtag = new Hashtag(tag, vote);
                 hashtagRepository.save(hashtag);
                 hashtagList.add(tag);
@@ -198,6 +205,9 @@ public class VoteService {
 
             //다중 투표선택지 처리
             for (String option : requestDto.getOptionList().split(" ")) {
+                if(option.length() > 30){
+                    throw new CustomException(OPTION_LENGTH_ERROR);
+                }
                 VoteOption voteOption = new VoteOption(vote, option);
                 voteOptionRepository.save(voteOption);
                 optionResponseDto.add(OptionResponseDto.of(voteOption));
@@ -218,9 +228,9 @@ public class VoteService {
             throw new RuntimeException(e);
         }
     }
-
+//
 //    @Transactional
-//    public ResponseEntity<Message> updateVote(Long groupId, Long voteId, VoteRequestDto requestDto, List<MultipartFile> multipartFiles, User user) {
+//    public ResponseEntity<Message> updateVote(Long groupId, Long voteId, VoteRequestDto requestDto, User user) {
 //        UserGroup userGroup = authCheck(groupId, user);
 //
 //        Vote vote = voteRepository.findById(voteId).orElseThrow(
@@ -232,18 +242,68 @@ public class VoteService {
 //            throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
 //        }
 //
-//        vote.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()));
+//        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+//                () -> new CustomException(GROUP_NOT_JOINED)
+//        );
 //
-//        List<String> remainUrl = requestDto.getUpdateUrlList();
+//        GroupMemberRoleEnum role = groupMember.getGroupRole();
 //
-//        List<OptionRequestDto> remainOption = requestDto.getOptionRequestDto();
+//        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(vote.getUser(), vote.getGroup()).orElseThrow(
+//                () -> new CustomException(GROUP_NOT_JOINED)
+//        ).getGroupRole();
+//
+//        vote.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(vote.getExpirationDate()));
+//
+//        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+//            throw new CustomException(ADMIN_ONLY);
+//        }
+//
+//        boolean author = user.equals(vote.getUser());
+//
+//        List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
+//
+//        VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, null, null,
+//                null, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role,
+//                null, rv, groupMember.getGroupRole(), true);
+//
+//
+//
+//
+//
+//
+//
+//        vote.update(requestDto, unixTimeToLocalDateTime(requestDto.getExpirationDate()), expirationCheck(vote.getExpirationDate()));
+//
+//        List<Hashtag> remainTag = hashtagRepository.findAllByBasicBoardId(voteId);
+//
+//        for (Hashtag hashtag : remainTag) {
+//            vote.getFileList().remove(hashtag);
+//            hashtagRepository.delete(hashtag);
+//        }
+//
+//        List<String> hashtagResponseDto = new ArrayList<>();
+//
+//        for (String tag : requestDto.getHashtagList().split(" ")) {
+//            if (tag.length() > 10) {
+//                throw new CustomException(HASHTAG_LENGTH_ERROR);
+//            }
+//            Hashtag hashtag = new Hashtag(tag, vote);
+//            hashtagRepository.save(hashtag);
+//            hashtagResponseDto.add(tag);
+//        }
+//
+//        List<MultipartFile> multipartFiles = requestDto.getMultipartFiles();
+//        List<File> files = fileRepository.findFileUrlByBasicBoardId(voteId);
+//        List<OptionResponseDto> optionResponseDto = new ArrayList<>();
+//
+//        //다중 투표선택지 처리
 //        try {
-//            for (File file : vote.getFileList()) {
-//                if (!remainUrl.contains(file.getFileUrl())) {
-//                    vote.getFileList().remove(file);
-//                    String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
+//            for (File boardFile : files) {
+//                if (!multipartFiles.contains(boardFile.getFileUrl())) {
+//                    vote.getFileList().remove(boardFile);
+//                    String source = URLDecoder.decode(boardFile.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
 //                    s3Uploader.delete(source);
-//                    fileRepository.delete(file);
+//                    fileRepository.delete(boardFile);
 //                }
 //            }
 //            for (VoteOption option : vote.getVoteOptionList()) {

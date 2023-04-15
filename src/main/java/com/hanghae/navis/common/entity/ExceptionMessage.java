@@ -35,6 +35,8 @@ public enum ExceptionMessage {
     BANNED_GROUP(BAD_REQUEST, "차단당한 그룹에는 가입할 수 없습니다."),
     ADMIN_CANNOT_BE_UPDATED(BAD_REQUEST, "관리자는 본인의 권한을 변경할 수 없습니다."),
     ADMIN_CANNOT_QUIT(BAD_REQUEST, "관리자는 그룹 탈퇴가 불가능합니다."),
+    HASHTAG_LENGTH_ERROR(NOT_FOUND, "해시태그 하나당 최대 10글자 까지 가능합니다."),
+    OPTION_LENGTH_ERROR(NOT_FOUND, "투표 옵션 하나당 최대 30글자 까지 가능합니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),

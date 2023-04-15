@@ -3,6 +3,7 @@ package com.hanghae.navis.messenger.dto;
 import lombok.*;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 
 @Setter
 @Getter
@@ -16,7 +17,7 @@ public class MessengerChatRequestDto {
 
     private MessageType type;
     private String to;
-    @Min(value = 1)
+    @Size(min = 1, max = 100, message = "채팅내용은 최대 1글자부터 100글자까지 가능합니다.")
     private String message;
     private int newMessageCount;
     private int page;
