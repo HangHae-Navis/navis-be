@@ -166,7 +166,7 @@ public class GroupService {
             throw new CustomException(ExceptionMessage.ADMIN_ONLY);
         }
 
-        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group, role);
+        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_DETAILS_GET_SUCCESS, responseDto);
     }
@@ -218,7 +218,7 @@ public class GroupService {
         //Admin일 경우 관리자 페이지 버튼을 띄우기 위한 Admin 정보
         boolean isAdmin = groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN);
 
-        GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, isAdmin, homeworkList, basicBoardPage, recentlyViewed);
+        GroupMainPageResponseDto responseDto = GroupMainPageResponseDto.of(group, groupMember.getGroupRole(), isAdmin, homeworkList, basicBoardPage, recentlyViewed);
         for(MainPageBasicBoardDto m : responseDto.getBasicBoards()) {
             if(m.getDtype().equals("homework")) {
                 m.setExpirationDate(homeworkRepository.findById(m.getId()).get().getExpirationDate());
@@ -422,7 +422,7 @@ public class GroupService {
             }
         }
 
-        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group, groupMember.getGroupRole());
+        GroupDetailsResponseDto responseDto = GroupDetailsResponseDto.of(group);
 
         return Message.toResponseEntity(SuccessMessage.GROUP_UPDATE_SUCCESS, responseDto);
     }

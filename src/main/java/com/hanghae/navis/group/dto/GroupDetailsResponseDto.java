@@ -21,17 +21,15 @@ public class GroupDetailsResponseDto {
     private String groupInfo;
     private String groupImage;
     private String groupCode;
-    private GroupMemberRoleEnum groupRole;
     private List<GroupMemberResponseDto> groupMembers;
     private List<BannedMemberResponseDto> bannedMembers;
 
-    public static GroupDetailsResponseDto of(Group group, GroupMemberRoleEnum groupMemberRoleEnum) {
+    public static GroupDetailsResponseDto of(Group group) {
         return GroupDetailsResponseDto.builder()
                 .groupName(group.getGroupName())
                 .groupInfo(group.getGroupInfo())
                 .groupImage(group.getGroupImage())
                 .groupCode(group.getGroupCode())
-                .groupRole(groupMemberRoleEnum)
                 .groupMembers(group.getGroupMember().stream().map(GroupMemberResponseDto::of).collect(Collectors.toList()))
                 .bannedMembers(group.getBannedMember().stream().map(BannedMemberResponseDto::of).collect(Collectors.toList()))
                 .build();
