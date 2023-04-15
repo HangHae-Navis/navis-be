@@ -138,7 +138,7 @@ public class KakaoService {
             email = UUID.randomUUID().toString();
         }
 
-        return new KakaoUserInfoDto(id, nickname, email, accessToken);
+        return new KakaoUserInfoDto(id, nickname, email);
     }
 
     // 3. 필요시에 회원가입
