@@ -166,12 +166,13 @@ public class KakaoService {
 
                 kakaoUser = new User(email, kakaoUserInfo.getNickname(), kakaoId, encodedPassword, UserRoleEnum.USER);
 
-                ApplyRequestDto applyRequestDto = new ApplyRequestDto();
-                applyRequestDto.setGroupCode("jkljosgyvm");
-                groupService.applyGroup(applyRequestDto, kakaoUser);
             }
 
             userRepository.save(kakaoUser);
+
+            ApplyRequestDto applyRequestDto = new ApplyRequestDto();
+            applyRequestDto.setGroupCode("jkljosgyvm");
+            groupService.applyGroup(applyRequestDto, kakaoUser);
         }
         return kakaoUser;
     }
