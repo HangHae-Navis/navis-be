@@ -255,8 +255,18 @@ public class NoticeService {
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        if (!user.getId().equals(notice.getUser().getId())) {
-            throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
+        GroupMemberRoleEnum myRole = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(notice.getUser(), notice.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        if(!authorRole.equals(GroupMemberRoleEnum.ADMIN)){
+            if(!notice.getUser().equals(userGroup.getUser())){
+                return Message.toExceptionResponseEntity(UNAUTHORIZED_UPDATE_OR_DELETE);
+            }
         }
 
         if (notice.getFileList().size() > 0) {

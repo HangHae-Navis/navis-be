@@ -294,6 +294,20 @@ public class VoteService {
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
+        GroupMemberRoleEnum myRole = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        GroupMemberRoleEnum authorRole = groupMemberRepository.findByUserAndGroup(vote.getUser(), vote.getGroup()).orElseThrow(
+                () -> new CustomException(GROUP_NOT_JOINED)
+        ).getGroupRole();
+
+        if(!authorRole.equals(GroupMemberRoleEnum.ADMIN)){
+            if(!vote.getUser().equals(userGroup.getUser())){
+                return Message.toExceptionResponseEntity(UNAUTHORIZED_UPDATE_OR_DELETE);
+            }
+        }
+
         //투표에 파일이 있다면 s3에서 삭제
         if (vote.getFileList().size() > 0) {
             try {
