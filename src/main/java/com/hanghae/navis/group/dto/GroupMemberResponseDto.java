@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class GroupMemberResponseDto {
     private Long id;
     private String nickname;
+    private String username;
     private LocalDateTime joinedAt;
     private GroupMemberRoleEnum groupMemberRoleEnum;
 
@@ -24,6 +25,7 @@ public class GroupMemberResponseDto {
         return GroupMemberResponseDto.builder()
                 .id(groupMember.getId())
                 .nickname(groupMember.getUser().getNickname())
+                .username(groupMember.getUser().getUsername())
                 .joinedAt(groupMember.getCreatedAt())
                 .groupMemberRoleEnum(groupMember.getGroupRole())
                 .build();
