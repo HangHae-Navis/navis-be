@@ -316,25 +316,15 @@ public class SurveyService {
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        List<Answer> answerList = answerRepository.findBySurveyIdAndUserId(surveyId, userId);
-
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
         if (role.equals(GroupMemberRoleEnum.USER)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
-        List<String> answerResponseList = new ArrayList<>();
+        List<UserAnswerDto> userAnswerDto = answerRepository.findByUserAnswer(userId, surveyId);
 
-        for (Answer answers : answerList) {
-            String answer = answers.getAnswer();
-
-            answerResponseList.add(answer);
-        }
-
-        UserAnswerResponseDto responseDto = UserAnswerResponseDto.of(userId, answerResponseList);
-
-        return Message.toResponseEntity(SURVEY_DETAIL_GET_SUCCESS, responseDto);
+        return Message.toResponseEntity(SURVEY_DETAIL_GET_SUCCESS, userAnswerDto);
     }
 
     public UserGroup authCheck(Long groupId, User user) {
