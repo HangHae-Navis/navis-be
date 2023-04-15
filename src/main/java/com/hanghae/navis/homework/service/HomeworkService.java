@@ -23,14 +23,12 @@ import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.entity.HomeworkSubject;
 import com.hanghae.navis.homework.entity.HomeworkSubjectFile;
 import com.hanghae.navis.homework.repository.*;
-import com.hanghae.navis.notification.entity.Notification;
 import com.hanghae.navis.notification.entity.NotificationType;
 import com.hanghae.navis.notification.service.NotificationService;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +43,6 @@ import java.net.URLDecoder;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.*;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
@@ -194,7 +191,7 @@ public class HomeworkService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+        if (groupMember.getGroupRole().equals(GroupMemberRoleEnum.USER)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
@@ -351,22 +348,25 @@ public class HomeworkService {
 
         GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+        if (groupMember.getGroupRole().equals(GroupMemberRoleEnum.USER)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
-        if (homework.getFileList().size() > 0) {
-            try {
-                for (File file : homework.getFileList()) {
-                    String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
-                    s3Uploader.delete(source);
+        if (role.equals(GroupMemberRoleEnum.ADMIN) || (role.equals(GroupMemberRoleEnum.SUPPORT) && homework.getUser().getId().equals(user.getId()))) {
+            if (homework.getFileList().size() > 0) {
+                try {
+                    for (File file : homework.getFileList()) {
+                        String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
+                        s3Uploader.delete(source);
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
             }
+            homeworkRepository.deleteById(boardId);
+            return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
         }
-        homeworkRepository.deleteById(boardId);
-        return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
+        throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
     }
 
     @Transactional
@@ -566,8 +566,16 @@ public class HomeworkService {
     }
 
 //    @Transactional
-//    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String fileName) throws IOException {
-//        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS,s3Service.getObject(fileName));
+//    public ResponseEntity<Message> downloadFile(Long groupId, Long boardId, String storedFileName) throws IOException {
+//        Group group = groupRepository.findById(groupId).orElseThrow(
+//                () -> new CustomException(GROUP_NOT_FOUND)
+//        );
+//
+//        Homework homework = homeworkRepository.findById(boardId).orElseThrow(
+//                () -> new CustomException(BOARD_NOT_FOUND)
+//        );
+//
+//        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS);
 //    }
 
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {

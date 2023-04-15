@@ -285,22 +285,23 @@ public class BoardService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if(!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT) && !user.getId().equals(board.getUser().getId())) {
-            throw new CustomException(USER_FORBIDDEN);
-        }
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        if(board.getFileList().size() > 0) {
-            try {
-                for (File file : board.getFileList()) {
-                    String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
-                    s3Uploader.delete(source);
+        if (board.getUser().getId().equals(user.getId()) || (role.equals(GroupMemberRoleEnum.ADMIN) || role.equals(GroupMemberRoleEnum.SUPPORT))) {
+            if(board.getFileList().size() > 0) {
+                try {
+                    for (File file : board.getFileList()) {
+                        String source = URLDecoder.decode(file.getFileUrl().replace("https://s3://project-navis/image/", ""), "UTF-8");
+                        s3Uploader.delete(source);
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
             }
+            boardRepository.deleteById(boardId);
+            return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
         }
-        boardRepository.deleteById(boardId);
-        return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
+        throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
     }
 
     @Transactional

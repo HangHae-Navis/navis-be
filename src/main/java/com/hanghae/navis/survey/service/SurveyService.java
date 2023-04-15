@@ -184,12 +184,13 @@ public class SurveyService {
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
-        if (!survey.getUser().getId().equals(user.getId())) {
-            throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
-        }
+        GroupMemberRoleEnum role = groupMember.getGroupRole();
 
-        surveyRepository.deleteById(surveyId);
-        return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
+        if (role.equals(GroupMemberRoleEnum.ADMIN) || (role.equals(GroupMemberRoleEnum.SUPPORT) && survey.getUser().getId().equals(user.getId()))) {
+            surveyRepository.deleteById(surveyId);
+            return Message.toResponseEntity(BOARD_DELETE_SUCCESS);
+        }
+        throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
     }
 
     @Transactional
