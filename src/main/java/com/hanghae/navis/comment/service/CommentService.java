@@ -1,6 +1,5 @@
 package com.hanghae.navis.comment.service;
 
-import com.hanghae.navis.common.repository.querydsl.CommentRepositoryImpl;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.comment.dto.CommentRequestDto;
@@ -35,7 +34,6 @@ public class CommentService {
     private final UserRepository userRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final BasicBoardRepository basicBoardRepository;
-    private final CommentRepositoryImpl commentRepositoryImpl;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> commentList(Long groupId, Long boardId, int page, int size, User user) {
