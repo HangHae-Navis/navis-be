@@ -293,7 +293,7 @@ public class SurveyService {
             }
 
             for (String answer : answerDto.getAnswerList()) {
-                SurveyOption surveyOption = surveyOptionRepository.findByOptionAndSurveyQuestionId("None", surveyQuestion.getId());
+                SurveyOption surveyOption = surveyOptionRepository.findByOptionAndSurveyQuestionId(answer, surveyQuestion.getId());
 
                 userAnswer = new Answer(answer, user, surveyQuestion, survey, surveyOption);
                 answerRepository.save(userAnswer);
