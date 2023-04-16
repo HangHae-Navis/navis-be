@@ -14,12 +14,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BannedMemberResponseDto {
     private Long id;
+    private String username;
     private String nickname;
     private LocalDateTime bannedAt;
 
     public static BannedMemberResponseDto of(BannedGroupMember bannedGroupMember) {
         return BannedMemberResponseDto.builder()
                 .id(bannedGroupMember.getId())
+                .username(bannedGroupMember.getUser().getUsername())
                 .nickname(bannedGroupMember.getUser().getNickname())
                 .bannedAt(bannedGroupMember.getCreatedAt())
                 .build();
