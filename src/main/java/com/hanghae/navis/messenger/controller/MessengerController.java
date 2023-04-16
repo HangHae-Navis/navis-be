@@ -1,5 +1,6 @@
 package com.hanghae.navis.messenger.controller;
 
+import com.hanghae.navis.common.annotation.ApiRateLimiter;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.messenger.dto.ChatBeforeRequestDto;
@@ -46,6 +47,7 @@ public class MessengerController {
     @Operation(summary = "채팅방 생성", description = "채팅방 생성")
     @PostMapping("/room")
     @ResponseBody
+    @ApiRateLimiter(key = "createRoom" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> createRoom(@RequestBody ChatCreateRequestDto requestDto,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return messengerService.createRoom(requestDto, userDetails.getUser());

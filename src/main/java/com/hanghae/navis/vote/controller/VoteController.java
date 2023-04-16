@@ -1,6 +1,7 @@
 package com.hanghae.navis.vote.controller;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
+import com.hanghae.navis.common.annotation.ApiRateLimiter;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.vote.dto.OptionRequestDto;
@@ -46,6 +47,7 @@ public class VoteController {
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "투표등록", description = "투표 등록, 파일 다중 업로드, updateUrlList 빼고 해주세요")
+    @ApiRateLimiter(key = "createVote" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> createVote(@PathVariable Long groupId,
                                               @Valid @ModelAttribute VoteRequestDto requestDto,
                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -88,6 +90,7 @@ public class VoteController {
 
     @PostMapping(value = "/{voteId}/pick")
     @Operation(summary = "투표 선택", description = "투표 선택")
+    @ApiRateLimiter(key = "pickVote" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> pickVote(@PathVariable Long groupId,
                                             @PathVariable Long voteId,
                                             @RequestBody PickRequestDto pickRequestDto,

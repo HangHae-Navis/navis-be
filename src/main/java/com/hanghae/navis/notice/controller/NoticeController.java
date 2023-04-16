@@ -1,5 +1,6 @@
 package com.hanghae.navis.notice.controller;
 
+import com.hanghae.navis.common.annotation.ApiRateLimiter;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import com.hanghae.navis.notice.dto.NoticeRequestDto;
@@ -41,6 +42,7 @@ public class NoticeController {
 
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "공지사항 등록", description = "공지사항 등록, 파일 다중 업로드")
+    @ApiRateLimiter(key = "createNotice" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> createNotice(@PathVariable Long groupId,
                                                 @Valid @ModelAttribute NoticeRequestDto requestDto,
                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -49,6 +51,7 @@ public class NoticeController {
 
     @PutMapping("/{noticeId}")
     @Operation(summary = "공지사항 수정", description = "공지사항 수정")
+    @ApiRateLimiter(key = "updateNotice" + "#{request.remoteAddr}", limit = 1, seconds = 1)
     public ResponseEntity<Message> updateNotice(@PathVariable Long groupId,
                                                 @PathVariable Long noticeId,
                                                 @Valid @ModelAttribute NoticeUpdateRequestDto requestDto,
