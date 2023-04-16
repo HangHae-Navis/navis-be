@@ -95,8 +95,7 @@ public class NotificationService {
 
     @Transactional
     public void send(User receiver, NotificationType notificationType, String content, String url, Group group) {
-        Map<String, SseEmitter> emitters = new HashMap<>() {
-        };
+        Map<String, SseEmitter> emitters = new HashMap<>() {};
         Notification notification = notificationRepository.save(createNotification(receiver, notificationType, content, url));
 
         if (notificationType == NotificationType.CHAT_POST) {

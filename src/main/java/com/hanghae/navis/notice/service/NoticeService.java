@@ -174,7 +174,7 @@ public class NoticeService {
             NoticeResponseDto noticeResponseDto = NoticeResponseDto.of(notice, fileResponseDto, hashTagList, role, rv, groupMember.getGroupRole(), true);
 
 
-            notificationService.send(user, NotificationType.NOTICE_POST, userGroup.getGroup().getGroupName() + "에서 " + NotificationType.NOTICE_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + notice.getId() + "&dtype=notice", userGroup.getGroup());
+            notificationService.send(userGroup.getUser(), NotificationType.NOTICE_POST, userGroup.getGroup().getGroupName() + "에서 " + NotificationType.NOTICE_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + notice.getId() + "&dtype=notice", userGroup.getGroup());
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, noticeResponseDto);
         } catch (IOException e) {
