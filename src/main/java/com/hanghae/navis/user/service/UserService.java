@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
@@ -154,7 +156,17 @@ public class UserService {
             user.updateNickname(requestDto.getNickname());
         }
         if (!requestDto.getPassword().equals("")) {
-            user.UpdatePassword(passwordEncoder.encode(requestDto.getPassword()));
+            String regexPattern = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W).{8,15}";
+
+            // 패턴 객체를 생성합니다.
+            Pattern pattern = Pattern.compile(regexPattern);
+
+            // 패턴 객체를 사용하여 문자열을 체크합니다.
+            Matcher matcher = pattern.matcher(requestDto.getPassword());
+            boolean isMatched = matcher.matches();
+            if(isMatched) {
+                user.UpdatePassword(passwordEncoder.encode(requestDto.getPassword()));
+            }
         }
         userRepository.save(user);
         return userInfo(user);
