@@ -4,7 +4,6 @@ import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.dto.GroupRequestDto;
 import com.hanghae.navis.homework.entity.Homework;
-import com.hanghae.navis.meet.entity.MeetRoom;
 import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,9 +40,6 @@ public class Group extends TimeStamped {
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     List<BannedGroupMember> bannedMember = new ArrayList<>();
-
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<MeetRoom> meetRoomList = new ArrayList<>();
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Homework> homeworkList = new ArrayList<>();
