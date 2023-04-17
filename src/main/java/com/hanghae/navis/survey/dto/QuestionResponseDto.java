@@ -3,12 +3,10 @@ package com.hanghae.navis.survey.dto;
 import com.hanghae.navis.survey.entity.Answer;
 import com.hanghae.navis.survey.entity.SurveyOption;
 import com.hanghae.navis.survey.entity.SurveyQuestion;
-import com.mysema.commons.lang.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 

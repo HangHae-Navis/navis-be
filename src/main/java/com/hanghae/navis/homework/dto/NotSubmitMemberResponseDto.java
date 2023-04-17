@@ -1,6 +1,5 @@
 package com.hanghae.navis.homework.dto;
 
-import com.hanghae.navis.group.entity.GroupMember;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

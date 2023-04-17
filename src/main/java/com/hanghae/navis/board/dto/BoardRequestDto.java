@@ -1,13 +1,10 @@
 package com.hanghae.navis.board.dto;
 
-import com.hanghae.navis.common.dto.HashtagRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.mail.Multipart;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
 

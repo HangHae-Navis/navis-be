@@ -1,8 +1,6 @@
 package com.hanghae.navis.homework.entity;
 
 import com.hanghae.navis.common.entity.TimeStamped;
-import com.hanghae.navis.group.entity.Group;
-import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

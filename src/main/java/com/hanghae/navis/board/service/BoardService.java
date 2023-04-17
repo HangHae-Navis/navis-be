@@ -3,7 +3,6 @@ package com.hanghae.navis.board.service;
 import com.hanghae.navis.board.dto.*;
 import com.hanghae.navis.board.entity.Board;
 import com.hanghae.navis.common.dto.*;
-import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.File;
 import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.common.repository.FileRepository;
@@ -77,19 +76,13 @@ public class BoardService {
 
     @Transactional
     public ResponseEntity<Message> getBoard(Long groupId, Long boardId, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
+        UserGroup userGroup = authCheck(groupId, user);
 
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
@@ -119,25 +112,19 @@ public class BoardService {
     @Transactional
     public ResponseEntity<Message> createBoard(Long groupId, BoardRequestDto requestDto, User user) {
         try {
+            UserGroup userGroup = authCheck(groupId, user);
 
-            Group group = groupRepository.findById(groupId).orElseThrow(
-                    () -> new CustomException(GROUP_NOT_FOUND)
-            );
-
-            user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                    () -> new CustomException(MEMBER_NOT_FOUND)
-            );
-
-            GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+            GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
                     () -> new CustomException(MEMBER_NOT_FOUND)
             );
 
             GroupMemberRoleEnum role = groupMember.getGroupRole();
+
             if (groupId == 20 && role.equals(GroupMemberRoleEnum.USER)) {
                 return Message.toExceptionResponseEntity(UNAUTHORIZED_ADMIN);
             }
 
-            Board board = new Board(requestDto, user, group);
+            Board board = new Board(requestDto, userGroup.getUser(), userGroup.getGroup());
             boardRepository.save(board);
 
             List<String> hashtagResponseDto = new ArrayList<>();
@@ -180,19 +167,13 @@ public class BoardService {
 
     @Transactional
     public ResponseEntity<Message> updateBoard(Long groupId, Long boardId, BoardRequestDto requestDto, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
+        UserGroup userGroup = authCheck(groupId, user);
 
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
@@ -203,7 +184,6 @@ public class BoardService {
         ).getGroupRole();
 
         boolean author = user.equals(board.getUser());
-
 
         if (!user.getId().equals(board.getUser().getId())) {
             throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
@@ -273,19 +253,13 @@ public class BoardService {
 
     @Transactional
     public ResponseEntity<Message> deleteBoard(Long groupId, Long boardId, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
+        UserGroup userGroup = authCheck(groupId, user);
 
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
@@ -308,42 +282,19 @@ public class BoardService {
         throw new CustomException(UNAUTHORIZED_UPDATE_OR_DELETE);
     }
 
-    @Transactional
-    public ResponseEntity<Message> deleteHashtag(Long groupId, Long hashtagId, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
-
-        Hashtag hashtag = hashtagRepository.findById(hashtagId).orElseThrow(
-                () -> new CustomException(HASHTAG_NOT_FOUND)
-        );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
-
-        hashtagRepository.deleteById(hashtagId);
-        return Message.toResponseEntity(HASHTAG_DELETE_SUCCESS);
-    }
-
-    @Transactional(readOnly = true)
     public UserGroup authCheck(Long groupId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow(
                 () -> new CustomException(GROUP_NOT_FOUND)
         );
 
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+        User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
-
-        if (groupMember.getGroupRole().getAuthority().equals(UserRoleEnum.Authority.USER)) {
-            throw new CustomException(UNAUTHORIZED_ADMIN);
+        if (!groupMemberRepository.findByUserAndGroup(me, group).isPresent()) {
+            throw new CustomException(GROUP_MEMBER_NOT_FOUND);
         }
 
-        return new UserGroup(user, group);
+        return new UserGroup(me, group);
     }
 }

@@ -4,10 +4,8 @@ import com.hanghae.navis.board.dto.BoardResponseDto;
 import com.hanghae.navis.common.dto.FileResponseDto;
 import com.hanghae.navis.group.dto.RecentlyViewedDto;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
-import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.homework.entity.Homework;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
