@@ -13,5 +13,4 @@ public interface VoteRecordRepository extends JpaRepository<VoteRecord, Long> {
     Optional<VoteRecord> findByGroupMemberIdAndVoteId(Long groupMemberId, Long voteOptionId);
 
     void deleteByGroupMemberIdAndVoteId(Long groupMemberId, Long voteOptionId);
-    void deleteByGroupMember(User user);
 }

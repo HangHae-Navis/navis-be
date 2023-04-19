@@ -8,6 +8,7 @@ import com.hanghae.navis.notification.dto.NotificationResponseDto;
 import com.hanghae.navis.notification.entity.Notification;
 import com.hanghae.navis.notification.entity.NotificationType;
 import com.hanghae.navis.notification.repository.EmitterRepository;
+import com.hanghae.navis.notification.repository.NotificationQueryDslRepository;
 import com.hanghae.navis.notification.repository.NotificationRepository;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -36,6 +37,7 @@ import static com.hanghae.navis.common.entity.SuccessMessage.*;
 @Service
 public class NotificationService {
     private final NotificationRepository notificationRepository;
+    private final NotificationQueryDslRepository notificationQueryDslRepository;
     private final EmitterRepository emitterRepository;
     private final UserRepository userRepository;
     private Long DEFAULT_TIMEOUT = 60L * 1000L * 60L;
@@ -146,7 +148,7 @@ public class NotificationService {
                 notificationResponseDtoList.add(NotificationResponseDto.of(notification));
             }
 
-            notificationRepository.updateIsReadByUserId(user.getId());
+            notificationQueryDslRepository.updateIsReadByUserId(user.getId());
         }
         return Message.toResponseEntity(NOTIFICATION_GET_SUCCESS, notificationResponseDtoList);
     }
