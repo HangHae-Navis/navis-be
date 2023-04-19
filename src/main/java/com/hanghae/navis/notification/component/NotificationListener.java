@@ -15,9 +15,9 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class NotificationListener {
     private final EmitterRepository emitterRepository;
 
-    @Scheduled(fixedDelay = 30000)
-    public void checkEmitters() {
-        // reconnect logic
-        emitterRepository.closeAllEmitters();
-    }
+//    @Scheduled(fixedDelay = 30000)
+//    public void checkEmitters() {
+//        // reconnect logic
+//        emitterRepository.closeAllEmitters();
+//    }
 }
