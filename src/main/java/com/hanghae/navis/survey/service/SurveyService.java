@@ -14,6 +14,8 @@ import com.hanghae.navis.group.repository.GroupMemberRepository;
 import com.hanghae.navis.group.repository.GroupRepository;
 import com.hanghae.navis.group.repository.QueryRepository;
 import com.hanghae.navis.group.repository.RecentlyViewedRepository;
+import com.hanghae.navis.notification.entity.NotificationType;
+import com.hanghae.navis.notification.service.NotificationService;
 import com.hanghae.navis.survey.dto.*;
 import com.hanghae.navis.survey.entity.Answer;
 import com.hanghae.navis.survey.entity.Survey;
@@ -52,6 +54,8 @@ public class SurveyService {
     private final GroupMemberRepository groupMemberRepository;
     private final RecentlyViewedRepository recentlyViewedRepository;
     private final QueryRepository queryRepository;
+
+    private final NotificationService notificationService;
 
     @Transactional
     public ResponseEntity<Message> createSurvey(Long groupId, SurveyRequestDto requestDto, User user) {
@@ -105,6 +109,8 @@ public class SurveyService {
         List<RecentlyViewedDto> rv = queryRepository.findRecentlyViewedsByGroupMemeber(groupMember.getId());
 
         SurveyResponseDto responseDto = SurveyResponseDto.of(survey, questionResponseDto, rv, groupMember.getGroupRole(), false, hashtagResponseDto, groupMember.getGroupRole(), true);
+
+        notificationService.send(userGroup.getUser(), NotificationType.SURVEY_POST, userGroup.getGroup().getGroupName() + "에서 " + NotificationType.SURVEY_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + survey.getId() + "&dtype=survey", userGroup.getGroup());
 
         return Message.toResponseEntity(SURVEY_POST_SUCCESS, responseDto);
     }
