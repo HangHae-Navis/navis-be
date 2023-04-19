@@ -21,6 +21,8 @@ import com.hanghae.navis.group.repository.RecentlyViewedRepository;
 import com.hanghae.navis.homework.dto.HomeworkRequestDto;
 import com.hanghae.navis.homework.dto.HomeworkResponseDto;
 import com.hanghae.navis.homework.entity.Homework;
+import com.hanghae.navis.notification.entity.NotificationType;
+import com.hanghae.navis.notification.service.NotificationService;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -71,6 +73,7 @@ public class VoteService {
     private final S3Uploader s3Uploader;
     private final RecentlyViewedRepository recentlyViewedRepository;
     private final QueryRepository queryRepository;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public ResponseEntity<Message> getVoteList(Long groupId, User user, int page, int size) {
@@ -222,6 +225,8 @@ public class VoteService {
             VoteResponseDto voteResponseDto = VoteResponseDto.of(vote, fileResponseDto, hashtagList,
                     optionResponseDto, false, unixTimeToLocalDateTime(requestDto.getExpirationDate()), role,
                     null, rv, groupMember.getGroupRole(), true);
+
+            notificationService.send(userGroup.getUser(), NotificationType.VOTE_POST, userGroup.getGroup().getGroupName() + "에서 " + NotificationType.VOTE_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + vote.getId() + "&dtype=vote", userGroup.getGroup());
 
             return Message.toResponseEntity(BOARD_POST_SUCCESS, voteResponseDto);
         } catch (Exception e) {
