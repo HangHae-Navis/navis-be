@@ -9,6 +9,7 @@ import com.hanghae.navis.messenger.dto.*;
 import com.hanghae.navis.messenger.entity.Messenger;
 import com.hanghae.navis.messenger.entity.MessengerChat;
 import com.hanghae.navis.messenger.repository.MessengerChatRepository;
+import com.hanghae.navis.messenger.repository.MessengerQueryDslRepository;
 import com.hanghae.navis.messenger.repository.MessengerRepository;
 import com.hanghae.navis.notification.entity.NotificationType;
 import com.hanghae.navis.notification.service.NotificationService;
@@ -39,9 +40,9 @@ import static com.hanghae.navis.common.entity.SuccessMessage.*;
 @Slf4j
 @RequiredArgsConstructor
 public class MessengerService {
-    JPAQueryFactory queryFactory;
     private final UserRepository userRepository;
     private final MessengerRepository messengerRepository;
+    private final MessengerQueryDslRepository messengerQueryDslRepository;
     private final MessengerChatRepository messengerChatRepository;
     private final NotificationService notificationService;
     private EntityManager entityManager;
@@ -103,7 +104,7 @@ public class MessengerService {
         );
 
         Messenger room = null;
-        Optional<Messenger> messenger = messengerRepository.findByMessenger(me, toUser);
+        Optional<Messenger> messenger = messengerQueryDslRepository.findByMessenger(me, toUser);
 
         //메신저에 대화방이 있는지 체크
         if (messenger.isPresent()) {
@@ -133,7 +134,7 @@ public class MessengerService {
         );
 
         //메신저에 대화방이 있는지 체크
-        Messenger room = messengerRepository.findByMessenger(me, toUser).orElseThrow(
+        Messenger room = messengerQueryDslRepository.findByMessenger(me, toUser).orElseThrow(
                 () -> new CustomException(CHAT_ROOM_NOT_FOUND)
         );
 
@@ -159,7 +160,7 @@ public class MessengerService {
                 () -> new CustomException(CHAT_ROOM_NOT_FOUND)
         );
 
-        messengerChatRepository.updateRead(room.getId(), me.getId());
+        messengerQueryDslRepository.updateRead(room.getId(), me.getId());
 
         return Message.toResponseEntity(CHAT_READ_SUCCESS);
     }
