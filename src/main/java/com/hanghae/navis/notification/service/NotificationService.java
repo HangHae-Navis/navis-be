@@ -103,6 +103,7 @@ public class NotificationService {
         if (notificationType == NotificationType.CHAT_POST) {
             notificationRepository.deleteByUserAndUrl(receiver, url);
             notificationRepository.save(createNotification(receiver, notificationType, content, url));
+            emitters = emitterRepository.findAllEmitterStartWithByUserId(String.valueOf(receiver.getId()));
         } else {
             List<GroupMember> groupMemberList = group.getGroupMember();
             for (GroupMember groupMember : groupMemberList) {
