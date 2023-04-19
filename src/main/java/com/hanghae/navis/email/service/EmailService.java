@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
@@ -28,16 +29,18 @@ public class EmailService {
     JavaMailSender emailSender;
     private final RedisUtil redisUtil;
 
-    public static final String ePw = createKey();
+    public static String ePw = createKey();
 
 
+    @Transactional
     private MimeMessage createMessage(String to) throws Exception {
+        ePw = createKey();
         System.out.println("보내는 대상 : " + to);
         System.out.println("인증 번호 : " + ePw);
         MimeMessage message = emailSender.createMimeMessage();
 
         message.addRecipients(RecipientType.TO, to);//보내는 대상
-        message.setSubject("이메일 인증 테스트");//제목
+        message.setSubject("이메일 인증");//제목
 
         String msgg = "";
         msgg += "<div style='margin:20px;'>";
@@ -46,7 +49,7 @@ public class EmailService {
 
         msgg += "<p>아래 코드를 입력해주세요<p>";
         msgg += "<div align='center' style='border:1px solid black; font-family:verdana';>";
-        msgg += "<h3 style='color:blue;'>회원가입 인증 코드입니다.</h3>";
+        msgg += "<h3 style='color:blue;'>이메일 인증 코드입니다.</h3>";
         msgg += "<div style='font-size:130%'>";
         msgg += "CODE : <strong>";
         msgg += ePw + "</strong><div><br/> ";
@@ -56,7 +59,7 @@ public class EmailService {
 //                "<a href='http://localhost:8080/emails/confirm?key=" + ePw + "' target='_blenk'>이메일 인증 확인</a>";
 
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("teamnavis99@gmail.com", "teamnavis99"));//보내는 사람
+        message.setFrom(new InternetAddress("teamnavis@daum.net", "teamnavis"));//보내는 사람
 
         return message;
     }
@@ -71,10 +74,14 @@ public class EmailService {
         }
         return key.toString();
     }
-
+    @Transactional
     public ResponseEntity<Message> sendMail(String to) throws Exception {
         if (userRepository.findByUsername(to).isPresent()) {
             return Message.toExceptionResponseEntity(DUPLICATE_EMAIL);
+        }
+
+        if(redisUtil.get(to) != null) {
+            redisUtil.delete(to);
         }
 
         MimeMessage sendMessage = createMessage(to);
@@ -87,15 +94,12 @@ public class EmailService {
         }
         return Message.toResponseEntity(EMAIL_SEND_SUCCESS);
     }
-
+    @Transactional
     public ResponseEntity<Message> emailConfirm(String key) {
         //코드가 유효하지 않으면
         if (redisUtil.get(key) == null) {
             return Message.toExceptionResponseEntity(EMAIL_CODE_INVALID);
         }
-
-        //코드가 유효하다면 키 삭제 후 ok보내줌
-        redisUtil.delete(key);
 
         return Message.toResponseEntity(EMAIL_CONFIRM_SUCCESS);
     }

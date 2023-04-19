@@ -1,14 +1,18 @@
 package com.hanghae.navis.user.service;
 
+import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.jwt.JwtUtil;
-import com.hanghae.navis.common.security.UserDetailsImpl;
+import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.common.util.RedisUtil;
-import com.hanghae.navis.user.dto.LoginRequestDto;
-import com.hanghae.navis.user.dto.LoginResponseDto;
-import com.hanghae.navis.user.dto.SignupRequestDto;
-import com.hanghae.navis.user.dto.UserInfoResponseDto;
+import com.hanghae.navis.email.service.EmailService;
+import com.hanghae.navis.group.dto.ApplyRequestDto;
+import com.hanghae.navis.group.entity.Group;
+import com.hanghae.navis.group.service.GroupService;
+import com.hanghae.navis.homework.service.HomeworkService;
+import com.hanghae.navis.messenger.service.MessengerService;
+import com.hanghae.navis.user.dto.*;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import com.hanghae.navis.user.repository.UserRepository;
@@ -19,7 +23,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 import static com.hanghae.navis.common.entity.SuccessMessage.*;
@@ -30,14 +40,32 @@ import static com.hanghae.navis.common.entity.SuccessMessage.*;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    private final MessengerService messengerService;
+
+    private final BasicBoardRepository basicBoardRepository;
+    private final HomeworkService homeworkService;
+    private final GroupService groupService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final RedisUtil redisUtil;
+
+    private final S3Uploader s3Uploader;
+
+    private final EmailService emailService;
+
     @Transactional
     public ResponseEntity<Message> signup(SignupRequestDto signupRequestDto) {
         String username = signupRequestDto.getUsername();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
         String nickname = signupRequestDto.getNickname();
+
+        if (redisUtil.get(signupRequestDto.getKey()) == null) {
+            return Message.toExceptionResponseEntity(EMAIL_CODE_INVALID);
+        }
+
+        //코드가 유효하다면 키 삭제
+        redisUtil.delete(signupRequestDto.getKey());
 
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(username);
@@ -50,12 +78,16 @@ public class UserService {
         UserRoleEnum role = UserRoleEnum.USER;
 
         //닉네임이 공백포함인지 확인
-        if(nickname.replaceAll(" ","").equals("")) {
+        if (nickname.replaceAll(" ", "").equals("")) {
             throw new CustomException(NICKNAME_WITH_SPACES);
         }
 
         User user = new User(username, nickname, password, role);
         userRepository.save(user);
+
+        ApplyRequestDto applyRequestDto = new ApplyRequestDto();
+        applyRequestDto.setGroupCode("jkljosgyvm");
+        groupService.applyGroup(applyRequestDto, user);
 
         return Message.toResponseEntity(SIGN_UP_SUCCESS);
     }
@@ -74,18 +106,117 @@ public class UserService {
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.get().getUsername(), user.get().getRole()));
 
         String token = jwtUtil.createToken(user.get().getUsername(), user.get().getRole());
-        LoginResponseDto loginResponseDto = new LoginResponseDto(userRepository.findByNickname(user.get().getNickname()).get().getNickname(), token);
+        LoginResponseDto loginResponseDto = new LoginResponseDto(user.get(), token);
         return Message.toResponseEntity(LOGIN_SUCCESS, loginResponseDto);
     }
 
-    public ResponseEntity<Message> userInfo(UserDetailsImpl user) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> userInfo(User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
 
-        Long id = user.getUser().getId();
-        String username = user.getUser().getUsername();
-        String nickname = user.getUser().getNickname();
+        List<UserGroupDetailDto> groupInfo = new ArrayList<>();
+        for (Group group : user.getGroupList()) {
+            if (group.getUser().equals(user))
+                groupInfo.add(UserGroupDetailDto.of(group));
+        }
 
-        UserInfoResponseDto userInfoResponseDto = new UserInfoResponseDto (id, username, nickname);
+        UserInfoResponseDto userInfoResponseDto = UserInfoResponseDto.of(user, groupInfo);
 //        return new Message().toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
         return Message.toResponseEntity(USER_INFO_SUCCESS, userInfoResponseDto);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> searchUser(String searchName, User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        User searchUser = userRepository.findByUsername(searchName).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+
+        SearchUserInfoResponseDto searchUserInfoResponseDto = SearchUserInfoResponseDto.of(searchUser);
+        return Message.toResponseEntity(USER_INFO_SUCCESS, searchUserInfoResponseDto);
+    }
+
+
+    @Transactional
+    public ResponseEntity<Message> profileUpdate(ProfileUpdateRequestDto requestDto, User user) throws IOException {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        if (requestDto.getProfileImage() != null) {
+            String fileUrl = s3Uploader.upload(requestDto.getProfileImage());
+            user.updateProfileImage(fileUrl);
+        }
+        if (!requestDto.getNickname().equals("")) {
+            user.updateNickname(requestDto.getNickname());
+        }
+        if (!requestDto.getPassword().equals("")) {
+            String regexPattern = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W).{8,15}";
+
+            // 패턴 객체를 생성합니다.
+            Pattern pattern = Pattern.compile(regexPattern);
+
+            // 패턴 객체를 사용하여 문자열을 체크합니다.
+            Matcher matcher = pattern.matcher(requestDto.getPassword());
+            boolean isMatched = matcher.matches();
+            if(isMatched) {
+                user.UpdatePassword(passwordEncoder.encode(requestDto.getPassword()));
+            }
+        }
+        userRepository.save(user);
+        return userInfo(user);
+    }
+
+    @Transactional
+    public ResponseEntity<Message> leaveUser(User user) {
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        if (messengerService.deleteLeaveMessenger(user) && homeworkService.userLeaveDeleteSubject(user)) {
+            basicBoardRepository.deleteByUser(user);
+            userRepository.delete(user);
+            return Message.toResponseEntity(USER_DELETE_SUCCESS);
+        } else {
+            return Message.toExceptionResponseEntity(USER_DELETE_FAIL);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> findPassword(FindPasswordRequestDto findPasswordRequestDto) {
+        String username = findPasswordRequestDto.getUsername();
+
+        if (redisUtil.get(findPasswordRequestDto.getKey()) == null) {
+            return Message.toExceptionResponseEntity(EMAIL_CODE_INVALID);
+        }
+
+        //코드가 유효하다면 키 삭제
+        redisUtil.delete(findPasswordRequestDto.getKey());
+
+        // 회원 중복 확인
+        User user = userRepository.findByUsername(findPasswordRequestDto.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        String password = generatePassword();
+        user.UpdatePassword(passwordEncoder.encode(password));
+
+        userRepository.save(user);
+
+        return Message.toResponseEntity(PASSWORD_CHANGE_SUCCESS, password);
+    }
+
+    private String generatePassword() {
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            Random random = new Random();
+            char c = (char) (random.nextInt(26) + 97);
+            password.append(c);
+        }
+        return password.toString();
     }
 }

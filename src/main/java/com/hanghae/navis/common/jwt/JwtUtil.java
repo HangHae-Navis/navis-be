@@ -1,7 +1,5 @@
 package com.hanghae.navis.common.jwt;
 
-
-import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.security.UserDetailsServiceImpl;
 import com.hanghae.navis.user.entity.UserRoleEnum;
 import io.jsonwebtoken.*;
@@ -33,7 +31,8 @@ public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long TOKEN_TIME = 60 * 60 * 1000L;
+    //TODO : 실전테스트때는 고쳐야함
+    private static final long TOKEN_TIME = 60 * 60 * 1000L * 2;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -70,22 +69,22 @@ public class JwtUtil {
     }
 
     // 토큰 검증
-    public boolean validateToken(String token) throws CustomException {
+    public boolean validateToken(String token) throws RuntimeException {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
-            throw new CustomException(INVALID_TOKEN);
+            throw new UsernameFromTokenException(INVALID_TOKEN.getDetail());
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT token, 만료된 JWT token 입니다.");
-            throw new CustomException(MISMATCH_REFRESH_TOKEN);
+            throw new UsernameFromTokenException(MISMATCH_REFRESH_TOKEN.getDetail());
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
-            throw new CustomException(UNSUPPORTED_TOKEN);
-        } catch (IllegalArgumentException e) {
+            throw new UsernameFromTokenException(UNSUPPORTED_TOKEN.getDetail());
+        } catch (IllegalArgumentException | SignatureException e) {
             log.info("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
-            throw new CustomException(ILLEAGAL_TOKEN);
+            throw new UsernameFromTokenException(ILLEAGAL_TOKEN.getDetail());
         }
     }
 
@@ -100,4 +99,10 @@ public class JwtUtil {
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
+
+}
+class UsernameFromTokenException extends RuntimeException{
+    public UsernameFromTokenException(String message){
+        super(message);
+    }
 }

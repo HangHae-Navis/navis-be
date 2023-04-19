@@ -27,13 +27,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String token = jwtUtil.resolveToken(request);
-        System.out.println(request.getMethod());
+        log.warn("URL : " + request.getRequestURL() + ", METHOD : " + request.getMethod());
 
-        if(token != null && !request.getMethod().equals("GET")) {
-            if(!jwtUtil.validateToken(token)){
-                jwtExceptionHandler(response, "토큰이 만료되었거나 잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED.value());
+        if(token != null) {
+            try{
+                if(!jwtUtil.validateToken(token)){
+                    jwtExceptionHandler(response, "토큰이 만료되었거나 잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED.value());
+                    return;
+                }
+            }
+            catch (UsernameFromTokenException ex){
+                jwtExceptionHandler(response, ex.getMessage(), HttpStatus.UNAUTHORIZED.value());
                 return;
             }
+
             Claims info = jwtUtil.getUserInfoFromToken(token);
             setAuthentication(info.getSubject());
         }
@@ -50,7 +57,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     public void jwtExceptionHandler(HttpServletResponse response, String msg, int statusCode) {
         response.setStatus(statusCode);
-        response.setContentType("application/json");
+        response.setContentType("application/json; charset=utf-8");
         try {
             String json = new ObjectMapper().writeValueAsString(new Message(false, msg, null));
             response.getWriter().write(json);

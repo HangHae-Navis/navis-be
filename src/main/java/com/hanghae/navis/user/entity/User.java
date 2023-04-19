@@ -1,12 +1,14 @@
 package com.hanghae.navis.user.entity;
 
 import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.board.entity.Comment;
+import com.hanghae.navis.common.entity.BasicBoard;
+import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.common.entity.TimeStamped;
 import com.hanghae.navis.group.entity.Group;
-import com.hanghae.navis.group.entity.UserGroupList;
+import com.hanghae.navis.group.entity.GroupMember;
 import com.hanghae.navis.homework.entity.Homework;
-import com.hanghae.navis.homework.entity.HomeworkComment;
+import com.hanghae.navis.survey.entity.Answer;
+import com.hanghae.navis.vote.entity.Vote;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,30 +35,37 @@ public class User extends TimeStamped {
 
     @Column(nullable = false)
     private String password;
-
+    @Column
+    private String profileImage;
+    @Column
     private Long kakaoId;
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Group> groupList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    List<UserGroupList> userGroupList = new ArrayList<>();
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    List<GroupMember> groupMemberList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Board> boardList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<BasicBoard> basicBoardList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Comment> commentList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<Homework> homeworkList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<Vote> voteList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<Answer> answerList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    List<HomeworkComment> homeworkCommentList = new ArrayList<>();
 
 
     public User(String username, String nickname, String password, UserRoleEnum userRoleEnum) {
@@ -74,8 +83,20 @@ public class User extends TimeStamped {
         this.role = role;
     }
 
-    public User kakaoIdUpdate(Long kakaoId) {
+    public User updateKakaoId(Long kakaoId) {
         this.kakaoId = kakaoId;
+        return this;
+    }
+    public User updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+        return this;
+    }
+    public User updateNickname(String nickname) {
+        this.nickname = nickname;
+        return this;
+    }
+    public User UpdatePassword(String password) {
+        this.password = password;
         return this;
     }
 

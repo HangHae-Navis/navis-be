@@ -13,19 +13,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
 
-import static com.hanghae.navis.common.entity.ExceptionMessage.DUPLICATE_RESOURCE;
-import static com.hanghae.navis.common.entity.ExceptionMessage.UNAUTHORIZED_MEMBER;
+import java.security.SignatureException;
+
+import static com.hanghae.navis.common.entity.ExceptionMessage.*;
 
 
 @Slf4j
 @RestControllerAdvice
 public class ExceptionController {
-    @ExceptionHandler(value = { ConstraintViolationException.class, DataIntegrityViolationException.class})
-    protected ResponseEntity<Message> handleDataException() {
-        log.error("handleDataException throw Exception : {}", DUPLICATE_RESOURCE);
-        return Message.toExceptionResponseEntity(DUPLICATE_RESOURCE);
-    }
-
     @ExceptionHandler(value = { CustomException.class })
     protected ResponseEntity<Message> handleCustomException(CustomException e) {
         log.error("handleCustomException throw CustomException : {}", e.getExceptionMessage());
@@ -38,10 +33,16 @@ public class ExceptionController {
         return Message.toAllExceptionResponseEntity(HttpStatus.BAD_REQUEST, ex.getFieldError().getDefaultMessage(), ex.getBindingResult().getTarget());
     }
 
-    //마이리스트 토큰 없을시
+    //jwt 토큰 시간 없을시
     @ExceptionHandler({MissingRequestHeaderException.class})
     public ResponseEntity<Message> missingRequestHeaderException(MissingRequestHeaderException ex) {
         return Message.toAllExceptionResponseEntity(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_MEMBER.getDetail(), null);
+    }
+
+    //마이리스트 토큰 없을시
+    @ExceptionHandler({SignatureException.class})
+    public ResponseEntity<Message> signatureException(SignatureException ex) {
+        return Message.toAllExceptionResponseEntity(HttpStatus.UNAUTHORIZED, INVALID_TOKEN.getDetail(), null);
     }
     // 500
     @ExceptionHandler({Exception.class})

@@ -1,51 +1,76 @@
 package com.hanghae.navis.board.controller;
 
 import com.hanghae.navis.board.dto.BoardRequestDto;
-import com.hanghae.navis.board.dto.BoardResponseDto;
 import com.hanghae.navis.board.service.BoardService;
+import com.hanghae.navis.common.annotation.ApiRateLimiter;
+import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.validation.Valid;
 
 @Tag(name = "board")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/boards")
+@RequestMapping("/api/{groupId}/boards")
 public class BoardController {
-    private BoardService boardService;
+    private final BoardService boardService;
 
-    @GetMapping("/")
+    @GetMapping("")
     @Operation(summary = "게시글 목록", description = "게시글 목록")
-    public List<BoardResponseDto> boardlist(@Parameter(hidden = true)@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return null;
+    public ResponseEntity<Message> boardList(@PathVariable Long groupId,
+                                             @RequestParam int page,
+                                             @RequestParam int size,
+                                             @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.boardList(groupId, page-1, size, userDetails.getUser());
     }
 
-    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "게시글 등록", description = "게시글 등록")
-    public BoardResponseDto createBoard(@ModelAttribute BoardRequestDto requestDto,
-                                        @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return null;
+    @GetMapping("/{boardId}")
+    @Operation(summary = "게시글 상세 조회", description = "게시글 상세 조회")
+    public ResponseEntity<Message> getBoard(@PathVariable Long groupId, @PathVariable Long boardId,
+                                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.getBoard(groupId, boardId, userDetails.getUser());
     }
 
-    @PutMapping("/{boardId}")
-    @Operation(summary = "게시글 수정" ,description = "게시글 수정")
-    public BoardResponseDto updateBoard(@PathVariable Long boardId,
-                                        @ModelAttribute BoardRequestDto requestDto,
-                                        @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return null;
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "게시글 등록", description = "게시글 등록, 파일 다중 업로드")
+    @ApiRateLimiter(key = "createBoard" + "#{request.remoteAddr}", limit = 1, seconds = 1)
+    public ResponseEntity<Message> createBoard(@PathVariable Long groupId,
+                                               @Valid @ModelAttribute BoardRequestDto requestDto,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.createBoard(groupId, requestDto, userDetails.getUser());
+    }
+
+    @PutMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "게시글 수정", description = "게시글 수정")
+    @ApiRateLimiter(key = "updateBoard" + "#{request.remoteAddr}", limit = 1, seconds = 1)
+    public ResponseEntity<Message> updateBoard(@PathVariable Long groupId,
+                                               @PathVariable Long boardId,
+                                               @Valid @ModelAttribute BoardRequestDto requestDto,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.updateBoard(groupId, boardId, requestDto, userDetails.getUser());
     }
 
     @DeleteMapping("/{boardId}")
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
-    public void deleteBoard(@PathVariable Long boardId,
-                            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return;
+    public ResponseEntity<Message> deleteBoard(@PathVariable Long groupId,
+                                               @PathVariable Long boardId,
+                                               @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return boardService.deleteBoard(groupId, boardId, userDetails.getUser());
     }
+
+//    @DeleteMapping("/hashtag/{hashtagId}")
+//    @Operation(summary = "해시태그 삭제", description = "해시태그 삭제")
+//    public ResponseEntity<Message> deleteHashtag(@PathVariable Long groupId,
+//                                                 @PathVariable Long hashtagId,
+//                                                 @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        return boardService.deleteHashtag(groupId, hashtagId, userDetails.getUser());
+//    }
 }
