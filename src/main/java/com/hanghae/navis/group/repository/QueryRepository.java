@@ -1,7 +1,6 @@
 package com.hanghae.navis.group.repository;
 
 import com.hanghae.navis.common.dto.CustomException;
-import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.ExceptionMessage;
 import com.hanghae.navis.common.entity.QBasicBoard;
 import com.hanghae.navis.group.dto.GroupResponseDto;
@@ -10,9 +9,6 @@ import com.hanghae.navis.group.entity.*;
 import com.hanghae.navis.user.entity.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.SubQueryExpression;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
