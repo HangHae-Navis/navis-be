@@ -40,11 +40,11 @@ public class NotificationService {
     private final NotificationQueryDslRepository notificationQueryDslRepository;
     private final EmitterRepository emitterRepository;
     private final UserRepository userRepository;
-    private Long DEFAULT_TIMEOUT = 60L * 1000L * 60L;
+    private Long DEFAULT_TIMEOUT = 60L * 1000L * 45L;
 
     @Transactional
     public SseEmitter subscribe(User user, String lastEventId) {
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
+        user = userRepository.findById(user.getId()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         Long memberId = user.getId();
@@ -106,12 +106,14 @@ public class NotificationService {
             emitters = emitterRepository.findAllEmitterStartWithByUserId(String.valueOf(receiver.getId()));
         } else {
             List<GroupMember> groupMemberList = group.getGroupMember();
+            List<Notification> notificationList = new ArrayList<>();
             for (GroupMember groupMember : groupMemberList) {
                 if (!receiver.equals(groupMember.getUser())) {
-                    notificationRepository.save(createNotification(groupMember.getUser(), notificationType, content, url));
+                    notificationList.add(createNotification(groupMember.getUser(), notificationType, content, url));
                 }
                 emitters.putAll(emitterRepository.findAllEmitterStartWithByUserId(String.valueOf(groupMember.getUser().getId())));
             }
+            notificationRepository.saveAll(notificationList);
         }
 
 
