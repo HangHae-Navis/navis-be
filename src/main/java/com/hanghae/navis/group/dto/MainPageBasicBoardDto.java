@@ -1,9 +1,7 @@
 package com.hanghae.navis.group.dto;
 
-import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.Hashtag;
-import com.hanghae.navis.homework.entity.Homework;
 import lombok.*;
 import org.springframework.data.domain.Page;
 

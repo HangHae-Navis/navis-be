@@ -1,6 +1,5 @@
 package com.hanghae.navis.group.service;
 
-import com.hanghae.navis.board.repository.BoardRepository;
 import com.hanghae.navis.common.config.S3Uploader;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
@@ -20,7 +19,6 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -135,7 +130,6 @@ public class GroupService {
         Page<GroupResponseDto> groupResponseDtoPage = queryRepository.findAllGroupByUserId(user.getId(), category, pageable);
 
         //24시간 이내 마감이 있는 그룹일 경우 마감 개수 및 가장 급한것 하나 시간, 제목 노출
-        //todo 나중에 쿼리문으로 리팩토링 시도 예정
         for(GroupResponseDto g : groupResponseDtoPage) {
             Group group = groupRepository.findById(g.getGroupId()).get();
             Long deadlineNumber = homeworkRepository.countByExpirationDateBetweenAndGroup

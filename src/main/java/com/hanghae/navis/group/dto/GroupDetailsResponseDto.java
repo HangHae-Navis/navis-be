@@ -1,14 +1,11 @@
 package com.hanghae.navis.group.dto;
 
 import com.hanghae.navis.group.entity.Group;
-import com.hanghae.navis.group.entity.GroupMember;
-import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

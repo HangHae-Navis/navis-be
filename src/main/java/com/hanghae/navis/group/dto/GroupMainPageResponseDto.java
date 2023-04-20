@@ -3,7 +3,6 @@ package com.hanghae.navis.group.dto;
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.entity.GroupMemberRoleEnum;
-import com.hanghae.navis.group.entity.RecentlyViewed;
 import com.hanghae.navis.homework.entity.Homework;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

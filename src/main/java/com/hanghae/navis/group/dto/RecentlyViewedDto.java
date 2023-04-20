@@ -1,11 +1,7 @@
 package com.hanghae.navis.group.dto;
 
 import com.hanghae.navis.common.entity.BasicBoard;
-import com.hanghae.navis.group.entity.RecentlyViewed;
 import lombok.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
