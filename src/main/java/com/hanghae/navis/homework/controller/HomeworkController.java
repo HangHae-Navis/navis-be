@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
 
 @Tag(name = "homework")
 @RestController
@@ -27,9 +26,6 @@ import java.io.IOException;
 @RequestMapping("/api/{groupId}/homeworks")
 public class HomeworkController {
     private final HomeworkService homeworkService;
-
-    @Autowired
-    private HttpServletRequest request;
 
     @Operation(summary = "과제 게시글 리스트", description = "과제 게시글 리스트")
     @GetMapping("")
@@ -108,8 +104,8 @@ public class HomeworkController {
     }
 
 //    @Operation(summary = "제출된 과제 파일 다운로드", description = "제출된 과제 파일 다운로드")
-//    @PostMapping("/{boardId}/download/{fileName}")
-//    public ResponseEntity<Message> downloadFile(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable String fileName) throws IOException {
-//        return homeworkService.downloadFile(groupId, boardId, fileName);
+//    @PostMapping("/{boardId}/download/{storedFileName}")
+//    public ResponseEntity<Message> downloadFile(@PathVariable Long groupId, @PathVariable Long boardId, @PathVariable String storedFileName) throws IOException {
+//        return homeworkService.downloadFile(groupId, boardId, storedFileName);
 //    }
 }

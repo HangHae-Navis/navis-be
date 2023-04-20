@@ -89,19 +89,13 @@ public class HomeworkService {
 
     @Transactional
     public ResponseEntity<Message> getHomework(Long groupId, Long boardId, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
+        UserGroup userGroup = authCheck(groupId, user);
 
         Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
@@ -234,7 +228,6 @@ public class HomeworkService {
 
             List<GroupMember> groupMemberList = groupMemberRepository.findAllByGroupId(groupId);
 
-
             notificationService.send(user, NotificationType.HOMEWORK_POST,  group.getGroupName() + "에서 " + NotificationType.HOMEWORK_POST.getContent(), "http://navis.kro.kr/party/detail?groupId=" + groupId + "&detailId=" + homework.getId() + "&dtype=homework", group);
 
             return Message.toResponseEntity(SuccessMessage.BOARD_POST_SUCCESS, responseDto);
@@ -246,19 +239,13 @@ public class HomeworkService {
 
     @Transactional
     public ResponseEntity<Message> updateHomework(Long groupId, Long boardId, HomeworkRequestDto requestDto, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
+        UserGroup userGroup = authCheck(groupId, user);
 
         Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
@@ -270,7 +257,7 @@ public class HomeworkService {
 
         boolean author = user.equals(homework.getUser());
 
-        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+        if (groupMember.getGroupRole().equals(GroupMemberRoleEnum.USER)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
@@ -336,19 +323,13 @@ public class HomeworkService {
 
     @Transactional
     public ResponseEntity<Message> deleteHomework(Long groupId, Long boardId, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
+        UserGroup userGroup = authCheck(groupId, user);
 
         Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
         );
 
-        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
@@ -378,20 +359,10 @@ public class HomeworkService {
     @Transactional
     public ResponseEntity<Message> submitHomework(Long groupId, Long boardId, HomeworkFileRequestDto requestDto, User user) {
         try {
-            Group group = groupRepository.findById(groupId).orElseThrow(
-                    () -> new CustomException(GROUP_NOT_FOUND)
-            );
-
-            user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                    () -> new CustomException(MEMBER_NOT_FOUND)
-            );
+            UserGroup userGroup = authCheck(groupId, user);
 
             Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                     () -> new CustomException(BOARD_NOT_FOUND)
-            );
-
-            GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
-                    () -> new CustomException(GROUP_NOT_JOINED)
             );
 
             HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
@@ -403,9 +374,9 @@ public class HomeworkService {
             HomeworkSubject subject = new HomeworkSubject();
 
             if (expirationCheck(homework.getExpirationDate()) == true) {
-                subject = new HomeworkSubject(true, true, false, user, group, homework);
+                subject = new HomeworkSubject(true, true, false, userGroup.getUser(), userGroup.getGroup(), homework);
             } else {
-                subject = new HomeworkSubject(true, false, false, user, group, homework);
+                subject = new HomeworkSubject(true, false, false, userGroup.getUser(), userGroup.getGroup(), homework);
             }
             homeworkSubjectRepository.save(subject);
 
@@ -434,20 +405,10 @@ public class HomeworkService {
     @Transactional
     public ResponseEntity<Message> updateHomeworkSubject(Long groupId, Long boardId, HomeworkFileRequestDto requestDto, User user) {
         try {
-            Group group = groupRepository.findById(groupId).orElseThrow(
-                    () -> new CustomException(GROUP_NOT_FOUND)
-            );
+            UserGroup userGroup = authCheck(groupId, user);
 
             Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                     () -> new CustomException(BOARD_NOT_FOUND)
-            );
-
-            user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                    () -> new CustomException(MEMBER_NOT_FOUND)
-            );
-
-            GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
-                    () -> new CustomException(MEMBER_NOT_FOUND)
             );
 
             HomeworkSubject subject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
@@ -493,20 +454,10 @@ public class HomeworkService {
 
     @Transactional
     public ResponseEntity<Message> submitCancel(Long groupId, Long boardId, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
+        UserGroup userGroup = authCheck(groupId, user);
 
         Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
-        );
-
-        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
-                () -> new CustomException(GROUP_NOT_JOINED)
         );
 
         HomeworkSubject homeworkSubject = homeworkSubjectRepository.findByUserIdAndGroupIdAndHomeworkId(user.getId(), groupId, homework.getId());
@@ -535,27 +486,21 @@ public class HomeworkService {
 
     @Transactional
     public ResponseEntity<Message> homeworkFeedback(Long groupId, Long boardId, Long subjectId, FeedbackRequestDto requestDto, User user) {
-        Group group = groupRepository.findById(groupId).orElseThrow(
-                () -> new CustomException(GROUP_NOT_FOUND)
-        );
+        UserGroup userGroup = authCheck(groupId, user);
 
         Homework homework = homeworkRepository.findById(boardId).orElseThrow(
                 () -> new CustomException(BOARD_NOT_FOUND)
-        );
-
-        user = userRepository.findByUsername(user.getUsername()).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
         HomeworkSubject subject = homeworkSubjectRepository.findById(subjectId).orElseThrow(
                 () -> new CustomException(HOMEWORK_FILE_NOT_FOUND)
         );
 
-        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(user, group).orElseThrow(
+        GroupMember groupMember = groupMemberRepository.findByUserAndGroup(userGroup.getUser(), userGroup.getGroup()).orElseThrow(
                 () -> new CustomException(GROUP_NOT_JOINED)
         );
 
-        if (!groupMember.getGroupRole().equals(GroupMemberRoleEnum.ADMIN) && !groupMember.getGroupRole().equals(GroupMemberRoleEnum.SUPPORT)) {
+        if (groupMember.getGroupRole().equals(GroupMemberRoleEnum.USER)) {
             throw new CustomException(ADMIN_ONLY);
         }
 
@@ -584,6 +529,22 @@ public class HomeworkService {
 //        return Message.toResponseEntity(FILE_DOWNLOAD_SUCCESS);
 //    }
 
+    public UserGroup authCheck(Long groupId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new CustomException(GROUP_NOT_FOUND)
+        );
+
+        User me = userRepository.findByUsername(user.getUsername()).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        if (!groupMemberRepository.findByUserAndGroup(me, group).isPresent()) {
+            throw new CustomException(GROUP_MEMBER_NOT_FOUND);
+        }
+
+        return new UserGroup(me, group);
+    }
+
     public LocalDateTime unixTimeToLocalDateTime(Long unixTime) {
         return LocalDateTime.ofEpochSecond(unixTime, 6, ZoneId.of("Asia/Seoul").getRules().getOffset(Instant.now()));
     }
@@ -591,7 +552,6 @@ public class HomeworkService {
     public boolean expirationCheck(LocalDateTime dbTime) {
         return LocalDateTime.now().isAfter(dbTime);
     }
-
 
     //회원 탈퇴 전용
     @Transactional

@@ -1,14 +1,10 @@
 package com.hanghae.navis.homework.dto;
 
-import com.hanghae.navis.board.dto.BoardListResponseDto;
-import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.common.dto.HashtagResponseDto;
 import com.hanghae.navis.common.entity.Hashtag;
 import com.hanghae.navis.homework.entity.Homework;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;

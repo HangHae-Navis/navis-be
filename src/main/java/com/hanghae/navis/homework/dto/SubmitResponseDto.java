@@ -1,9 +1,6 @@
 package com.hanghae.navis.homework.dto;
 
-import com.hanghae.navis.homework.entity.Feedback;
-import com.hanghae.navis.homework.entity.Homework;
 import com.hanghae.navis.homework.entity.HomeworkSubject;
-import com.hanghae.navis.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

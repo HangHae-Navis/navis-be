@@ -1,5 +1,6 @@
 package com.hanghae.navis.common.config;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
@@ -24,6 +25,7 @@ import java.util.UUID;
 public class S3Service  {
 
     private final AmazonS3Client amazonS3Client;
+    private final AmazonS3 amazonS3;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -74,18 +76,30 @@ public class S3Service  {
     }
 
     //파일 다운로드
-    public ResponseEntity<byte[]> getObject(String storedFileName) throws IOException {
-        S3Object o = amazonS3Client.getObject(new GetObjectRequest(bucket, storedFileName));
-        S3ObjectInputStream objectInputStream = ((S3Object) o).getObjectContent();
-        byte[] bytes = IOUtils.toByteArray(objectInputStream);
+    public ResponseEntity<byte[]> getObject(String fileName) {
+        try {
+            // bucket과 storedFileName을 사용해서 S3에 있는 객체를 가져옴
+            S3Object o = amazonS3.getObject(new GetObjectRequest(bucket, fileName));
 
-        String fileName = URLEncoder.encode(storedFileName, "UTF-8").replaceAll("\\+", "%20");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        httpHeaders.setContentLength(bytes.length);
-        httpHeaders.setContentDispositionFormData("attachment", fileName);
+            //객체를 S3ObjectInputStream 형태로 변환
+            S3ObjectInputStream objectInputStream = o.getObjectContent();
 
-        return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
+            //byte 배열 형태로 반환
+            byte[] bytes = IOUtils.toByteArray(objectInputStream);
 
+            HttpHeaders httpHeaders = new HttpHeaders();
+
+            //다운로드 받을 파일 형식
+            httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            httpHeaders.setContentLength(bytes.length);
+            //다운로드 받을 때 보여질 파일의 이름
+            httpHeaders.setContentDispositionFormData("attachment", fileName);
+
+            return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
+        } catch (IOException | AmazonS3Exception e) {
+            // 예외 처리
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
