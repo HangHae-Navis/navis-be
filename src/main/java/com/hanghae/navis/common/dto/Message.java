@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 @Builder
-@NoArgsConstructor
 public class Message<T> {
 
     private boolean status;

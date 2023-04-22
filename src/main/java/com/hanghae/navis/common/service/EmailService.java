@@ -1,4 +1,4 @@
-package com.hanghae.navis.email.service;
+package com.hanghae.navis.common.service;
 
 import java.util.Random;
 

@@ -1,4 +1,4 @@
-package com.hanghae.navis.comment.dto;
+package com.hanghae.navis.common.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package com.hanghae.navis.comment.repository;
+package com.hanghae.navis.common.repository;
 
 import com.hanghae.navis.common.entity.Comment;
 import org.springframework.data.domain.Page;

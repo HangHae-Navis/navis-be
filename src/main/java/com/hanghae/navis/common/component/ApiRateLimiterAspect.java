@@ -20,8 +20,6 @@ import java.util.concurrent.TimeUnit;
 @Aspect
 @RequiredArgsConstructor
 public class ApiRateLimiterAspect {
-
-    @Autowired
     private RedisTemplate<String, Integer> redisTemplate;
 
     @Around("@annotation(apiRateLimiter)")

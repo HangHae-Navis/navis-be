@@ -1,16 +1,14 @@
-package com.hanghae.navis.email.controller;
+package com.hanghae.navis.common.controller;
 
 import com.hanghae.navis.common.annotation.ApiRateLimiter;
 import com.hanghae.navis.common.dto.Message;
-import com.hanghae.navis.email.service.EmailService;
+import com.hanghae.navis.common.service.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.constraints.Email;
 
 @Tag(name = "email")
 @Controller

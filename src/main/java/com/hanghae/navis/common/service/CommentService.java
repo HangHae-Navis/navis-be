@@ -1,10 +1,10 @@
-package com.hanghae.navis.comment.service;
+package com.hanghae.navis.common.service;
 
 import com.hanghae.navis.common.entity.BasicBoard;
 import com.hanghae.navis.common.entity.Comment;
-import com.hanghae.navis.comment.dto.CommentRequestDto;
-import com.hanghae.navis.comment.dto.CommentResponseDto;
-import com.hanghae.navis.comment.repository.CommentRepository;
+import com.hanghae.navis.common.dto.CommentRequestDto;
+import com.hanghae.navis.common.dto.CommentResponseDto;
+import com.hanghae.navis.common.repository.CommentRepository;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.repository.BasicBoardRepository;

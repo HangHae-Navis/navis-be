@@ -1,9 +1,7 @@
 package com.hanghae.navis.messenger.service;
 
-import com.hanghae.navis.comment.dto.CommentResponseDto;
 import com.hanghae.navis.common.dto.CustomException;
 import com.hanghae.navis.common.dto.Message;
-import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.messenger.dto.*;
 import com.hanghae.navis.messenger.entity.Messenger;
@@ -15,8 +13,6 @@ import com.hanghae.navis.notification.entity.NotificationType;
 import com.hanghae.navis.notification.service.NotificationService;
 import com.hanghae.navis.user.entity.User;
 import com.hanghae.navis.user.repository.UserRepository;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;

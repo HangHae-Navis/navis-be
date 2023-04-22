@@ -1,9 +1,7 @@
-package com.hanghae.navis.comment.controller;
+package com.hanghae.navis.common.controller;
 
-import com.amazonaws.Response;
-import com.hanghae.navis.comment.dto.CommentRequestDto;
-import com.hanghae.navis.comment.dto.CommentResponseDto;
-import com.hanghae.navis.comment.service.CommentService;
+import com.hanghae.navis.common.dto.CommentRequestDto;
+import com.hanghae.navis.common.service.CommentService;
 import com.hanghae.navis.common.annotation.ApiRateLimiter;
 import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.security.UserDetailsImpl;
@@ -14,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "comment")
 @RestController

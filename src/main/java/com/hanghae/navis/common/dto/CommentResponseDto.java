@@ -1,4 +1,4 @@
-package com.hanghae.navis.comment.dto;
+package com.hanghae.navis.common.dto;
 
 import com.hanghae.navis.common.entity.Comment;
 import com.hanghae.navis.user.entity.User;

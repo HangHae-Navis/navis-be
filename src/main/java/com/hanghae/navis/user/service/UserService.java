@@ -6,7 +6,7 @@ import com.hanghae.navis.common.dto.Message;
 import com.hanghae.navis.common.jwt.JwtUtil;
 import com.hanghae.navis.common.repository.BasicBoardRepository;
 import com.hanghae.navis.common.util.RedisUtil;
-import com.hanghae.navis.email.service.EmailService;
+import com.hanghae.navis.common.service.EmailService;
 import com.hanghae.navis.group.dto.ApplyRequestDto;
 import com.hanghae.navis.group.entity.Group;
 import com.hanghae.navis.group.service.GroupService;

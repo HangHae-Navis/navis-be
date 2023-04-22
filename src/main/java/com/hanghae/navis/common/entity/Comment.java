@@ -1,8 +1,6 @@
 package com.hanghae.navis.common.entity;
 
-import com.hanghae.navis.board.entity.Board;
-import com.hanghae.navis.comment.dto.CommentRequestDto;
-import com.hanghae.navis.common.entity.TimeStamped;
+import com.hanghae.navis.common.dto.CommentRequestDto;
 import com.hanghae.navis.user.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

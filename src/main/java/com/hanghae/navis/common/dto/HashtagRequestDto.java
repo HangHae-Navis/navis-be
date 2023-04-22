@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
 public class HashtagRequestDto {
     private String hashtag;
 
