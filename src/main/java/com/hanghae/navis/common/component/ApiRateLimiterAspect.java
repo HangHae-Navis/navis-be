@@ -31,7 +31,6 @@ public class ApiRateLimiterAspect {
         int limit = apiRateLimiter.limit();
         int seconds = apiRateLimiter.seconds();
 
-        // Calculate the remaining number of requests for this second
         long second = Instant.now().getEpochSecond();
         String redisKey = String.format("%s:%d", key, second);
         Integer requestCount = redisTemplate.opsForValue().get(redisKey);
@@ -40,16 +39,13 @@ public class ApiRateLimiterAspect {
         }
         int remaining = Math.max(0, limit - requestCount);
 
-        // Return error response if the limit has been exceeded
         if (remaining <= 0) {
             throw new CustomException(ExceptionMessage.TOO_MANY_REQUEST);
         }
 
-        // Update the number of requests for this second and set the expiration time
         redisTemplate.opsForValue().increment(redisKey, 1);
         redisTemplate.expire(redisKey, seconds, TimeUnit.SECONDS);
 
-        // Proceed with the actual API request
         Object result = joinPoint.proceed();
         return result;
     }
